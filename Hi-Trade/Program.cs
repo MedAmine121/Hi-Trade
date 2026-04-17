@@ -6,6 +6,7 @@ using Hi_Trade.Models.Common;
 using Hi_Trade.Models.Requests;
 using Hi_Trade.Models.Validators;
 using Hi_Trade.Services.DI;
+using Hi_Trade.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -65,6 +66,8 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseCors("MyAllowSpecificOrigins");
+
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseAuthorization();
 

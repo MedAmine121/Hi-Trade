@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Hi-Trade.BLL\Hi-Trade.BLL.csproj" />
     <ProjectReference Include="..\Hi-Trade.Models\Hi-Trade.Models.csproj" />
   </ItemGroup>

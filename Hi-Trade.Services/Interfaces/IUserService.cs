@@ -7,5 +7,6 @@ namespace Hi_Trade.Services.Interfaces
     public interface IUserService
     {
         Task<BaseResult<UserDTO>> CreateUser(CreateUserRequest request, CancellationToken ct);
+        Task<BaseResult<UserDTO>> LoginUser(LoginUserRequest request, CancellationToken ct);
     }
 }

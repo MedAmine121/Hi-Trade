@@ -40,5 +40,40 @@ namespace Hi_Trade.Services.Services
                 };
             }
         }
+        public async Task<BaseResult<UserDTO>> LoginUser(LoginUserRequest request, CancellationToken ct)
+        {
+            try
+            {
+                UserDTO? user = await hiTradeBLL.LoginUser(request, ct);
+                if (user != null)
+                {
+                    user = tokenBLL.GenerateJwtToken(user);
+                }
+                else
+                {
+                    return new BaseResult<UserDTO>
+                    {
+                        Model = null,
+                        ResultType = ResultType.Fail,
+                        Message = "Invalid email or password"
+                    };
+                }
+                return new BaseResult<UserDTO>
+                {
+                    Model = user,
+                    ResultType = ResultType.Success
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while logging in");
+                return new BaseResult<UserDTO>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

@@ -34,5 +34,10 @@ namespace Hi_Trade.DAL
                 throw new Exception("Failed to create user.");
             }
         }
+        public async Task<User?> LoginUser(string email, CancellationToken ct)
+        {
+            User? user = await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+            return user;
+        }
     }
 }

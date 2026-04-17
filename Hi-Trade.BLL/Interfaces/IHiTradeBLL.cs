@@ -6,5 +6,6 @@ namespace Hi_Trade.BLL.Interfaces
     public interface IHiTradeBLL
     {
         Task<UserDTO> CreateUser(CreateUserRequest request, CancellationToken ct);
+        Task<UserDTO?> LoginUser(LoginUserRequest request, CancellationToken ct);
     }
 }

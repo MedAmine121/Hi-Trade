@@ -35,7 +35,28 @@ namespace Hi_Trade.BLL.BLL
                 Role = user.Role
             };
         }
-
+        public async Task<UserDTO?> LoginUser(LoginUserRequest request, CancellationToken ct)
+        {
+            var user = await hiTradeDAL.LoginUser(request.Email, ct);
+            if(user == null)
+            {
+                return null;
+            }
+            else if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
+            {
+                return null;
+            }
+            return new UserDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                    Address = user.Address,
+                    ProfilePictureUrl = user.ProfilePictureUrl,
+                    Balance = user.Balance,
+                    Role = user.Role
+                };
+        }
         private static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
