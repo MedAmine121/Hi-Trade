@@ -8,4 +8,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Hi-Trade.BLL\Hi-Trade.BLL.csproj" />
+    <ProjectReference Include="..\Hi-Trade.Models\Hi-Trade.Models.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -8,4 +8,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hi-Trade.DAL\Hi-Trade.DAL.csproj" />
+    <ProjectReference Include="..\Hi-Trade.Models\Hi-Trade.Models.csproj" />
+  </ItemGroup>
+
 </Project>
