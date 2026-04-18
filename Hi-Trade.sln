@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36930.0 d17.14
+VisualStudioVersion = 17.14.36930.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hi-Trade", "Hi-Trade\Hi-Trade.csproj", "{6B1451E9-CB69-4DC3-8A86-B16AEE264CD5}"
 EndProject
@@ -10,8 +10,21 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hi-Trade.Models", "Hi-Trade.Models\Hi-Trade.Models.csproj", "{E3B6664D-5040-4A17-92A0-732E971561CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hi-Trade.BLL", "Hi-Trade.BLL\Hi-Trade.BLL.csproj", "{C627F0B8-88E7-43A1-8721-3668ABF84192}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0DC1481D-0119-4569-B418-939581541340} = {0DC1481D-0119-4569-B418-939581541340}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hi-Trade.DAL", "Hi-Trade.DAL\Hi-Trade.DAL.csproj", "{0DC1481D-0119-4569-B418-939581541340}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0_DAL", "0_DAL", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1_BLL", "1_BLL", "{5F7B8311-9348-4E47-B203-ECB90B21A180}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3_Services", "3_Services", "{B4DFD19E-813A-4F4F-B314-4DEA881081CA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4_API", "4_API", "{7AACCF3C-07A9-43B5-9314-C39D26877E51}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2_Models", "2_Models", "{0443BB58-7FE4-4B50-B517-ED1ADEBF0D23}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +55,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6B1451E9-CB69-4DC3-8A86-B16AEE264CD5} = {7AACCF3C-07A9-43B5-9314-C39D26877E51}
+		{C3235B02-D89B-40C1-A141-937C1252479C} = {B4DFD19E-813A-4F4F-B314-4DEA881081CA}
+		{E3B6664D-5040-4A17-92A0-732E971561CE} = {0443BB58-7FE4-4B50-B517-ED1ADEBF0D23}
+		{C627F0B8-88E7-43A1-8721-3668ABF84192} = {5F7B8311-9348-4E47-B203-ECB90B21A180}
+		{0DC1481D-0119-4569-B418-939581541340} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {72B0D449-DE97-42CC-BD4A-86A580992606}

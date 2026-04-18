@@ -4,6 +4,7 @@ using Hi_Trade.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hi_Trade.DAL.Migrations
 {
     [DbContext(typeof(HiTradeContext))]
-    partial class HiTradeContextModelSnapshot : ModelSnapshot
+    [Migration("20260417142708_UserEntityExpand")]
+    partial class UserEntityExpand
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
