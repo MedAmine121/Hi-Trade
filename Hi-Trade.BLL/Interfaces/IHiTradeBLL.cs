@@ -9,5 +9,6 @@ namespace Hi_Trade.BLL.Interfaces
         Task<UserDTO> CreateUser(CreateUserRequest request, CancellationToken ct);
         Task<UserDTO?> LoginUser(LoginUserRequest request, CancellationToken ct);
         Task<SaveResponse> CreateAsset(CreateAssetRequest request, CancellationToken ct);
+        Task UpdateAssetPrices(CancellationToken ct);
     }
 }

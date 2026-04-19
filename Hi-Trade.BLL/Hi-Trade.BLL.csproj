@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Hi-Trade.Common\Hi-Trade.Common.csproj" />
     <ProjectReference Include="..\Hi-Trade.DAL\Hi-Trade.DAL.csproj" />
     <ProjectReference Include="..\Hi-Trade.Models\Hi-Trade.Models.csproj" />
   </ItemGroup>

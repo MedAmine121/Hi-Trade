@@ -55,6 +55,7 @@ builder.Services
     .AddBLLServices()
     .RegisterValidators()
     .AddServices();
+builder.Services.AddHostedService<PriceBackgroundService>();
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {

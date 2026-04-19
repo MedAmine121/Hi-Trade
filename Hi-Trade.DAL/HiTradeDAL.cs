@@ -61,5 +61,24 @@ namespace Hi_Trade.DAL
                 throw new Exception("Failed to create asset.");
             }
         }
+        public async Task<List<Asset>> GetAllAssets(CancellationToken ct)
+        {
+            return await context.Assets.ToListAsync(ct);
+        }
+        public async Task UpdateAssetPrice(int assetId, decimal newPrice, CancellationToken ct)
+        {
+            var asset = await context.Assets.FirstOrDefaultAsync(a => a.Id == assetId, ct);
+            if (asset == null)
+            {
+                throw new Exception("Asset not found.");
+            }
+            asset.CurrentPrice = newPrice;
+            context.Assets.Update(asset);
+            int result = await context.SaveChangesAsync(ct);
+            if (result <= 0)
+            {
+                throw new Exception("Failed to update asset price.");
+            }
+        }
     }
 }
