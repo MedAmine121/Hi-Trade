@@ -7,5 +7,6 @@ namespace Hi_Trade.DAL
     {
         Task<User> CreateUser(string email, string password, string fullName, string address, CancellationToken ct);
         Task<User?> LoginUser(string email, CancellationToken ct);
+        Task<Asset> CreateAsset(string ticker, string name, CancellationToken ct);
     }
 }

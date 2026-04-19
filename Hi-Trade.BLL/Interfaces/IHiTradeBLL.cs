@@ -1,4 +1,5 @@
-﻿using Hi_Trade.Models.Requests;
+﻿using Hi_Trade.Models.Common;
+using Hi_Trade.Models.Requests;
 using Hi_Trade.Models.Responses;
 
 namespace Hi_Trade.BLL.Interfaces
@@ -7,5 +8,6 @@ namespace Hi_Trade.BLL.Interfaces
     {
         Task<UserDTO> CreateUser(CreateUserRequest request, CancellationToken ct);
         Task<UserDTO?> LoginUser(LoginUserRequest request, CancellationToken ct);
+        Task<SaveResponse> CreateAsset(CreateAssetRequest request, CancellationToken ct);
     }
 }

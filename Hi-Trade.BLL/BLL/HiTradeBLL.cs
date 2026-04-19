@@ -11,17 +11,13 @@ using Hi_Trade.DAL.Entities;
 using Hi_Trade.Models.Requests;
 using Hi_Trade.Models.Responses;
 using Hi_Trade.BLL.Interfaces;
+using Hi_Trade.Models.Common;
 namespace Hi_Trade.BLL.BLL
 {
-    public class HiTradeBLL(IHiTradeDAL hiTradeDAL, IValidator<CreateUserRequest> createUserValidator) : IHiTradeBLL
+    public class HiTradeBLL(IHiTradeDAL hiTradeDAL) : IHiTradeBLL
     {
         public async Task<UserDTO> CreateUser(CreateUserRequest request, CancellationToken ct)
         {
-            var validationResult = await createUserValidator.ValidateAsync(request, ct);
-            if (!validationResult.IsValid)
-            {
-                throw new ValidationException(validationResult.Errors);
-            }
             var hashedPassword = HashPassword(request.Password);
             var user = await hiTradeDAL.CreateUser(request.Email, hashedPassword, request.FullName, request.Address, ct);
             return new UserDTO
@@ -56,6 +52,15 @@ namespace Hi_Trade.BLL.BLL
                     Balance = user.Balance,
                     Role = user.Role
                 };
+        }
+        public async Task<SaveResponse> CreateAsset(CreateAssetRequest request, CancellationToken ct)
+        {
+            var asset = await hiTradeDAL.CreateAsset(request.Ticker, request.Name, ct);
+            return new SaveResponse
+            {
+                Success = asset != null,
+                Message = asset != null ? "Asset created successfully" : "Failed to create asset"
+            };
         }
         private static string HashPassword(string password)
         {

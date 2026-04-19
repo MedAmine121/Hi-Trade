@@ -1,4 +1,5 @@
-﻿using Hi_Trade.BLL.Interfaces;
+﻿using FluentValidation;
+using Hi_Trade.BLL.Interfaces;
 using Hi_Trade.Models.Common;
 using Hi_Trade.Models.Requests;
 using Hi_Trade.Models.Responses;
@@ -12,13 +13,13 @@ using System.Threading.Tasks;
 
 namespace Hi_Trade.Services.Services
 {
-    public class UserService(IHiTradeBLL hiTradeBLL, ITokenBLL tokenBLL, ILogger<UserService> logger) : IUserService
+    public class UserService(IHiTradeBLL hiTradeBLL, ITokenBLL tokenBLL, ILogger<UserService> logger, IServiceProvider serviceProvider) : BaseService(serviceProvider), IUserService
     {
         public async Task<BaseResult<UserDTO>> CreateUser(CreateUserRequest request, CancellationToken ct)
         {
             try
             {
-                UserDTO user = await hiTradeBLL.CreateUser(request, ct);
+                UserDTO? user = await Validate(hiTradeBLL.CreateUser!, request, ct);
                 if (user != null)
                 {
                     user = tokenBLL.GenerateJwtToken(user);
@@ -27,6 +28,16 @@ namespace Hi_Trade.Services.Services
                 {
                     Model = user,
                     ResultType = ResultType.Success
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while creating an asset");
+                return new BaseResult<UserDTO>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
                 };
             }
             catch (Exception ex)

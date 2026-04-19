@@ -16,6 +16,7 @@ namespace Hi_Trade.Models.Common
         Unauthorized = 5,
         ExpectationFailed = 6,
         PartialSuccess = 7,
-        SuccessWithWarning = 8
+        SuccessWithWarning = 8,
+        BadRequest = 9,
     }
 }

@@ -9,13 +9,13 @@ namespace Hi_Trade.Controllers
     [Route("user")]
     public class UserController(IUserService userService) : Controller
     {
-        [HttpPost("CreateUser")]
+        [HttpPost("create")]
         public async Task<BaseResult<UserDTO>> CreateUser([FromBody] CreateUserRequest request, CancellationToken ct)
         {
             return await userService.CreateUser(request, ct);
         }
 
-        [HttpPost("LoginUser")]
+        [HttpPost("login")]
         public async Task<BaseResult<UserDTO>> LoginUser([FromBody] LoginUserRequest request, CancellationToken ct)
         {
             return await userService.LoginUser(request, ct);

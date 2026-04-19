@@ -13,7 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using System.Text;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -46,14 +45,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidIssuer = builder.Configuration["JWTOptions:Issuer"],
             ValidAudience = builder.Configuration["JWTOptions:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTOptions:Secret"]))
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWTOptions:Secret"]!))
         };
     });
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
-builder.Services.AddDALServices()
-    .AddScoped<IValidator<CreateUserRequest>, CreateUserValidator>()
+builder.Services
+    .AddDALServices()
     .AddBLLServices()
+    .RegisterValidators()
     .AddServices();
 var app = builder.Build();
 if (app.Environment.IsDevelopment())

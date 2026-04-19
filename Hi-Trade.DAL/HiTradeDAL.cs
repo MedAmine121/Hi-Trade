@@ -39,5 +39,27 @@ namespace Hi_Trade.DAL
             User? user = await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
             return user;
         }
+        public async Task<Asset> CreateAsset(string ticker, string name, CancellationToken ct)
+        {
+            Asset asset = new()
+            {
+                Ticker = ticker,
+                Name = name
+            };
+            if (await context.Assets.AnyAsync(a => a.Ticker == ticker, ct))
+            {
+                throw new Exception("Asset with the same ticker already exists.");
+            }
+            context.Assets.Add(asset);
+            int result = await context.SaveChangesAsync(ct);
+            if (result > 0)
+            {
+                return asset;
+            }
+            else
+            {
+                throw new Exception("Failed to create asset.");
+            }
+        }
     }
 }
