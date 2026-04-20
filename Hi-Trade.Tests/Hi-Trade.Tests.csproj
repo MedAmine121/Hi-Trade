@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Hi_Trade.Tests</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="MSTest" Version="3.6.4" />
+    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hi-Trade.BLL\Hi-Trade.BLL.csproj" />
+    <ProjectReference Include="..\Hi-Trade.Services\Hi-Trade.Services.csproj" />
+    <ProjectReference Include="..\Hi-Trade.DAL\Hi-Trade.DAL.csproj" />
+    <ProjectReference Include="..\Hi-Trade.Models\Hi-Trade.Models.csproj" />
+    <ProjectReference Include="..\Hi-Trade.Common\Hi-Trade.Common.csproj" />
+  </ItemGroup>
+
+</Project>
