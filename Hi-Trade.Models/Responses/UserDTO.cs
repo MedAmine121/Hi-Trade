@@ -18,5 +18,6 @@ namespace Hi_Trade.Models.Responses
         public decimal Balance { get; set; } = 0;
         public Roles Role { get; set; } = Roles.User;
         public string Token { get; set; } = string.Empty;
+        public DateTime? Expires { get; set; } = null;
     }
 }

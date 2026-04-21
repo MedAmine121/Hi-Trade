@@ -39,6 +39,7 @@ namespace Hi_Trade.BLL.BLL
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
             user.Token = tokenHandler.WriteToken(token);
+            user.Expires = DateTime.UtcNow.AddMinutes(options.Value.ExpirationMinutes);
             return user;
         }
     }
