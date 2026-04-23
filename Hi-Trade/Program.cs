@@ -1,4 +1,5 @@
 using FluentValidation;
+using Hi_Trade;
 using Hi_Trade.BLL.DI;
 using Hi_Trade.DAL;
 using Hi_Trade.DAL.DI;
@@ -37,7 +38,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.Configure<JWTOptions>(builder.Configuration.GetSection("JWTOptions"));
-
+builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("Redis"));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -55,7 +56,8 @@ builder.Services
     .AddDALServices()
     .AddBLLServices()
     .RegisterValidators()
-    .AddServices();
+    .AddServices()
+    .AddTransient<RequestLoggingMiddleware>();
 builder.Services.AddHostedService<PriceBackgroundService>();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -97,9 +99,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("MyAllowSpecificOrigins");
 
-app.UseMiddleware<RequestLoggingMiddleware>();
-
 app.UseAuthorization();
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.MapControllers();
 

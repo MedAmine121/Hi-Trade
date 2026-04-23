@@ -8,5 +8,7 @@ namespace Hi_Trade.Services.Interfaces
     {
         Task<BaseResult<UserDTO>> CreateUser(CreateUserRequest request, CancellationToken ct);
         Task<BaseResult<UserDTO>> LoginUser(LoginUserRequest request, CancellationToken ct);
+        Task<bool> CheckBlacklisted(string token);
+        Task<BaseResult<SaveResponse>> LogoutUser(string token);
     }
 }
