@@ -19,10 +19,13 @@ export class AuthService {
         }
         return !!context;
     }
+    isAdmin(): boolean{
+        return false;
+    }
     getAuthHeaders(): HttpHeaders {
         const context = <Context>this.storageService.getLocalStorage(Constants.CONTEXT_KEY);
         return new HttpHeaders({
-            'Authorization': `Bearer ${context.token}`,
+            'Authorization': `Bearer ${context?.token}`,
             'Content-Type': 'application/json'
         });
     }

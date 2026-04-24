@@ -13,8 +13,8 @@ export class ApiService {
     private http = inject(HttpClient);
     private authService = inject(AuthService);
 
-    Get$<T>(endpoint: string): Observable<T> {
-        if(!this.authService.isAuthenticated){
+    Get$<T>(endpoint: string, isAnonymous: boolean = false): Observable<T> {
+        if(!this.authService.isAuthenticated() && !isAnonymous){
             window.location.href = "/" + NavConstants.login;
         }
         return this.http.get<T>(`${this.apiUrl}/${endpoint}`, {
@@ -22,7 +22,10 @@ export class ApiService {
         });
     }
 
-    Post$<T>(endpoint: string, body: any): Observable<T> {
+    Post$<T>(endpoint: string, body: any, isAnonymous: boolean = false): Observable<T> {
+        if(!this.authService.isAuthenticated() && !isAnonymous){
+            window.location.href = "/" + NavConstants.login;
+        }
         return this.http.post<T>(`${this.apiUrl}/${endpoint}`, body, {
             headers: this.authService.getAuthHeaders()
         });
