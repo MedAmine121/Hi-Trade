@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-nav-bar-component',
@@ -6,4 +7,9 @@ import { Component } from '@angular/core';
   templateUrl: './nav-bar-component.html',
   styleUrl: './nav-bar-component.css',
 })
-export class NavBarComponent {}
+export class NavBarComponent {
+  private router = inject(Router);
+  redirectTo(location: string): void{
+    this.router.navigate([location]);
+  }
+}

@@ -1,9 +1,41 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { UserBLLService } from '../../../4_BLL/user-bll.service';
+import { LoginUserRequest } from '../../../2_Models/requests/login-request.model';
+import { Context } from '../../../2_Models/responses/context.model';
+import { BaseComponent } from '../../shared/base-component/base-component';
+import { Constants } from '../../../6_Common/constants';
 
 @Component({
   selector: 'app-login-component',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
 })
-export class LoginComponent {}
+export class LoginComponent extends BaseComponent{
+  email: string = '';
+  password: string = '';
+  rememberMe: boolean = false;
+  private userService = inject(UserBLLService);
+
+  onLogin(): void {
+    if (this.email && this.password) {
+      const request = <LoginUserRequest>{
+        email: this.email,
+        password: this.password
+      }
+      this.userService.login(request).subscribe({
+        next: (response: Context | null) => {
+          if(response !== null){
+            this.notificationService.showSuccessToast('Login Successful');
+            this.storageService.setLocalStorage(Constants.CONTEXT_KEY,response);
+            this.router.navigate(['']);
+          }
+        },
+        error: (err: Error) => {
+          this.notificationService.showErrorToast('An error has occured, please try again later.');
+        }
+      })
+    }
+  }
+}

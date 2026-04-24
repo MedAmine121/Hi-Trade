@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 import { NavConstants } from '../6_Common/nav-constants';
 import { environment } from '../../../environments/environment';
+import { BaseResult } from '../2_Models/common/base-result.model';
 
 @Injectable({
     providedIn: 'root'
@@ -13,20 +14,20 @@ export class ApiService {
     private http = inject(HttpClient);
     private authService = inject(AuthService);
 
-    Get$<T>(endpoint: string, isAnonymous: boolean = false): Observable<T> {
+    Get$<T>(endpoint: string, isAnonymous: boolean = false): Observable<BaseResult<any>> {
         if(!this.authService.isAuthenticated() && !isAnonymous){
             window.location.href = "/" + NavConstants.login;
         }
-        return this.http.get<T>(`${this.apiUrl}/${endpoint}`, {
+        return this.http.get<BaseResult<any>>(`${this.apiUrl}/${endpoint}`, {
             headers: this.authService.getAuthHeaders()
         });
     }
 
-    Post$<T>(endpoint: string, body: any, isAnonymous: boolean = false): Observable<T> {
+    Post$<T>(endpoint: string, body: any, isAnonymous: boolean = false): Observable<BaseResult<any>> {
         if(!this.authService.isAuthenticated() && !isAnonymous){
             window.location.href = "/" + NavConstants.login;
         }
-        return this.http.post<T>(`${this.apiUrl}/${endpoint}`, body, {
+        return this.http.post<BaseResult<any>>(`${this.apiUrl}/${endpoint}`, body, {
             headers: this.authService.getAuthHeaders()
         });
     }

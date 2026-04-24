@@ -1,3 +1,5 @@
 export const NavConstants = {
-    login: 'login'
+    login: 'login',
+    signup: 'signup',
+    logout: 'logout'
 }
