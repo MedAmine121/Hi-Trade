@@ -6,6 +6,7 @@ import { Observable } from "rxjs";
 import { ApiService } from "../1_Services/api.service";
 import { BaseDALService } from "./base-dal.service";
 import { SaveResponse } from "../2_Models/common/save-response.model";
+import { CreateUserRequest } from "../2_Models/requests/create-user-request.model";
 
 @Injectable({
     providedIn: 'root'
@@ -18,5 +19,8 @@ export class UserDALService extends BaseDALService {
     }
     logout() : Observable<BaseResult<SaveResponse>>{
         return this.SendPost$('logout', null);
+    }
+    signup(request: CreateUserRequest) : Observable<BaseResult<Context>>{
+        return this.SendPost$('signup', request, true);
     }
 }

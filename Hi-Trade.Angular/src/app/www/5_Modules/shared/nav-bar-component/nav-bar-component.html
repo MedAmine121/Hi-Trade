@@ -1,6 +1,6 @@
 <nav class="navbar">
     <div class="navbar-container">
-        <div class="navbar-logo">
+        <div class="navbar-logo" (click)="redirectTo([navConstants.home])">
             <span class="logo-icon">📈</span>
             <span class="logo-text">Hi-Trade</span>
         </div>
@@ -11,8 +11,38 @@
             <li><a href="#contact">Contact</a></li>
         </ul>
         <div class="nav-buttons">
-            <button class="btn-login" (click)="redirectTo('login')">Login</button>
-            <button class="btn-signup" (click)="redirectTo('signup')">Sign Up</button>
+            @if (isAuthenticated) {
+                <!-- User Profile Avatar -->
+                <div class="profile-menu">
+                    <button class="avatar-button" (click)="toggleProfileDropdown()" title="Profile">
+                        <div class="avatar">{{ userAvatar }}</div>
+                    </button>
+                    
+                    @if (showProfileDropdown) {
+                        <div class="profile-dropdown" (click)="$event.stopPropagation()">
+                            <div class="dropdown-header">
+                                <div class="avatar-large">{{ userAvatar }}</div>
+                                <div class="user-info">
+                                    <p class="user-name">{{ userName }}</p>
+                                    <p class="user-label">Trader</p>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <ul class="dropdown-menu">
+                                <li><a href="#" (click)="closeProfileDropdown()">Profile</a></li>
+                                <li><a href="#" (click)="closeProfileDropdown()">Settings</a></li>
+                                <li><a href="#" (click)="closeProfileDropdown()">Portfolio</a></li>
+                            </ul>
+                            <div class="dropdown-divider"></div>
+                            <button class="logout-button" (click)="onLogout()">Logout</button>
+                        </div>
+                    }
+                </div>
+            } @else {
+                <!-- Login/Signup Buttons -->
+                <button class="btn-login" (click)="redirectTo([navConstants.login])">Login</button>
+                <button class="btn-signup" (click)="redirectTo([navConstants.signup])">Sign Up</button>
+            }
         </div>
     </div>
 </nav>

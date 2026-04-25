@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { NotificationService } from '../../../1_Services/notification.service';
 import { StorageService } from '../../../1_Services/storage.service';
 import { Router } from '@angular/router';
+import { Constants } from '../../../6_Common/constants';
+import { NavConstants } from '../../../6_Common/nav-constants';
 
 @Component({
   selector: 'app-base-component',
@@ -13,4 +15,9 @@ export class BaseComponent {
   protected notificationService = inject(NotificationService);
   protected storageService = inject(StorageService);
   protected router = inject(Router);
+  constants = Constants;
+  navConstants = NavConstants;
+  redirectTo(route: string[]): void {
+    this.router.navigate(route);
+  }
 }

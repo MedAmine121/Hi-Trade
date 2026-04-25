@@ -1,7 +1,8 @@
+<app-nav-bar-component></app-nav-bar-component>
 <div class="login-container">
   <div class="login-wrapper">
     <!-- Logo Section -->
-    <div class="logo-section">
+    <div class="logo-section" (click)="redirectTo([navConstants.home])">
       <div class="logo-icon">📈</div>
       <span class="logo-text">Hi-Trade</span>
     </div>
@@ -55,7 +56,7 @@
 
       <!-- Sign Up Link -->
       <p class="signup-link">
-        Don't have an account? <a href="#">Sign up here</a>
+        Don't have an account? <a (click)="redirectTo([navConstants.signup])">Sign up here</a>
       </p>
     </div>
   </div>

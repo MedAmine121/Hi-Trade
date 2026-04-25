@@ -3,6 +3,7 @@ import { HomeComponent } from './www/5_Modules/home/home-component/home-componen
 import { NavConstants } from './www/6_Common/nav-constants';
 import { LoginComponent } from './www/5_Modules/user/login-component/login-component';
 import { LogoutComponent } from './www/5_Modules/user/logout-component/logout-component';
+import { SignupComponent } from './www/5_Modules/user/signup-component/signup-component';
 
 export const routes: Routes = [
     {
@@ -15,7 +16,7 @@ export const routes: Routes = [
     },
     {
         path: NavConstants.signup,
-        component: LoginComponent
+        component: SignupComponent
     },
     {
         path: NavConstants.logout,

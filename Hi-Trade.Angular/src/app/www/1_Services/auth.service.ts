@@ -29,5 +29,7 @@ export class AuthService {
             'Content-Type': 'application/json'
         });
     }
-
+    getContext(): Context{
+        return <Context>this.storageService.getLocalStorage(Constants.CONTEXT_KEY);
+    }
 }

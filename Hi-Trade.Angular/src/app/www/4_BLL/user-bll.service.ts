@@ -7,6 +7,7 @@ import { BaseResult } from "../2_Models/common/base-result.model";
 import { ResultType } from "../2_Models/common/result-type.model";
 import { BaseBLLService } from "./base-bll.service";
 import { SaveResponse } from "../2_Models/common/save-response.model";
+import { CreateUserRequest } from "../2_Models/requests/create-user-request.model";
 
 @Injectable({
     providedIn: 'root'
@@ -26,6 +27,17 @@ export class UserBLLService extends BaseBLLService{
     }
     logout(): Observable<SaveResponse | null>{
         return this.userDALService.logout().pipe(map((response: BaseResult<SaveResponse>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    signup(request: CreateUserRequest): Observable<Context | null>{
+        return this.userDALService.signup(request).pipe(map((response: BaseResult<Context>)=> {
             if(response && response.resultType === ResultType.Success && response.model){
                 return response.model;
             }

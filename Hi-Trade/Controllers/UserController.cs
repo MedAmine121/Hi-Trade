@@ -11,7 +11,7 @@ namespace Hi_Trade.Controllers
     public class UserController(IUserService userService) : Controller
     {
         [AllowAnonymous]
-        [HttpPost("create")]
+        [HttpPost("signup")]
         public async Task<BaseResult<UserDTO>> CreateUser([FromBody] CreateUserRequest request, CancellationToken ct)
         {
             return await userService.CreateUser(request, ct);

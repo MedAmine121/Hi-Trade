@@ -5,10 +5,11 @@ import { LoginUserRequest } from '../../../2_Models/requests/login-request.model
 import { Context } from '../../../2_Models/responses/context.model';
 import { BaseComponent } from '../../shared/base-component/base-component';
 import { Constants } from '../../../6_Common/constants';
+import { NavBarComponent } from "../../shared/nav-bar-component/nav-bar-component";
 
 @Component({
   selector: 'app-login-component',
-  imports: [FormsModule],
+  imports: [FormsModule, NavBarComponent],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
 })
@@ -29,7 +30,7 @@ export class LoginComponent extends BaseComponent{
           if(response !== null){
             this.notificationService.showSuccessToast('Login Successful');
             this.storageService.setLocalStorage(Constants.CONTEXT_KEY,response);
-            this.router.navigate(['']);
+            this.router.navigate([this.navConstants.home]);
           }
         },
         error: (err: Error) => {
