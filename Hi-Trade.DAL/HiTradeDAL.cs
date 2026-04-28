@@ -80,5 +80,9 @@ namespace Hi_Trade.DAL
                 throw new Exception("Failed to update asset price.");
             }
         }
+        public async Task<List<Portfolio>> GetPortfolios(string email, CancellationToken ct)
+        {
+            return await context.Portfolios.Where(p => p.User.Email == email).Include(p => p.Positions).Include(p => p.Transactions).ThenInclude(t => t.Asset).ToListAsync(ct);
+        }
     }
 }

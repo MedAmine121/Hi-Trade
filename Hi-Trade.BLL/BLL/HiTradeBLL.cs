@@ -104,6 +104,30 @@ namespace Hi_Trade.BLL.BLL
                 throw new Exception("Failed to fetch price data");
             }
         }
+        public async Task<List<PortfolioDTO>> GetUserPortfolios(string email, CancellationToken ct)
+        {
+            var portfolios = await hiTradeDAL.GetPortfolios(email, ct);
+            List<PortfolioDTO> portfolioDTOs = new();
+            foreach(Portfolio portfolio in portfolios)
+            {
+                PortfolioDTO portfolioDTO = new();
+                portfolioDTO.CurrentValue = portfolio.Positions.Sum(p => p.Quantity * p.Asset.CurrentPrice);
+                portfolioDTO.GainLoss = portfolio.TotalRealizedGainLoss + portfolioDTO.CurrentValue - portfolio.Positions.Sum(p => p.Quantity * p.AveragePrice);
+                portfolioDTO.Performance = portfolio.NetInvested != 0 ? (portfolioDTO.GainLoss / portfolio.NetInvested) * 100 : 0;
+                portfolioDTO.Positions = portfolio.Positions.Select(p => new PositionDTO()
+                {
+                    AveragePrice = p.AveragePrice,
+                    Quantity = p.Quantity,
+                    Asset = new AssetDTO()
+                    {
+                        Ticker = p.Asset.Ticker,
+                        Name = p.Asset.Name,
+                        CurrentPrice = p.Asset.CurrentPrice
+                    }
+                }).ToList();
+            }
+            return portfolioDTOs;
+        }
         private static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);

@@ -1,1 +1,35 @@
 <app-nav-bar-component></app-nav-bar-component>
+
+<div class="portfolio-container" *ngIf="userContext">
+  <div class="portfolio-header">
+    <h1>Portfolio</h1>
+  </div>
+
+  <div class="portfolio-card">
+    <div class="user-info">
+      <div class="profile-section">
+        <img [src]="userContext.profilePictureUrl" alt="Profile Picture" class="profile-picture" />
+        <div class="user-details">
+          <h2>{{ userContext.fullName }}</h2>
+          <p class="email">{{ userContext.email }}</p>
+          <p class="address">{{ userContext.address }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="portfolio-details">
+      <div class="detail-item">
+        <span class="label">Balance:</span>
+        <span class="value balance">${{ userContext.balance | number: '1.2-2' }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="label">Role:</span>
+        <span class="value">{{ userContext.role }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="no-data" *ngIf="!userContext">
+  <p>No portfolio data available.</p>
+</div>

@@ -12,5 +12,9 @@ namespace Hi_Trade.DAL.Entities
         public int UserId { get; set; }
         public User User { get; set; } = null!;
         public List<Transaction> Transactions { get; set; } = new();
+        public decimal TotalRealizedGainLoss { get; set; } = 0;
+        public int PositionId { get; set; }
+        public decimal NetInvested { get; set; } = 0;
+        public List<Position> Positions { get; set; } = [];
     }
 }

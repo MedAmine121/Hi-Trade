@@ -14,7 +14,8 @@ namespace Hi_Trade.Services.DI
         public static IServiceCollection AddServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>()
-                .AddScoped<IAssetService, AssetService>();
+                .AddScoped<IAssetService, AssetService>()
+                .AddScoped<IPortfolioService,PortfolioService>();
             return services;
         }
     }
