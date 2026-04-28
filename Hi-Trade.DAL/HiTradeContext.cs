@@ -20,6 +20,7 @@ namespace Hi_Trade.DAL
         public DbSet<Portfolio> Portfolios { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Position> Positions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())

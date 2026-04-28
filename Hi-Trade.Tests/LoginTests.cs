@@ -8,6 +8,7 @@ using Hi_Trade.Services.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 
 namespace Hi_Trade.Tests
 {
@@ -18,6 +19,7 @@ namespace Hi_Trade.Tests
         private Mock<ITokenBLL> _mockTokenBLL;
         private Mock<ILogger<UserService>> _mockLogger;
         private Mock<IServiceProvider> _mockServiceProvider;
+        private Mock<IOptions<RedisOptions>> _mockRedisOptions;
         private UserService _userService;
 
         [TestInitialize]
@@ -27,12 +29,14 @@ namespace Hi_Trade.Tests
             _mockTokenBLL = new Mock<ITokenBLL>();
             _mockLogger = new Mock<ILogger<UserService>>();
             _mockServiceProvider = new Mock<IServiceProvider>();
+            _mockRedisOptions = new Mock<IOptions<RedisOptions>>();
 
             _userService = new UserService(
                 _mockHiTradeBLL.Object,
                 _mockTokenBLL.Object,
                 _mockLogger.Object,
-                _mockServiceProvider.Object
+                _mockServiceProvider.Object,
+                _mockRedisOptions.Object
             );
         }
 
