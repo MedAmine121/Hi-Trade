@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Hi_Trade.Models.Common;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Hi_Trade.Services.Services
 {
@@ -19,6 +20,18 @@ namespace Hi_Trade.Services.Services
                 }
             }
             return await invoke(request, ct);
+        }
+        protected string GetUserEmailFromToken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            token = token.Replace("Bearer ", "");
+            var jwtToken = handler.ReadJwtToken(token);
+            string? email = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+            if (email == null)
+            {
+                throw new Exception("Email not found in JWT token");
+            }
+            return email;
         }
     }
 }

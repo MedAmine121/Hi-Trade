@@ -14,7 +14,8 @@ namespace Hi_Trade.Models.Validators
         public static IServiceCollection RegisterValidators(this IServiceCollection services)
         {
             services.AddScoped<IValidator<CreateUserRequest>, CreateUserValidator>()
-                .AddScoped<IValidator<CreateAssetRequest>, CreateAssetValidator>();
+                .AddScoped<IValidator<CreateAssetRequest>, CreateAssetValidator>()
+                .AddScoped<IValidator<CreatePortfolioRequest>,CreatePortfolioValidator>();
             return services;
         }
     }

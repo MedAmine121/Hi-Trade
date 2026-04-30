@@ -128,6 +128,13 @@ namespace Hi_Trade.BLL.BLL
             }
             return portfolioDTOs;
         }
+        public async Task<SaveResponse> CreateUserPortfolio(CreatePortfolioRequest request, CancellationToken ct)
+        {
+            var result = new SaveResponse();
+            (int success, result.Message) = await hiTradeDAL.CreateUserPortfolio(request.Name, request.Email, ct);
+            result.Success = success > 0;
+            return result;
+        }
         private static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);

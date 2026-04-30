@@ -84,5 +84,31 @@ namespace Hi_Trade.DAL
         {
             return await context.Portfolios.Where(p => p.User.Email == email).Include(p => p.Positions).Include(p => p.Transactions).ThenInclude(t => t.Asset).ToListAsync(ct);
         }
+        public async Task<(int,string)> CreateUserPortfolio(string name, string email, CancellationToken ct)
+        {
+            var user = await context.Users.Include(u => u.Portfolios).FirstOrDefaultAsync(u => u.Email.Equals(email), ct);
+            if(user == null)
+            {
+                throw new Exception("User not found");
+            }
+            var portfolioExists = user.Portfolios.Any(p => p.Name == name);
+            if(portfolioExists)
+            {
+                return (0, "Portfolio already exists. Please choose a different name");
+            }
+            var portfolio = new Portfolio()
+            {
+                Name = name,
+                User = user,
+                UserId = user.Id
+            };
+            context.Portfolios.Add(portfolio);
+            int result = await context.SaveChangesAsync(ct);
+            if(result <= 0)
+            {
+                throw new Exception("Failed to create portfolio");
+            }
+            return (result, "");
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Hi_Trade.BLL.Interfaces;
+﻿using FluentValidation;
+using Hi_Trade.BLL.Interfaces;
 using Hi_Trade.Models.Common;
 using Hi_Trade.Models.Requests;
 using Hi_Trade.Models.Responses;
@@ -19,14 +20,7 @@ namespace Hi_Trade.Services.Services
         {
             try
             {
-                var handler = new JwtSecurityTokenHandler();
-                token = token.Replace("Bearer ", "");
-                var jwtToken = handler.ReadJwtToken(token);
-                string? email = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
-                if (email == null)
-                {
-                    throw new Exception("Email not found in JWT token");
-                }
+                string email = GetUserEmailFromToken(token);
                 List<PortfolioDTO> portfolios = await hiTradeBLL.GetUserPortfolios(email, ct);
                 if (portfolios != null)
                 {
@@ -42,6 +36,49 @@ namespace Hi_Trade.Services.Services
             {
                 logger.LogError(ex, "An error occurred while fetching user portfolios");
                 return new BaseResult<List<PortfolioDTO>>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+        public async Task<BaseResult<SaveResponse>> CreatePortfolio(CreatePortfolioRequest request,string token, CancellationToken ct)
+        {
+            try
+            {
+                string email = GetUserEmailFromToken(token);
+                request.Email = email;
+                SaveResponse? asset = await Validate(hiTradeBLL.CreateUserPortfolio!, request, ct);
+                if (asset != null)
+                {
+                    return new BaseResult<SaveResponse>
+                    {
+                        Model = asset,
+                        ResultType = ResultType.Success
+                    };
+                }
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Fail,
+                    Message = "Failed to create portfolio"
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while creating the portfolio");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while creating the portfolio");
+                return new BaseResult<SaveResponse>
                 {
                     Model = null,
                     ResultType = ResultType.Error,
