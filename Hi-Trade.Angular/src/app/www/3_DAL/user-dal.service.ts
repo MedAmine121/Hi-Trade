@@ -14,13 +14,13 @@ import { CreateUserRequest } from "../2_Models/requests/create-user-request.mode
 export class UserDALService extends BaseDALService {
     override readonly controller = 'user';
     
-    login(request: LoginUserRequest) : Observable<BaseResult<Context>>{
+    login$(request: LoginUserRequest) : Observable<BaseResult<Context>>{
         return this.SendPost$('login', request, true);
     }
-    logout() : Observable<BaseResult<SaveResponse>>{
+    logout$() : Observable<BaseResult<SaveResponse>>{
         return this.SendPost$('logout', null);
     }
-    signup(request: CreateUserRequest) : Observable<BaseResult<Context>>{
+    signup$(request: CreateUserRequest) : Observable<BaseResult<Context>>{
         return this.SendPost$('signup', request, true);
     }
 }

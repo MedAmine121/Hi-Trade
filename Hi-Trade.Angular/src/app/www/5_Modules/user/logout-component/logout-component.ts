@@ -13,7 +13,7 @@ import { Constants } from '../../../6_Common/constants';
 export class LogoutComponent extends BaseComponent implements OnInit {
   private userService = inject(UserBLLService);
   ngOnInit(): void {
-    this.userService.logout().subscribe({
+    this.userService.logout$().subscribe({
       next: (response: SaveResponse | null) => {
         if(response !== null && response.success){
           this.notificationService.showSuccessToast('Logout Successful');

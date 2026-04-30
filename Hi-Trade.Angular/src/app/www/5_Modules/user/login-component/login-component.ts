@@ -25,7 +25,7 @@ export class LoginComponent extends BaseComponent{
         email: this.email,
         password: this.password
       }
-      this.userService.login(request).subscribe({
+      this.userService.login$(request).subscribe({
         next: (response: Context | null) => {
           if(response !== null){
             this.notificationService.showSuccessToast('Login Successful');

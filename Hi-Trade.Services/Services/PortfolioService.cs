@@ -20,6 +20,7 @@ namespace Hi_Trade.Services.Services
             try
             {
                 var handler = new JwtSecurityTokenHandler();
+                token = token.Replace("Bearer ", "");
                 var jwtToken = handler.ReadJwtToken(token);
                 string? email = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
                 if (email == null)

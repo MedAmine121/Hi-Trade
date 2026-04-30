@@ -50,7 +50,7 @@ export class SignupComponent extends BaseComponent implements OnInit {
             fullName: formData.fullname,
             address: formData.address
         };
-        this.userService.signup(request).subscribe({
+        this.userService.signup$(request).subscribe({
             next: (response: Context | null) => {
                 if (response !== null) {
                     this.notificationService.showSuccessToast('Signup Successful');

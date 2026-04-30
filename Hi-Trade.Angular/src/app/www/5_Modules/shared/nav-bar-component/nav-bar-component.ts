@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, HostListener } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { Router } from '@angular/router';
 import { BaseComponent } from '../base-component/base-component';
 import { AuthService } from '../../../1_Services/auth.service';
@@ -7,7 +7,7 @@ import { NavConstants } from '../../../6_Common/nav-constants';
 
 @Component({
   selector: 'app-nav-bar-component',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './nav-bar-component.html',
   styleUrl: './nav-bar-component.css',
 })
@@ -24,11 +24,10 @@ export class NavBarComponent extends BaseComponent implements OnInit {
     if (this.isAuthenticated) {
       const context = this.authService.getContext();
       this.userName = context.fullName;
-      if(!context.profilePictureUrl){
+      if (!context.profilePictureUrl) {
         this.showInitials = true;
         this.userAvatar = this.getAvatarInitials(this.userName);
-      }
-      else{
+      } else {
         this.userAvatar = context.profilePictureUrl;
       }
     }

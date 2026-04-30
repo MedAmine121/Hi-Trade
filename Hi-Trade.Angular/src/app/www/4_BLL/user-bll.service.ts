@@ -14,8 +14,8 @@ import { CreateUserRequest } from "../2_Models/requests/create-user-request.mode
 })
 export class UserBLLService extends BaseBLLService{
     private userDALService = inject(UserDALService);
-    login(request: LoginUserRequest): Observable<Context | null>{
-        return this.userDALService.login(request).pipe(map((response: BaseResult<Context>)=> {
+    login$(request: LoginUserRequest): Observable<Context | null>{
+        return this.userDALService.login$(request).pipe(map((response: BaseResult<Context>)=> {
             if(response && response.resultType === ResultType.Success && response.model){
                 return response.model;
             }
@@ -25,8 +25,8 @@ export class UserBLLService extends BaseBLLService{
             return null;
         }));
     }
-    logout(): Observable<SaveResponse | null>{
-        return this.userDALService.logout().pipe(map((response: BaseResult<SaveResponse>)=> {
+    logout$(): Observable<SaveResponse | null>{
+        return this.userDALService.logout$().pipe(map((response: BaseResult<SaveResponse>)=> {
             if(response && response.resultType === ResultType.Success && response.model){
                 return response.model;
             }
@@ -36,8 +36,8 @@ export class UserBLLService extends BaseBLLService{
             return null;
         }));
     }
-    signup(request: CreateUserRequest): Observable<Context | null>{
-        return this.userDALService.signup(request).pipe(map((response: BaseResult<Context>)=> {
+    signup$(request: CreateUserRequest): Observable<Context | null>{
+        return this.userDALService.signup$(request).pipe(map((response: BaseResult<Context>)=> {
             if(response && response.resultType === ResultType.Success && response.model){
                 return response.model;
             }
