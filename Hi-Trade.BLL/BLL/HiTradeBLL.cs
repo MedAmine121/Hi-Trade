@@ -125,8 +125,9 @@ namespace Hi_Trade.BLL.BLL
                         Ticker = p.Asset.Ticker,
                         Name = p.Asset.Name,
                         CurrentPrice = p.Asset.CurrentPrice,
-                        Id = p.Id
-                    }
+                        Id = p.Asset.Id
+                    },
+                    Id = p.Id
                 }).ToList();
                 portfolioDTOs.Add(portfolioDTO);
             }
@@ -143,6 +144,13 @@ namespace Hi_Trade.BLL.BLL
         {
             var result = new SaveResponse();
             (int success, result.Message) = await hiTradeDAL.BuyAsset(request.PortfolioId, request.AssetId, request.Quantity, request.Email!, ct);
+            result.Success = success > 0;
+            return result;
+        }
+        public async Task<SaveResponse> SellAsset(SellAssetRequest request, CancellationToken ct)
+        {
+            var result = new SaveResponse();
+            (int success, result.Message) = await hiTradeDAL.SellAsset(request.PortfolioId, request.PositionId, request.Quantity, request.Email!, ct);
             result.Success = success > 0;
             return result;
         }

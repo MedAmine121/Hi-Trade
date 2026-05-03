@@ -213,6 +213,10 @@
   font-family: 'Courier New', monospace;
 }
 
+.positions-table .action {
+  text-align: center;
+}
+
 .no-positions {
   padding: 2rem;
   text-align: center;
@@ -251,6 +255,30 @@
   font-size: 1.1rem;
   width: fit-content;
   margin: 0 auto;
+}
+
+/* Sell Button */
+.sell-btn {
+  padding: 0.5rem 1rem;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.sell-btn:hover {
+  background-color: #c0392b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+}
+
+.sell-btn:active {
+  transform: translateY(0);
 }
 
 /* Portfolio Navigation */

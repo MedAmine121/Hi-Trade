@@ -72,6 +72,7 @@
               <th>Avg Price</th>
               <th>Position Value</th>
               <th>Current Price</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -89,6 +90,11 @@
               </td>
               <td class="current-price">
                 ${{ position.asset.currentPrice | number: '1.2-2' }}
+              </td>
+              <td class="action">
+                <button class="sell-btn" (click)="sellAsset(position)" title="Sell this asset">
+                  Sell
+                </button>
               </td>
             </tr>
             }
@@ -122,4 +128,5 @@
 }
 
 <app-add-portfolio-modal (submit)="onPortfolioCreated($event)"></app-add-portfolio-modal>
-<app-buy-asset-modal-component [assets]="assets" (buy)="onAssetBuy($event)"></app-buy-asset-modal-component>
+<app-buy-asset-modal-component [assets]="assets()" (buy)="onAssetBuy($event)"></app-buy-asset-modal-component>
+<app-sell-asset-modal-component (sell)="onAssetSell($event)"></app-sell-asset-modal-component>

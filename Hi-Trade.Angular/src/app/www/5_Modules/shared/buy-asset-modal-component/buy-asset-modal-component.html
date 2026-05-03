@@ -7,10 +7,10 @@
         </div>
         <div class="modal-body">
             <div class="assets-list">
-                @if (assets.length === 0) {
+                @if (assets().length === 0) {
                 <div class="no-assets">No assets available</div>
                 } @else {
-                @for (asset of assets; track asset.ticker) {
+                @for (asset of assets(); track asset.ticker) {
                 <div class="asset-item" [class.selected]="isAssetSelected(asset)" (click)="selectAsset(asset)">
                     <div class="asset-info">
                         <div class="asset-ticker">{{ asset.ticker }}</div>

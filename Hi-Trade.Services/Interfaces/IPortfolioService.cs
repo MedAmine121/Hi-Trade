@@ -9,5 +9,6 @@ namespace Hi_Trade.Services.Interfaces
         Task<BaseResult<List<PortfolioDTO>>> GetUserPortfolios(string token, CancellationToken ct);
         Task<BaseResult<SaveResponse>> CreatePortfolio(CreatePortfolioRequest request, string token, CancellationToken ct);
         Task<BaseResult<SaveResponse>> BuyAsset(BuyAssetRequest request, string token, CancellationToken ct);
+        Task<BaseResult<SaveResponse>> SellAsset(SellAssetRequest request, string token, CancellationToken ct);
     }
 }

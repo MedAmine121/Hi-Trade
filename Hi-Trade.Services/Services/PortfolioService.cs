@@ -105,12 +105,12 @@ namespace Hi_Trade.Services.Services
                 {
                     Model = null,
                     ResultType = ResultType.Fail,
-                    Message = "Failed to create portfolio"
+                    Message = "Failed to buy asset"
                 };
             }
             catch (ValidationException vex)
             {
-                logger.LogWarning(vex, "Validation failed while creating the portfolio");
+                logger.LogWarning(vex, "Validation failed while buying the asset");
                 return new BaseResult<SaveResponse>
                 {
                     Model = null,
@@ -120,7 +120,50 @@ namespace Hi_Trade.Services.Services
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while creating the portfolio");
+                logger.LogError(ex, "An error occurred while buying the asset");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+        public async Task<BaseResult<SaveResponse>> SellAsset(SellAssetRequest request, string token, CancellationToken ct)
+        {
+            try
+            {
+                string email = GetUserEmailFromToken(token);
+                request.Email = email;
+                SaveResponse? asset = await Validate(hiTradeBLL.SellAsset!, request, ct);
+                if (asset != null)
+                {
+                    return new BaseResult<SaveResponse>
+                    {
+                        Model = asset,
+                        ResultType = ResultType.Success
+                    };
+                }
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Fail,
+                    Message = "Failed to buy asset"
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while buying the asset");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while buying the asset");
                 return new BaseResult<SaveResponse>
                 {
                     Model = null,

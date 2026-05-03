@@ -14,5 +14,6 @@ namespace Hi_Trade.BLL.Interfaces
         Task<SaveResponse> CreateUserPortfolio(CreatePortfolioRequest request, CancellationToken ct);
         Task<List<AssetDTO>> GetAllEnabledAssets(CancellationToken ct);
         Task<SaveResponse> BuyAsset(BuyAssetRequest request, CancellationToken ct);
+        Task<SaveResponse> SellAsset(SellAssetRequest request, CancellationToken ct);
     }
 }

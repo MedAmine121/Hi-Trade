@@ -160,5 +160,50 @@ namespace Hi_Trade.DAL
             int result = await context.SaveChangesAsync(ct);
             return (result, "");
         }
+        public async Task<(int, string)> SellAsset(int portfolioId, int positionId, decimal quantity, string email, CancellationToken ct)
+        {
+            var user = await context.Users.Include(u => u.Portfolios).ThenInclude(p => p.Positions).ThenInclude(p => p.Asset).FirstOrDefaultAsync(u => u.Email == email, ct);
+            if (user == null)
+            {
+                throw new Exception("User not found");
+            }
+            var portfolio = user.Portfolios.FirstOrDefault(p => p.Id == portfolioId);
+            if (portfolio == null)
+            {
+                throw new Exception("Portfolio not found");
+            }
+            var position = portfolio.Positions.FirstOrDefault(p => p.Id == positionId);
+            if (position == null)
+            {
+                throw new Exception("Position not found");
+            }
+            if (position.Quantity < quantity)
+            {
+                return (0, "Not enough quantity to sell");
+            }
+            else if(position.Quantity == quantity)
+            {
+                portfolio.Positions.Remove(position);
+            }
+            else
+            {
+                position.Quantity -= quantity;
+            }
+            Asset? asset = position.Asset;
+            portfolio.TotalRealizedGainLoss += (asset.CurrentPrice - position.AveragePrice) * quantity;
+            user.Balance += asset.CurrentPrice * quantity;
+            Transaction transaction = new()
+            {
+                Type = TransactionType.Sell,
+                Asset = asset,
+                Portfolio = portfolio,
+                Quantity = quantity,
+                PriceAtPurchase = asset.CurrentPrice
+            };
+            portfolio.Transactions.Add(transaction);
+            portfolio.NetInvested -= (position.AveragePrice * quantity);
+            int result = await context.SaveChangesAsync(ct);
+            return (result, "");
+        }
     }
 }

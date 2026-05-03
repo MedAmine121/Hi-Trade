@@ -1,0 +1,57 @@
+@if (isOpen()) {
+<div class="modal-overlay" (click)="onCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Sell Asset</h2>
+            <button class="close-btn" (click)="onCancel()">×</button>
+        </div>
+        <div class="modal-body">
+            @if (selectedPosition) {
+            <div class="position-info">
+                <div class="position-header">
+                    <div class="position-details">
+                        <div class="asset-ticker">{{ selectedPosition.asset.ticker }}</div>
+                        <div class="asset-name">{{ selectedPosition.asset.name }}</div>
+                        <div class="asset-price">Current Price: ${{ selectedPosition.asset.currentPrice.toFixed(2) }}</div>
+                    </div>
+                </div>
+                <div class="position-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Available Quantity:</span>
+                        <span class="stat-value">{{ selectedPosition.quantity }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Avg Purchase Price:</span>
+                        <span class="stat-value">${{ selectedPosition.averagePrice.toFixed(2) }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quantity-section">
+                <label for="sellQuantity">Quantity to Sell</label>
+                <input 
+                    id="sellQuantity" 
+                    type="number" 
+                    min="1" 
+                    [max]="selectedPosition.quantity"
+                    [(ngModel)]="quantity" 
+                    (keyup.enter)="onSell()"
+                    class="input-field" />
+                <div class="quantity-info">
+                    <span>Max: {{ selectedPosition.quantity }}</span>
+                </div>
+                <div class="total-proceeds">
+                    Total Proceeds: ${{ getPositionValue(quantity(), selectedPosition.asset.currentPrice).toFixed(2) }}
+                </div>
+            </div>
+            }
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+            <button class="btn-submit" (click)="onSell()" [disabled]="!isQuantityValid()">
+                Sell
+            </button>
+        </div>
+    </div>
+</div>
+}

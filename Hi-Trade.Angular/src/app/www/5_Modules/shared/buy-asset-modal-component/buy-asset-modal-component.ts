@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { Component, EventEmitter, input, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AssetDTO } from '../../../2_Models/responses/asset.model';
@@ -11,7 +11,7 @@ import { AssetDTO } from '../../../2_Models/responses/asset.model';
   styleUrl: './buy-asset-modal-component.css',
 })
 export class BuyAssetModalComponent {
-  @Input() assets: AssetDTO[] = [];
+  assets = input.required<AssetDTO[]>();
   @Output() buy = new EventEmitter<{ asset: AssetDTO; quantity: number }>();
   @Output() cancel = new EventEmitter<void>();
 

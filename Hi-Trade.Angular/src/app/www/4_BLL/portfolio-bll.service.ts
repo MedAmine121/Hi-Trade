@@ -7,6 +7,7 @@ import { PortfolioDALService } from "../3_DAL/portfolio-dal.service";
 import { PortfolioDTO } from "../2_Models/responses/portfolio.model";
 import { CreatePortfolioRequest } from "../2_Models/requests/create-portfolio-request.model";
 import { BuyAssetRequest } from "../2_Models/requests/buy-asset-request.model";
+import { SellAssetRequest } from "../2_Models/requests/sell-asset-request.model";
 import { SaveResponse } from "../2_Models/common/save-response.model";
 
 @Injectable({
@@ -38,6 +39,17 @@ export class PortfolioBLLService extends BaseBLLService{
     }
     buyAsset$(request: BuyAssetRequest): Observable<SaveResponse | null>{
         return this.portfolioDALService.buyAsset$(request).pipe(map((response: BaseResult<SaveResponse>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    sellAsset$(request: SellAssetRequest): Observable<SaveResponse | null>{
+        return this.portfolioDALService.sellAsset$(request).pipe(map((response: BaseResult<SaveResponse>)=> {
             if(response && response.resultType === ResultType.Success && response.model){
                 return response.model;
             }
