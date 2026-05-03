@@ -8,8 +8,7 @@ namespace Hi_Trade.DAL.Entities
 {
     public class Transaction : BaseEntity
     {
-        public int PortfolioId { get; set; }
-        public int AssetId { get; set; }
+        public Portfolio Portfolio { get; set; } = null!;
         public decimal Quantity { get; set; }
         public decimal PriceAtPurchase { get; set; }
         public TransactionType Type { get; set; }

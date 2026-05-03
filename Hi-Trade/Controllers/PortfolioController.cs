@@ -22,5 +22,11 @@ namespace Hi_Trade.Controllers
         {
             return await portfolioService.CreatePortfolio(request, token, ct);
         }
+        [HttpPost("buyasset")]
+        [Authorize]
+        public async Task<BaseResult<SaveResponse>> BuyAsset([FromHeader(Name = "Authorization")] string token, [FromBody] BuyAssetRequest request, CancellationToken ct)
+        {
+            return await portfolioService.BuyAsset(request, token, ct);
+        }
     }
 }

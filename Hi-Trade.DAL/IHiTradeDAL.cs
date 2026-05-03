@@ -12,5 +12,6 @@ namespace Hi_Trade.DAL
         Task UpdateAssetPrice(int assetId, decimal newPrice, CancellationToken ct);
         Task<List<Portfolio>> GetPortfolios(string email, CancellationToken ct);
         Task<(int, string)> CreateUserPortfolio(string name, string email, CancellationToken ct);
+        Task<(int, string)> BuyAsset(int portfolioId, int assetId, decimal quantity, string email, CancellationToken ct);
     }
 }

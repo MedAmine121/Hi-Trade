@@ -86,5 +86,48 @@ namespace Hi_Trade.Services.Services
                 };
             }
         }
+        public async Task<BaseResult<SaveResponse>> BuyAsset(BuyAssetRequest request, string token, CancellationToken ct)
+        {
+            try
+            {
+                string email = GetUserEmailFromToken(token);
+                request.Email = email;
+                SaveResponse? asset = await Validate(hiTradeBLL.BuyAsset!, request, ct);
+                if (asset != null)
+                {
+                    return new BaseResult<SaveResponse>
+                    {
+                        Model = asset,
+                        ResultType = ResultType.Success
+                    };
+                }
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Fail,
+                    Message = "Failed to create portfolio"
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while creating the portfolio");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while creating the portfolio");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

@@ -1,153 +1,125 @@
 <app-nav-bar-component></app-nav-bar-component>
 
 @if (userContext) {
-  <div class="portfolio-container">
-    <div class="portfolio-header">
-      <div class="header-top">
-        <h1>My Portfolios</h1>
-        @if (portfolios.length > 0) {
-          <button class="add-btn" (click)="addPortfolio()">
-            <span>+ Add Portfolio</span>
-          </button>
-        }
-      </div>
+<div class="portfolio-container">
+  <div class="portfolio-header">
+    <div class="header-top">
+      <h1>My Portfolios</h1>
+      @if (portfolios().length > 0) {
+      <button class="add-btn" (click)="addPortfolio()">
+        <span>+ Add Portfolio</span>
+      </button>
+      }
     </div>
-    <!-- User Info Card -->
-    <div class="portfolio-card user-card">
-      <div class="user-info">
-        <div class="profile-section">
-          <img
-            [src]="userContext.profilePictureUrl"
-            alt="Profile Picture"
-            class="profile-picture"
-          />
-          <div class="user-details">
-            <h2>{{ userContext.fullName }}</h2>
-            <p class="email">{{ userContext.email }}</p>
-            <p class="address">{{ userContext.address }}</p>
-            <p class="balance-label">
-              Account Balance:
-              <span class="balance-value">${{ userContext.balance | number: '1.2-2' }}</span>
-            </p>
+  </div>
+
+  @if (isLoading()) {
+  <div class="loading-container">
+    <p>Loading portfolios...</p>
+  </div>
+  }
+
+  @if (!isLoading() && portfolios().length > 0) {
+  <mat-tab-group (selectedTabChange)="selectedPortfolioChanged($event)">
+    @for (portfolio of portfolios(); track portfolio; let i = $index) {
+    <mat-tab [label]="portfolio.name"></mat-tab>
+    }
+  </mat-tab-group>
+
+  <div class="portfolios-list">
+    @if (selectedPortfolio()) {
+    <div class="portfolio-item">
+      <div class="portfolio-summary">
+        <h3>{{ selectedPortfolio().name }}</h3>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="label">Current Value:</span>
+            <span class="value">${{ selectedPortfolio().currentValue | number: '1.2-2' }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Gain/Loss:</span>
+            <span class="value"
+              [ngClass]="{'positive': selectedPortfolio().gainLoss >= 0, 'negative': selectedPortfolio().gainLoss < 0}">
+              {{ selectedPortfolio().gainLoss >= 0 ? '+' : '' }}${{
+              selectedPortfolio().gainLoss | number: '1.2-2'
+              }}
+            </span>
+          </div>
+          <div class="summary-item">
+            <span class="label">Performance:</span>
+            <span class="value"
+              [ngClass]="{'positive': selectedPortfolio().performance >= 0, 'negative': selectedPortfolio().performance < 0}">
+              {{ selectedPortfolio().performance >= 0 ? '+' : '' }}{{ selectedPortfolio().performance | number: '1.2-2'
+              }}%
+            </span>
           </div>
         </div>
       </div>
+      <div class="overflow-hidden">
+      <button class="add-btn m-3 float-end" (click)="buyAsset()">
+        <span>+ Buy Asset</span>
+      </button>
+      </div>
+      @if (selectedPortfolio().positions && selectedPortfolio().positions.length > 0) {
+      <div class="positions-section">
+        <h4>Holdings</h4>
+        <table class="positions-table">
+          <thead>
+            <tr>
+              <th>Ticker</th>
+              <th>Asset Name</th>
+              <th>Quantity</th>
+              <th>Avg Price</th>
+              <th>Position Value</th>
+              <th>Current Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (position of selectedPortfolio().positions; track position) {
+            <tr>
+              <td class="ticker">{{ position.asset.ticker }}</td>
+              <td class="name">{{ position.asset.name }}</td>
+              <td class="quantity">{{ position.quantity }}</td>
+              <td class="price">${{ position.averagePrice | number: '1.2-2' }}</td>
+              <td class="value">
+                ${{
+                getPositionValue(position.quantity, position.averagePrice)
+                | number: '1.2-2'
+                }}
+              </td>
+              <td class="current-price">
+                ${{ position.asset.currentPrice | number: '1.2-2' }}
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      }
+
+      @if (!selectedPortfolio().positions || selectedPortfolio().positions.length === 0) {
+      <div class="no-positions">
+        <p>No positions in this portfolio</p>
+      </div>
+      }
     </div>
-    <!-- Loading State -->
-    @if (isLoading()) {
-      <div class="loading-container">
-        <p>Loading portfolios...</p>
-      </div>
-    }
-    <!-- Error State -->
-    @if (error && !isLoading()) {
-      <div class="error-message">
-        <p>{{ error }}</p>
-      </div>
-    }
-    @if (!isLoading() && portfolios.length > 0) {
-      <div class="portfolios-list">
-        @for (portfolio of portfolios; track portfolio; let i = $index) {
-          <div class="portfolio-item">
-            <div class="portfolio-summary">
-              <h3>Portfolio {{ i + 1 }}</h3>
-              <div class="summary-grid">
-                <div class="summary-item">
-                  <span class="label">Current Value:</span>
-                  <span class="value">${{ portfolio.currentValue | number: '1.2-2' }}</span>
-                </div>
-                <div class="summary-item">
-                  <span class="label">Gain/Loss:</span>
-                  <span
-                    class="value"
-                    [ngClass]="{
-                      positive: portfolio.gainLoss >= 0,
-                      negative: portfolio.gainLoss < 0,
-                    }"
-                  >
-                    {{ portfolio.gainLoss >= 0 ? '+' : '' }}${{
-                      portfolio.gainLoss | number: '1.2-2'
-                    }}
-                  </span>
-                </div>
-                <div class="summary-item">
-                  <span class="label">Performance:</span>
-                  <span
-                    class="value"
-                    [ngClass]="{
-                      positive: portfolio.performance >= 0,
-                      negative: portfolio.performance < 0,
-                    }"
-                  >
-                    {{ portfolio.performance >= 0 ? '+' : ''
-                    }}{{ portfolio.performance | number: '1.2-2' }}%
-                  </span>
-                </div>
-              </div>
-            </div>
-            @if (portfolio.positions && portfolio.positions.length > 0) {
-              <div class="positions-section">
-                <h4>Holdings</h4>
-                <table class="positions-table">
-                  <thead>
-                    <tr>
-                      <th>Ticker</th>
-                      <th>Asset Name</th>
-                      <th>Quantity</th>
-                      <th>Avg Price</th>
-                      <th>Position Value</th>
-                      <th>Current Price</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (position of portfolio.positions; track position) {
-                      <tr>
-                        <td class="ticker">{{ position.asset.ticker }}</td>
-                        <td class="name">{{ position.asset.name }}</td>
-                        <td class="quantity">{{ position.quantity }}</td>
-                        <td class="price">${{ position.averagePrice | number: '1.2-2' }}</td>
-                        <td class="value">
-                          ${{
-                            getPositionValue(position.quantity, position.averagePrice)
-                              | number: '1.2-2'
-                          }}
-                        </td>
-                        <td class="current-price">
-                          ${{ position.asset.currentPrice | number: '1.2-2' }}
-                        </td>
-                      </tr>
-                    }
-                  </tbody>
-                </table>
-              </div>
-            }
-            <!-- No Positions -->
-            @if (!portfolio.positions || portfolio.positions.length === 0) {
-              <div class="no-positions">
-                <p>No positions in this portfolio</p>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    }
-    <!-- No Portfolios State -->
-    @if (!isLoading() && portfolios.length === 0 && !error) {
-      <div class="no-data empty-state">
-        <div class="empty-state-content">
-          <h3>No Portfolios Yet</h3>
-          <p>Start creating your first portfolio to begin investing and tracking your assets.</p>
-          <button class="add-btn primary-btn" (click)="addPortfolio()">
-            <span>+ Add New Portfolio</span>
-          </button>
-        </div>
-      </div>
     }
   </div>
+  }
+
+  @if (!isLoading() && portfolios().length === 0) {
+  <div class="no-data empty-state">
+    <div class="empty-state-content">
+      <h3>No Portfolios Yet</h3>
+      <p>Start creating your first portfolio to begin investing and tracking your assets.</p>
+      <button class="add-btn primary-btn" (click)="addPortfolio()">
+        <span>+ Add New Portfolio</span>
+      </button>
+    </div>
+  </div>
+  }
+</div>
 }
 
-@if (!userContext) {
-  <div class="no-data">
-    <p>No user data available. Please log in.</p>
-  </div>
-}
+<app-add-portfolio-modal (submit)="onPortfolioCreated($event)"></app-add-portfolio-modal>
+<app-buy-asset-modal-component [assets]="assets" (buy)="onAssetBuy($event)"></app-buy-asset-modal-component>

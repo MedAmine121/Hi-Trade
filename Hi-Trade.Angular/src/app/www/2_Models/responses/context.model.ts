@@ -1,7 +1,7 @@
 import { Roles } from "../../6_Common/roles.enum";
+import { BaseDTO } from "../common/base-dto.model";
 
-export interface Context {
-    id: number;
+export interface Context extends BaseDTO {
     email: string;
     password: string;
     fullName: string;

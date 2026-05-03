@@ -21,7 +21,7 @@ body {
 }
 
 /* Navigation Bar */
-.navbar {
+.navbar-custom {
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   position: sticky;
@@ -29,7 +29,7 @@ body {
   z-index: 1000;
 }
 
-.navbar-container {
+.navbar-custom-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 1rem 2rem;
@@ -38,7 +38,7 @@ body {
   align-items: center;
 }
 
-.navbar-logo {
+.navbar-custom-logo {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -712,7 +712,7 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .navbar-container {
+  .navbar-custom-container {
     flex-wrap: wrap;
     padding: 1rem;
   }
@@ -817,11 +817,11 @@ body {
 }
 
 @media (max-width: 480px) {
-  .navbar-logo {
+  .navbar-custom-logo {
     font-size: 1.2rem;
   }
 
-  .navbar-container {
+  .navbar-custom-container {
     padding: 0.75rem;
   }
 

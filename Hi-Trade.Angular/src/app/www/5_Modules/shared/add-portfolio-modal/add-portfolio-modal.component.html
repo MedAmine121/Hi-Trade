@@ -1,0 +1,30 @@
+@if (isOpen()) {
+  <div class="modal-overlay" (click)="onCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Add New Portfolio</h2>
+        <button class="close-btn" (click)="onCancel()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="portfolioName">Portfolio Name</label>
+          <input
+            id="portfolioName"
+            type="text"
+            [(ngModel)]="portfolioName"
+            (keyup.enter)="onSubmit()"
+            placeholder="Enter portfolio name"
+            class="input-field"
+            autofocus
+          />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+        <button class="btn-submit" (click)="onSubmit()" [disabled]="!portfolioName().trim()">
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+}

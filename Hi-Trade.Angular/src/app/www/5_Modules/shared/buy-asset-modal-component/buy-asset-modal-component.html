@@ -1,0 +1,49 @@
+@if (isOpen()) {
+<div class="modal-overlay" (click)="onCancel()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h2>Buy Asset</h2>
+            <button class="close-btn" (click)="onCancel()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="assets-list">
+                @if (assets.length === 0) {
+                <div class="no-assets">No assets available</div>
+                } @else {
+                @for (asset of assets; track asset.ticker) {
+                <div class="asset-item" [class.selected]="isAssetSelected(asset)" (click)="selectAsset(asset)">
+                    <div class="asset-info">
+                        <div class="asset-ticker">{{ asset.ticker }}</div>
+                        <div class="asset-name">{{ asset.name }}</div>
+                        <div class="asset-price">${{ asset.currentPrice.toFixed(2) }}</div>
+                    </div>
+                    <div class="asset-select">
+                        @if (isAssetSelected(asset)) {
+                        <span class="checkmark">✓</span>
+                        }
+                    </div>
+                </div>
+                @if(isAssetSelected(asset)){
+                <div class="quantity-section">
+                    <label for="quantity">Quantity</label>
+                    <input id="quantity" type="number" min="1" [(ngModel)]="quantity" (keyup.enter)="onBuy()"
+                        class="input-field" />
+                    <div class="total-cost">
+                        Total: ${{ (asset.currentPrice * quantity()).toFixed(2) }}
+                    </div>
+                </div>
+                }
+                }
+                }
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+            <button class="btn-submit" (click)="onBuy()" [disabled]="!selectedAsset || quantity() <= 0">
+                Buy
+            </button>
+        </div>
+    </div>
+</div>
+}

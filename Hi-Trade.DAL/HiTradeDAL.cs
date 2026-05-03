@@ -99,8 +99,7 @@ namespace Hi_Trade.DAL
             var portfolio = new Portfolio()
             {
                 Name = name,
-                User = user,
-                UserId = user.Id
+                User = user
             };
             context.Portfolios.Add(portfolio);
             int result = await context.SaveChangesAsync(ct);
@@ -108,6 +107,57 @@ namespace Hi_Trade.DAL
             {
                 throw new Exception("Failed to create portfolio");
             }
+            return (result, "");
+        }
+        public async Task<(int, string)> BuyAsset(int portfolioId, int assetId, decimal quantity, string email, CancellationToken ct)
+        {
+            var user = await context.Users.Include(u => u.Portfolios).ThenInclude(p => p.Positions).ThenInclude(p => p.Asset).FirstOrDefaultAsync(u => u.Email == email, ct);
+            if(user == null)
+            {
+                throw new Exception("User not found");
+            }
+            var portfolio = user.Portfolios.FirstOrDefault(p => p.Id == portfolioId);
+            if(portfolio == null)
+            {
+                throw new Exception("Portfolio not found");
+            }
+            var asset = await context.Assets.FirstOrDefaultAsync(a => a.Id == assetId, ct);
+            if(asset == null)
+            {
+                throw new Exception("Asset not found");
+            }
+            if(user.Balance < asset.CurrentPrice * quantity)
+            {
+                return (0, "Not enough balance. Please add funds");
+            }
+            Position? position = portfolio.Positions.FirstOrDefault(p => p.Asset.Id == assetId);
+            if(position != null)
+            {
+                position.AveragePrice = ((position.AveragePrice * position.Quantity) + (asset.CurrentPrice * quantity)) / (position.Quantity + quantity);
+                position.Quantity += quantity;
+            }
+            else
+            {
+                position = new() { 
+                    Asset = asset,
+                    Quantity = quantity,
+                    AveragePrice = asset.CurrentPrice,
+                    Portfolio = portfolio
+                };
+                portfolio.Positions.Add(position);
+            }
+            user.Balance -= asset.CurrentPrice * quantity;
+            Transaction transaction = new()
+            {
+                Type = TransactionType.Buy,
+                Asset = asset,
+                Portfolio = portfolio,
+                Quantity = quantity,
+                PriceAtPurchase = asset.CurrentPrice
+            };
+            portfolio.Transactions.Add(transaction);
+            portfolio.NetInvested += asset.CurrentPrice * quantity;
+            int result = await context.SaveChangesAsync(ct);
             return (result, "");
         }
     }

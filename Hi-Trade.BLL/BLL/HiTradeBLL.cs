@@ -111,6 +111,8 @@ namespace Hi_Trade.BLL.BLL
             foreach(Portfolio portfolio in portfolios)
             {
                 PortfolioDTO portfolioDTO = new();
+                portfolioDTO.Name = portfolio.Name;
+                portfolioDTO.Id = portfolio.Id;
                 portfolioDTO.CurrentValue = portfolio.Positions.Sum(p => p.Quantity * p.Asset.CurrentPrice);
                 portfolioDTO.GainLoss = portfolio.TotalRealizedGainLoss + portfolioDTO.CurrentValue - portfolio.Positions.Sum(p => p.Quantity * p.AveragePrice);
                 portfolioDTO.Performance = portfolio.NetInvested != 0 ? (portfolioDTO.GainLoss / portfolio.NetInvested) * 100 : 0;
@@ -122,18 +124,37 @@ namespace Hi_Trade.BLL.BLL
                     {
                         Ticker = p.Asset.Ticker,
                         Name = p.Asset.Name,
-                        CurrentPrice = p.Asset.CurrentPrice
+                        CurrentPrice = p.Asset.CurrentPrice,
+                        Id = p.Id
                     }
                 }).ToList();
+                portfolioDTOs.Add(portfolioDTO);
             }
             return portfolioDTOs;
         }
         public async Task<SaveResponse> CreateUserPortfolio(CreatePortfolioRequest request, CancellationToken ct)
         {
             var result = new SaveResponse();
-            (int success, result.Message) = await hiTradeDAL.CreateUserPortfolio(request.Name, request.Email, ct);
+            (int success, result.Message) = await hiTradeDAL.CreateUserPortfolio(request.Name, request.Email!, ct);
             result.Success = success > 0;
             return result;
+        }
+        public async Task<SaveResponse> BuyAsset(BuyAssetRequest request, CancellationToken ct)
+        {
+            var result = new SaveResponse();
+            (int success, result.Message) = await hiTradeDAL.BuyAsset(request.PortfolioId, request.AssetId, request.Quantity, request.Email!, ct);
+            result.Success = success > 0;
+            return result;
+        }
+        public async Task<List<AssetDTO>> GetAllEnabledAssets(CancellationToken ct)
+        {
+            return (await hiTradeDAL.GetAllAssets(ct)).Where(a => a.Enabled).Select(a => new AssetDTO()
+            {
+                Name = a.Name,
+                Ticker = a.Ticker,
+                CurrentPrice = a.CurrentPrice,
+                Id = a.Id
+            }).ToList();
         }
         private static string HashPassword(string password)
         {

@@ -1,4 +1,5 @@
 ﻿using Hi_Trade.DAL.Entities;
+using Hi_Trade.Models.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace Hi_Trade.Models.Responses
 {
-    public class UserDTO
+    public class UserDTO : BaseDTO
     {
-        public int Id { get; set; } = 0;
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string FullName { get; set; } = string.Empty;

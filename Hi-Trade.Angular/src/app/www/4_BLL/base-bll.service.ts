@@ -12,5 +12,11 @@ export class BaseBLLService {
         else if(response.resultType === ResultType.Fail){
             this.notificationService.showErrorToast(response?.message ?? '');
         }
+        else if(response.resultType === ResultType.BadRequest){
+            let message = response.message ?? '';
+            message = message.replace("Validation failed: \r\n -- ","");
+            message = message.replace("Severity: Error","");
+            this.notificationService.showErrorToast(message);
+        }
     }
 }
