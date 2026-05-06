@@ -17,6 +17,8 @@ namespace Hi_Trade.Models.Validators
                 .AddScoped<IValidator<CreateAssetRequest>, CreateAssetValidator>()
                 .AddScoped<IValidator<CreatePortfolioRequest>, CreatePortfolioValidator>()
                 .AddScoped<IValidator<BuyAssetRequest>, BuyAssetRequestValidator>()
+                .AddScoped<IValidator<AddFundsRequest>, AddFundsValidator>()
+                .AddScoped<IValidator<ConfirmPaymentRequest>, ConfirmPaymentValidator>()
                 .AddScoped<IValidator<SellAssetRequest>, SellAssetRequestValidator>();
             return services;
         }

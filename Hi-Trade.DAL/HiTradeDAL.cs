@@ -205,5 +205,46 @@ namespace Hi_Trade.DAL
             int result = await context.SaveChangesAsync(ct);
             return (result, "");
         }
+        public async Task<User> FetchUser(string email, CancellationToken ct)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+            if(user == null)
+            {
+                throw new Exception("User does not exist");
+            }
+            return user;
+        }
+        public async Task<(bool, string)> AddFunds(string paymentId, string email, long amount, CancellationToken ct)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct) ?? throw new Exception("User does not exist");
+            var payment = await context.PaymentTraces.FirstOrDefaultAsync(p => p.PaymentId == paymentId, ct);
+            if(payment != null && payment.Status == "succeeded")
+            {
+                throw new Exception("Payment already processed!");
+            }
+            else if(payment != null)
+            {
+                payment.Status = "succeeded";
+            }
+            else
+            {
+                payment = new()
+                {
+                    Status = "succeeded",
+                    PaymentId = paymentId,
+                    User = user,
+                    Amount = amount
+                };
+                user.payments.Add(payment);
+
+            }
+            user.Balance += (amount / 100);
+            int result = await context.SaveChangesAsync(ct);
+            if(result > 0)
+            {
+                return (true, "");
+            }
+            throw new Exception("Failed Adding funds");
+        }
     }
 }

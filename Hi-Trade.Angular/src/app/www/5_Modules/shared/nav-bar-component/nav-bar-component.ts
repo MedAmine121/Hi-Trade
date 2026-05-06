@@ -1,24 +1,28 @@
-import { Component, inject, OnInit, HostListener } from '@angular/core';
+import { Component, inject, OnInit, HostListener, ViewChild } from '@angular/core';
 
 import { Router } from '@angular/router';
 import { BaseComponent } from '../base-component/base-component';
 import { AuthService } from '../../../1_Services/auth.service';
 import { NavConstants } from '../../../6_Common/nav-constants';
+import { UserService } from '../../../1_Services/user.service';
+import { DecimalPipe } from '@angular/common';
+import { AddFundsComponent } from '../add-funds-component/add-funds-component';
 
 @Component({
   selector: 'app-nav-bar-component',
-  imports: [],
+  imports: [DecimalPipe, AddFundsComponent],
   templateUrl: './nav-bar-component.html',
   styleUrl: './nav-bar-component.css',
 })
 export class NavBarComponent extends BaseComponent implements OnInit {
   private authService = inject(AuthService);
+  protected userService = inject(UserService);
   isAuthenticated: boolean = false;
   userName: string = '';
   userAvatar: string = '👤';
   showProfileDropdown: boolean = false;
   showInitials = false;
-
+  @ViewChild(AddFundsComponent) addFundsModal!: AddFundsComponent; 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
     if (this.isAuthenticated) {
@@ -60,5 +64,8 @@ export class NavBarComponent extends BaseComponent implements OnInit {
 
   onLogout(): void {
     this.redirectTo([this.navConstants.logout]);
+  }
+  addFunds(): void {
+    this.addFundsModal.openModal();
   }
 }

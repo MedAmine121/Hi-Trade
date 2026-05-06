@@ -15,6 +15,9 @@ import { BaseComponent } from '../../shared/base-component/base-component';
 import { PortfolioBLLService } from '../../../4_BLL/portfolio-bll.service';
 import { AssetBLLService } from '../../../4_BLL/asset-bll.service';
 import {MatTabChangeEvent, MatTabsModule} from '@angular/material/tabs';
+import { UserService } from '../../../1_Services/user.service';
+import { StripeElementsOptions } from '@stripe/stripe-js';
+import { AddFundsComponent } from "../../shared/add-funds-component/add-funds-component";
 
 @Component({
   selector: 'app-user-index-component',
@@ -26,21 +29,32 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
   @ViewChild(AddPortfolioModalComponent) addPortfolioModal!: AddPortfolioModalComponent;
   @ViewChild(BuyAssetModalComponent) buyAssetModal!: BuyAssetModalComponent;
   @ViewChild(SellAssetModalComponent) sellAssetModal!: SellAssetModalComponent;
-  
+  @ViewChild(AddFundsComponent) addFundsModal!: AddFundsComponent;
+
   private portfolioBLLService = inject(PortfolioBLLService);
   private assetBLLService = inject(AssetBLLService);
-  
+  private userService = inject(UserService);
+  elementsOptions: StripeElementsOptions = {
+    locale: 'en',
+    appearance: {
+      theme: 'stripe',
+      labels: 'floating',
+      variables: {
+        colorPrimary: '#673ab7',
+      },
+    },
+  };
   userContext: Context | null = null;
   portfolios = signal<PortfolioDTO[]>([]);
   assets = signal<AssetDTO[]>([]);
   isLoading = signal(false);
   selectedPortfolioIndex = signal(0);
   selectedPortfolio = computed(() => this.portfolios()[this.selectedPortfolioIndex()]);
-
   ngOnInit(): void {
     this.loadUserContext();
     this.loadPortfolios();
     this.loadAssets();
+    this.userService.fetchUser();
   }
 
   private loadUserContext(): void {
@@ -137,6 +151,7 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
         if (response?.success) {
           this.notificationService.showSuccessToast('Asset purchased successfully');
           this.loadPortfolios();
+          this.userService.fetchUser();
         } else {
           this.notificationService.showErrorToast(response?.message ?? 'Failed to buy asset');
           this.isLoading.set(false);
@@ -176,6 +191,7 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
         if (response?.success) {
           this.notificationService.showSuccessToast('Asset sold successfully');
           this.loadPortfolios();
+          this.userService.fetchUser();
         } else {
           this.notificationService.showErrorToast(response?.message ?? 'Failed to sell asset');
           this.isLoading.set(false);

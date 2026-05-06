@@ -15,5 +15,8 @@ namespace Hi_Trade.BLL.Interfaces
         Task<List<AssetDTO>> GetAllEnabledAssets(CancellationToken ct);
         Task<SaveResponse> BuyAsset(BuyAssetRequest request, CancellationToken ct);
         Task<SaveResponse> SellAsset(SellAssetRequest request, CancellationToken ct);
+        Task<UserDTO> FetchUser(string email, CancellationToken ct);
+        Task<SaveResponse> GetCheckoutLink(AddFundsRequest request, CancellationToken ct);
+        Task<SaveResponse> ConfirmPayment(ConfirmPaymentRequest request, CancellationToken ct);
     }
 }

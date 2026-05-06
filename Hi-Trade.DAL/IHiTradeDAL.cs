@@ -14,5 +14,7 @@ namespace Hi_Trade.DAL
         Task<(int, string)> CreateUserPortfolio(string name, string email, CancellationToken ct);
         Task<(int, string)> BuyAsset(int portfolioId, int assetId, decimal quantity, string email, CancellationToken ct);
         Task<(int, string)> SellAsset(int portfolioId, int positionId, decimal quantity, string email, CancellationToken ct);
+        Task<User> FetchUser(string email, CancellationToken ct);
+        Task<(bool, string)> AddFunds(string paymentId, string email, long amount, CancellationToken ct);
     }
 }

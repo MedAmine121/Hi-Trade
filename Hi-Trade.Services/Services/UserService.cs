@@ -95,7 +95,7 @@ namespace Hi_Trade.Services.Services
             try
             {
                 token = token.Replace("Bearer ", "");
-                var redis = ConnectionMultiplexer.Connect(
+                var redis = await ConnectionMultiplexer.ConnectAsync(
                     new ConfigurationOptions
                     {
                         EndPoints = { { redisOptions.Value.EndpointUrl, redisOptions.Value.Port } },
@@ -135,6 +135,29 @@ namespace Hi_Trade.Services.Services
                 };
             }
         }
+        public async Task<BaseResult<UserDTO>> FetchUser(string token, CancellationToken ct)
+        {
+            try
+            {
+                string email = GetUserEmailFromToken(token);
+                UserDTO? user = await hiTradeBLL.FetchUser(email, ct);
+                return new BaseResult<UserDTO>
+                {
+                    Model = user,
+                    ResultType = ResultType.Success
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while fetching the user");
+                return new BaseResult<UserDTO>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
         public async Task<bool> CheckBlacklisted(string token)
         {
             try
@@ -162,6 +185,73 @@ namespace Hi_Trade.Services.Services
             {
                 logger.LogError(ex, "An error occurred while checking if the token is blacklisted");
                 return false;
+            }
+        }
+        public async Task<BaseResult<SaveResponse>> GetCheckoutLink(string token, AddFundsRequest request, CancellationToken ct)
+        {
+            try
+            {
+                string email = GetUserEmailFromToken(token);
+                SaveResponse? user = await Validate(hiTradeBLL.GetCheckoutLink!, request, ct);
+                return new BaseResult<SaveResponse>
+                {
+                    Model = user,
+                    ResultType = ResultType.Success
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while creating payment intent");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while fetching the user");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+        public async Task<BaseResult<SaveResponse>> ConfirmPayment(string token, ConfirmPaymentRequest request, CancellationToken ct)
+        {
+            try
+            {
+                string email = GetUserEmailFromToken(token);
+                request.Email = email;
+                SaveResponse? user = await Validate(hiTradeBLL.ConfirmPayment!, request, ct);
+                return new BaseResult<SaveResponse>
+                {
+                    Model = user,
+                    ResultType = ResultType.Success
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while creating payment intent");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while fetching the user");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
             }
         }
     }

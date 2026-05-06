@@ -1,19 +1,21 @@
-﻿using System;
+﻿using BCrypt.Net;
+using FluentValidation;
+using Hi_Trade.BLL.Interfaces;
+using Hi_Trade.Common;
+using Hi_Trade.DAL;
+using Hi_Trade.DAL.Entities;
+using Hi_Trade.Models.Common;
+using Hi_Trade.Models.Requests;
+using Hi_Trade.Models.Responses;
+using Microsoft.Extensions.Configuration;
+using Stripe;
+using Stripe.Checkout;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using BCrypt.Net;
 using System.Threading.Tasks;
-using FluentValidation;
-using Hi_Trade.DAL;
-using Hi_Trade.DAL.Entities;
-using Hi_Trade.Models.Requests;
-using Hi_Trade.Models.Responses;
-using Hi_Trade.BLL.Interfaces;
-using Hi_Trade.Models.Common;
-using Hi_Trade.Common;
-using Microsoft.Extensions.Configuration;
 namespace Hi_Trade.BLL.BLL
 {
     public class HiTradeBLL(IHiTradeDAL hiTradeDAL, IConfiguration configuration) : IHiTradeBLL
@@ -36,7 +38,7 @@ namespace Hi_Trade.BLL.BLL
         public async Task<UserDTO?> LoginUser(LoginUserRequest request, CancellationToken ct)
         {
             var user = await hiTradeDAL.LoginUser(request.Email, ct);
-            if(user == null)
+            if (user == null)
             {
                 return null;
             }
@@ -49,11 +51,11 @@ namespace Hi_Trade.BLL.BLL
                 Id = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                    Address = user.Address,
-                    ProfilePictureUrl = user.ProfilePictureUrl,
-                    Balance = user.Balance,
-                    Role = user.Role
-                };
+                Address = user.Address,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                Balance = user.Balance,
+                Role = user.Role
+            };
         }
         public async Task<SaveResponse> CreateAsset(CreateAssetRequest request, CancellationToken ct)
         {
@@ -83,9 +85,9 @@ namespace Hi_Trade.BLL.BLL
             {
                 var content = await response.Content.ReadAsStringAsync(ct);
                 var priceData = System.Text.Json.JsonSerializer.Deserialize<FinnHubResponse>(content);
-                if(priceData == null)
+                if (priceData == null)
                 {
-                    if(retries < 5)
+                    if (retries < 5)
                     {
                         Thread.Sleep(1000 * (retries + 1));
                         return await GetNewPriceForAsset(ticker, ct, retries + 1);
@@ -108,7 +110,7 @@ namespace Hi_Trade.BLL.BLL
         {
             var portfolios = await hiTradeDAL.GetPortfolios(email, ct);
             List<PortfolioDTO> portfolioDTOs = new();
-            foreach(Portfolio portfolio in portfolios)
+            foreach (Portfolio portfolio in portfolios)
             {
                 PortfolioDTO portfolioDTO = new();
                 portfolioDTO.Name = portfolio.Name;
@@ -163,6 +165,56 @@ namespace Hi_Trade.BLL.BLL
                 CurrentPrice = a.CurrentPrice,
                 Id = a.Id
             }).ToList();
+        }
+        public async Task<UserDTO> FetchUser(string email, CancellationToken ct)
+        {
+            User user = await hiTradeDAL.FetchUser(email, ct);
+            return new UserDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                Address = user.Address,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                Balance = user.Balance,
+                Role = user.Role
+            };
+        }
+        public async Task<SaveResponse> GetCheckoutLink(AddFundsRequest request, CancellationToken ct)
+        {
+            var client = new StripeClient(configuration["stripeRestrictedKey"]);
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = request.Amount * 100,
+                Currency = "eur",
+                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                {
+                    Enabled = true,
+                },
+            };
+            PaymentIntent intent = await client.V1.PaymentIntents.CreateAsync(options, cancellationToken: ct);
+            SaveResponse response = new()
+            {
+                Success = true,
+                Message = intent.ClientSecret
+            };
+            return response;
+        }
+        public async Task<SaveResponse> ConfirmPayment(ConfirmPaymentRequest request, CancellationToken ct)
+        {
+            SaveResponse result = new();
+            var client = new StripeClient(configuration["stripeRestrictedKey"]);
+            PaymentIntent intent = await client.V1.PaymentIntents.GetAsync(request.PaymentId, cancellationToken: ct);
+            if(intent.Status == "succeeded")
+            {
+                (result.Success, result.Message) = await hiTradeDAL.AddFunds(request.PaymentId, request.Email, intent.Amount, ct);
+            }
+            else
+            {
+                result.Success = false;
+                result.Message = "Payment not processed yet!";
+            }
+            return result;
         }
         private static string HashPassword(string password)
         {

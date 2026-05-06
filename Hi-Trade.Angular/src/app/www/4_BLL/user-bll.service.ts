@@ -8,6 +8,8 @@ import { ResultType } from "../2_Models/common/result-type.model";
 import { BaseBLLService } from "./base-bll.service";
 import { SaveResponse } from "../2_Models/common/save-response.model";
 import { CreateUserRequest } from "../2_Models/requests/create-user-request.model";
+import { AddFundsRequest } from "../2_Models/requests/add-funds-request.model";
+import { ConfirmPaymentRequest } from "../2_Models/requests/confirm-payment-request.model";
 
 @Injectable({
     providedIn: 'root'
@@ -38,6 +40,39 @@ export class UserBLLService extends BaseBLLService{
     }
     signup$(request: CreateUserRequest): Observable<Context | null>{
         return this.userDALService.signup$(request).pipe(map((response: BaseResult<Context>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    fetchUser$(): Observable<Context | null>{
+        return this.userDALService.fetchUser$().pipe(map((response: BaseResult<Context>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    checkout$(request: AddFundsRequest): Observable<SaveResponse | null>{
+        return this.userDALService.checkout$(request).pipe(map((response: BaseResult<SaveResponse>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    confirmPayment$(request: ConfirmPaymentRequest): Observable<SaveResponse | null>{
+        return this.userDALService.confirmPayment$(request).pipe(map((response: BaseResult<SaveResponse>)=> {
             if(response && response.resultType === ResultType.Success && response.model){
                 return response.model;
             }

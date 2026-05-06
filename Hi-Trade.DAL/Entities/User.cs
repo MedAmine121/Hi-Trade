@@ -16,5 +16,6 @@ namespace Hi_Trade.DAL.Entities
         public decimal Balance { get; set; } = 0;
         public List<Portfolio> Portfolios { get; set; } = new();
         public Roles Role { get; set; } = Roles.User;
+        public List<PaymentTrace> payments { get; set; } = [];
     }
 }

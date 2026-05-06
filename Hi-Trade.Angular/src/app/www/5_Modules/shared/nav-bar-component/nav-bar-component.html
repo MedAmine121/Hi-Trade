@@ -10,38 +10,46 @@
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
+        @if (isAuthenticated && userService.user()) {
+        <div class="balance-display" (click)="addFunds()">
+            <span class="balance-label">Balance:</span>
+            <span class="balance-amount">${{ userService.user()?.balance | number: '1.2-2' }}</span>
+        </div>
+        }
         <div class="nav-buttons">
-            @if (isAuthenticated) {
-                <div class="profile-menu">
-                    <button class="avatar-button" (click)="toggleProfileDropdown()" title="Profile">
-                        <div class="avatar">{{ userAvatar }}</div>
-                    </button>
-                    
-                    @if (showProfileDropdown) {
-                        <div class="profile-dropdown" (click)="$event.stopPropagation()">
-                            <div class="dropdown-header">
-                                <div class="avatar-large">{{ userAvatar }}</div>
-                                <div class="user-info">
-                                    <p class="user-name">{{ userName }}</p>
-                                    <p class="user-label">Trader</p>
-                                </div>
-                            </div>
-                            <div class="dropdown-divider"></div>
-                            <ul class="dropdown-menu">
-                                <li><a href="#" (click)="closeProfileDropdown()">Profile</a></li>
-                                <li><a href="#" (click)="closeProfileDropdown()">Settings</a></li>
-                                <li><a href="#" (click)="closeProfileDropdown()">Portfolio</a></li>
-                            </ul>
-                            <div class="dropdown-divider"></div>
-                            <button class="logout-button" (click)="onLogout()">Logout</button>
+            @if (isAuthenticated && userService.user()) {
+            <div class="profile-menu">
+                <button class="avatar-button" (click)="toggleProfileDropdown()" title="Profile">
+                    <div class="avatar">{{ userService.userAvatar }}</div>
+                </button>
+
+                @if (showProfileDropdown) {
+                <div class="profile-dropdown" (click)="$event.stopPropagation()">
+                    <div class="dropdown-header">
+                        <div class="avatar-large">{{ userService.userAvatar }}</div>
+                        <div class="user-info">
+                            <p class="user-name">{{ userService.user()?.fullName }}</p>
+                            <p class="user-label">Trader</p>
                         </div>
-                    }
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" (click)="closeProfileDropdown()">Profile</a></li>
+                        <li><a href="#" (click)="closeProfileDropdown()">Settings</a></li>
+                        <li><a href="#" (click)="closeProfileDropdown()">Portfolio</a></li>
+                    </ul>
+                    <div class="dropdown-divider"></div>
+                    <button class="logout-button" (click)="onLogout()">Logout</button>
                 </div>
+                }
+            </div>
             } @else {
-                <!-- Login/Signup Buttons -->
-                <button class="btn-login" (click)="redirectTo([navConstants.login])">Login</button>
-                <button class="btn-signup" (click)="redirectTo([navConstants.signup])">Sign Up</button>
+            <!-- Login/Signup Buttons -->
+            <button class="btn-login" (click)="redirectTo([navConstants.login])">Login</button>
+            <button class="btn-signup" (click)="redirectTo([navConstants.signup])">Sign Up</button>
             }
         </div>
     </div>
 </nav>
+
+<app-add-funds-component></app-add-funds-component>

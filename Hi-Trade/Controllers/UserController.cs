@@ -28,5 +28,23 @@ namespace Hi_Trade.Controllers
         {
             return await userService.LogoutUser(token);
         }
+        [Authorize]
+        [HttpGet("fetch")]
+        public async Task<BaseResult<UserDTO>> FetchUser([FromHeader(Name = "Authorization")] string token, CancellationToken ct)
+        {
+            return await userService.FetchUser(token, ct);
+        }
+        [Authorize]
+        [HttpPost("checkout")]
+        public async Task<BaseResult<SaveResponse>> GetCheckoutLink([FromHeader(Name = "Authorization")] string token, [FromBody] AddFundsRequest request, CancellationToken ct)
+        {
+            return await userService.GetCheckoutLink(token, request, ct);
+        }
+        [Authorize]
+        [HttpPost("confirmpayment")]
+        public async Task<BaseResult<SaveResponse>> ConfirmPayment([FromHeader(Name = "Authorization")] string token, [FromBody] ConfirmPaymentRequest request, CancellationToken ct)
+        {
+            return await userService.ConfirmPayment(token, request, ct);
+        }
     }
 }
