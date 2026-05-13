@@ -34,5 +34,11 @@ namespace Hi_Trade.Controllers
         {
             return await portfolioService.SellAsset(request, token, ct);
         }
+        [HttpPost("transactions")]
+        [Authorize]
+        public async Task<BaseResult<List<TransactionDTO>>> GetPortfolioTransactions([FromHeader(Name = "Authorization")] string token, [FromBody] GetPortfolioTransactionsRequest request, CancellationToken ct)
+        {
+            return await portfolioService.GetPortfolioTransactions(request, token, ct);
+        }
     }
 }

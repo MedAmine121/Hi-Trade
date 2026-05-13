@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -245,6 +246,13 @@ namespace Hi_Trade.DAL
                 return (true, "");
             }
             throw new Exception("Failed Adding funds");
+        }
+        public async Task<List<Transaction>> GetPortfolioTransactions(int portfolioId, string email, CancellationToken ct)
+        {
+            var user = await context.Users.Include(u => u.Portfolios).ThenInclude(p => p.Transactions).ThenInclude(t => t.Asset)
+                .FirstOrDefaultAsync(u => u.Email == email, ct) ?? throw new Exception("User does not exist");
+            var portfolio = user.Portfolios.FirstOrDefault(p => p.Id == portfolioId) ?? throw new Exception("Portfolio not found");
+            return portfolio.Transactions;
         }
     }
 }

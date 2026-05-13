@@ -59,6 +59,9 @@
       <button class="add-btn m-3 float-end" (click)="buyAsset()">
         <span>+ Buy Asset</span>
       </button>
+      <button class="add-btn bg-success m-3 float-end" (click)="viewTransactions()">
+        <span>View Transactions</span>
+      </button>
       </div>
       @if (selectedPortfolio().positions && selectedPortfolio().positions.length > 0) {
       <div class="positions-section">
@@ -130,3 +133,4 @@
 <app-add-portfolio-modal (submit)="onPortfolioCreated($event)"></app-add-portfolio-modal>
 <app-buy-asset-modal-component [assets]="assets()" (buy)="onAssetBuy($event)"></app-buy-asset-modal-component>
 <app-sell-asset-modal-component (sell)="onAssetSell($event)"></app-sell-asset-modal-component>
+<app-transaction-history-component [transactions]="transactions()"></app-transaction-history-component>

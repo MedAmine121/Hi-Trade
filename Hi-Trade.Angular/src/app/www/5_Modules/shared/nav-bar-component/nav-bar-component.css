@@ -107,17 +107,17 @@
   margin: 0.75rem 0;
 }
 
-.dropdown-menu {
+.dropdown-menu-custom {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.dropdown-menu li {
+.dropdown-menu-custom li {
   margin: 0;
 }
 
-.dropdown-menu a {
+.dropdown-menu-custom a {
   display: block;
   padding: 0.75rem 1rem;
   color: #2d3748;
@@ -127,7 +127,7 @@
   transition: all 0.2s ease;
 }
 
-.dropdown-menu a:hover {
+.dropdown-menu-custom a:hover {
   background: #f7fafc;
   color: #667eea;
 }

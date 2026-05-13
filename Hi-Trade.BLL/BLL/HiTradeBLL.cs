@@ -216,6 +216,22 @@ namespace Hi_Trade.BLL.BLL
             }
             return result;
         }
+        public async Task<List<TransactionDTO>> GetPortfolioTransactions(GetPortfolioTransactionsRequest request, CancellationToken ct)
+        {
+            var transactions = await hiTradeDAL.GetPortfolioTransactions(request.PortfolioId, request.Email, ct);
+            return transactions.Select(t => new TransactionDTO
+            {
+                Id = t.Id,
+                AssetId = t.Asset.Id,
+                AssetTicker = t.Asset.Ticker,
+                AssetName = t.Asset.Name,
+                Quantity = t.Quantity,
+                PriceAtTransaction = t.PriceAtPurchase,
+                TransactionType = t.Type.ToString(),
+                CreatedAt = t.CreatedAt,
+                TotalValue = t.Quantity * t.PriceAtPurchase
+            }).OrderByDescending(t => t.CreatedAt).ToList();
+        }
         private static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);
