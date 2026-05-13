@@ -172,5 +172,39 @@ namespace Hi_Trade.Services.Services
                 };
             }
         }
+        public async Task<BaseResult<List<TransactionDTO>>> GetPortfolioTransactions(GetPortfolioTransactionsRequest request, string token, CancellationToken ct)
+        {
+            try
+            {
+                string email = GetUserEmailFromToken(token);
+                request.Email = email;
+                List<TransactionDTO>? transactions = await Validate(hiTradeBLL.GetPortfolioTransactions!, request, ct);
+                return new BaseResult<List<TransactionDTO>>
+                {
+                    Model = transactions,
+                    ResultType = ResultType.Success
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while fetching transactions");
+                return new BaseResult<List<TransactionDTO>>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while fetching portfolio transactions");
+                return new BaseResult<List<TransactionDTO>>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

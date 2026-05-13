@@ -18,10 +18,12 @@ import {MatTabChangeEvent, MatTabsModule} from '@angular/material/tabs';
 import { UserService } from '../../../1_Services/user.service';
 import { StripeElementsOptions } from '@stripe/stripe-js';
 import { AddFundsComponent } from "../../shared/add-funds-component/add-funds-component";
+import { TransactionHistoryComponent } from "../../shared/transaction-history-component/transaction-history-component";
+import { TransactionDTO } from '../../../2_Models/responses/transaction.model';
 
 @Component({
   selector: 'app-user-index-component',
-  imports: [NavBarComponent, CommonModule, AddPortfolioModalComponent, BuyAssetModalComponent, SellAssetModalComponent, MatTabsModule],
+  imports: [NavBarComponent, CommonModule, AddPortfolioModalComponent, BuyAssetModalComponent, SellAssetModalComponent, MatTabsModule, TransactionHistoryComponent],
   templateUrl: './user-index-component.html',
   styleUrl: './user-index-component.css'
 })
@@ -30,6 +32,7 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
   @ViewChild(BuyAssetModalComponent) buyAssetModal!: BuyAssetModalComponent;
   @ViewChild(SellAssetModalComponent) sellAssetModal!: SellAssetModalComponent;
   @ViewChild(AddFundsComponent) addFundsModal!: AddFundsComponent;
+  @ViewChild(TransactionHistoryComponent) transactionHistoryModal!: TransactionHistoryComponent;
 
   private portfolioBLLService = inject(PortfolioBLLService);
   private assetBLLService = inject(AssetBLLService);
@@ -50,6 +53,7 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
   isLoading = signal(false);
   selectedPortfolioIndex = signal(0);
   selectedPortfolio = computed(() => this.portfolios()[this.selectedPortfolioIndex()]);
+  transactions = signal<TransactionDTO[]>([]);
   ngOnInit(): void {
     this.loadUserContext();
     this.loadPortfolios();
@@ -85,7 +89,7 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
 
   private loadAssets(): void {
     this.assetBLLService.getAssets$().subscribe({
-      next: (assets) => {
+      next: (assets: AssetDTO[] | null) => {
         if (assets) {
           this.assets.set(assets);
         }
@@ -131,7 +135,19 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
     this.loadAssets();
     this.buyAssetModal.openModal();
   }
-
+  viewTransactions(): void {
+    this.portfolioBLLService.getTransactions$(this.selectedPortfolio() ? { portfolioId: this.selectedPortfolio()!.id } : { portfolioId: 0 }).subscribe({
+      next: (transactions: TransactionDTO[] | null) => {
+        if (transactions) {
+          this.transactions.set(transactions);
+          this.transactionHistoryModal.openModal();
+        }
+      },
+      error: (err) => {
+        this.notificationService.showErrorToast('Error loading transactions');
+      }
+    });
+  }
   onAssetBuy(data: { asset: AssetDTO; quantity: number }): void {
     const selectedPortfolio = this.selectedPortfolio();
     if (!selectedPortfolio) {

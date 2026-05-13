@@ -9,6 +9,8 @@ import { CreatePortfolioRequest } from "../2_Models/requests/create-portfolio-re
 import { BuyAssetRequest } from "../2_Models/requests/buy-asset-request.model";
 import { SellAssetRequest } from "../2_Models/requests/sell-asset-request.model";
 import { SaveResponse } from "../2_Models/common/save-response.model";
+import { TransactionDTO } from "../2_Models/responses/transaction.model";
+import { GetTransactionsRequest } from "../2_Models/requests/get-transactions-request.model";
 
 @Injectable({
     providedIn: 'root'
@@ -50,6 +52,17 @@ export class PortfolioBLLService extends BaseBLLService{
     }
     sellAsset$(request: SellAssetRequest): Observable<SaveResponse | null>{
         return this.portfolioDALService.sellAsset$(request).pipe(map((response: BaseResult<SaveResponse>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    getTransactions$(request: GetTransactionsRequest): Observable<TransactionDTO[] | null>{
+        return this.portfolioDALService.getTransactions$(request).pipe(map((response: BaseResult<TransactionDTO[]>)=> {
             if(response && response.resultType === ResultType.Success && response.model){
                 return response.model;
             }

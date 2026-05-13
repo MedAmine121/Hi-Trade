@@ -7,6 +7,8 @@ import { CreatePortfolioRequest } from "../2_Models/requests/create-portfolio-re
 import { BuyAssetRequest } from "../2_Models/requests/buy-asset-request.model";
 import { SellAssetRequest } from "../2_Models/requests/sell-asset-request.model";
 import { SaveResponse } from "../2_Models/common/save-response.model";
+import { GetTransactionsRequest } from "../2_Models/requests/get-transactions-request.model";
+import { TransactionDTO } from "../2_Models/responses/transaction.model";
 
 @Injectable({
     providedIn: 'root'
@@ -25,5 +27,8 @@ export class PortfolioDALService extends BaseDALService {
     }
     sellAsset$(request: SellAssetRequest) : Observable<BaseResult<SaveResponse>>{
         return this.SendPost$('sellasset',request);
+    }
+    getTransactions$(request: GetTransactionsRequest) : Observable<BaseResult<TransactionDTO[]>>{
+        return this.SendPost$('transactions',request);
     }
 }

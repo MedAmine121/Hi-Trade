@@ -18,5 +18,6 @@ namespace Hi_Trade.BLL.Interfaces
         Task<UserDTO> FetchUser(string email, CancellationToken ct);
         Task<SaveResponse> GetCheckoutLink(AddFundsRequest request, CancellationToken ct);
         Task<SaveResponse> ConfirmPayment(ConfirmPaymentRequest request, CancellationToken ct);
+        Task<List<TransactionDTO>> GetPortfolioTransactions(GetPortfolioTransactionsRequest request, CancellationToken ct);
     }
 }
