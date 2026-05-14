@@ -25,9 +25,6 @@ export class TransactionHistoryComponent {
     this.quantity.set(1);
     this.cancel.emit();
   }
-
-  
-
   onCancel(): void {
     this.closeModal();
   }

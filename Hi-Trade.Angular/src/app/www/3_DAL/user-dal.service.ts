@@ -9,6 +9,7 @@ import { SaveResponse } from "../2_Models/common/save-response.model";
 import { CreateUserRequest } from "../2_Models/requests/create-user-request.model";
 import { AddFundsRequest } from "../2_Models/requests/add-funds-request.model";
 import { ConfirmPaymentRequest } from "../2_Models/requests/confirm-payment-request.model";
+import { EditProfileRequest } from "../2_Models/requests/edit-profile-request.model";
 
 @Injectable({
     providedIn: 'root'
@@ -33,5 +34,8 @@ export class UserDALService extends BaseDALService {
     }
     confirmPayment$(request: ConfirmPaymentRequest) : Observable<BaseResult<SaveResponse>>{
         return this.SendPost$('confirmpayment', request);
+    }
+    editProfile$(request: EditProfileRequest) : Observable<BaseResult<Context>>{
+        return this.SendPost$('edit', request);
     }
 }

@@ -103,5 +103,5 @@ app.UseAuthorization();
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.MapControllers();
-
+app.UseStaticFiles();
 app.Run();

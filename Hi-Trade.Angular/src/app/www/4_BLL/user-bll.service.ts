@@ -10,6 +10,7 @@ import { SaveResponse } from "../2_Models/common/save-response.model";
 import { CreateUserRequest } from "../2_Models/requests/create-user-request.model";
 import { AddFundsRequest } from "../2_Models/requests/add-funds-request.model";
 import { ConfirmPaymentRequest } from "../2_Models/requests/confirm-payment-request.model";
+import { EditProfileRequest } from "../2_Models/requests/edit-profile-request.model";
 
 @Injectable({
     providedIn: 'root'
@@ -73,6 +74,17 @@ export class UserBLLService extends BaseBLLService{
     }
     confirmPayment$(request: ConfirmPaymentRequest): Observable<SaveResponse | null>{
         return this.userDALService.confirmPayment$(request).pipe(map((response: BaseResult<SaveResponse>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    editProfile$(request: EditProfileRequest): Observable<Context | null>{
+        return this.userDALService.editProfile$(request).pipe(map((response: BaseResult<Context>)=> {
             if(response && response.resultType === ResultType.Success && response.model){
                 return response.model;
             }
