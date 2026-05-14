@@ -7,10 +7,11 @@ import { NavConstants } from '../../../6_Common/nav-constants';
 import { UserService } from '../../../1_Services/user.service';
 import { DecimalPipe } from '@angular/common';
 import { AddFundsComponent } from '../add-funds-component/add-funds-component';
+import { ProfileComponent } from '../profile-component/profile-component';
 
 @Component({
   selector: 'app-nav-bar-component',
-  imports: [DecimalPipe, AddFundsComponent],
+  imports: [DecimalPipe, AddFundsComponent, ProfileComponent],
   templateUrl: './nav-bar-component.html',
   styleUrl: './nav-bar-component.css',
 })
@@ -23,6 +24,7 @@ export class NavBarComponent extends BaseComponent implements OnInit {
   showProfileDropdown: boolean = false;
   showInitials = false;
   @ViewChild(AddFundsComponent) addFundsModal!: AddFundsComponent; 
+  @ViewChild(ProfileComponent) profileModal!: ProfileComponent; 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
     if (this.isAuthenticated) {
@@ -67,5 +69,8 @@ export class NavBarComponent extends BaseComponent implements OnInit {
   }
   addFunds(): void {
     this.addFundsModal.openModal();
+  }
+  openProfile(): void {
+    this.profileModal.openModal();
   }
 }

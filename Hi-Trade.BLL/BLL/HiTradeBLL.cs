@@ -232,6 +232,42 @@ namespace Hi_Trade.BLL.BLL
                 TotalValue = t.Quantity * t.PriceAtPurchase
             }).OrderByDescending(t => t.CreatedAt).ToList();
         }
+        public async Task<UserDTO> EditProfile(EditProfileRequest request, CancellationToken ct)
+        {
+            string profilePicPath = request.ProfilePictureUrl;
+            if (!string.IsNullOrEmpty(request.ProfilePictureUrl))
+            {
+                if (request.ProfilePictureUrl.Contains(','))
+                {
+                    request.ProfilePictureUrl = request.ProfilePictureUrl.Split(',')[1];
+                }
+                string extension = Constants.GetFileExtension(request.ProfilePictureUrl);
+                if (extension != "jpg" && extension != "png")
+                {
+                    throw new ValidationException("File is not an image");
+                }
+                byte[] imageBytes = Convert.FromBase64String(request.ProfilePictureUrl);
+                profilePicPath = Constants.StaticFilesPath + Constants.ProfilePicsPath + Guid.NewGuid() + "." + extension;
+                string? directoryPath = Path.GetDirectoryName(profilePicPath);   
+
+                if (!string.IsNullOrEmpty(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+                await System.IO.File.WriteAllBytesAsync(profilePicPath, imageBytes, ct);
+            }
+            User user = await hiTradeDAL.EditProfile(request.OldEmail, request.Email, request.FullName, request.Address, profilePicPath, ct);
+            return new UserDTO
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                Address = user.Address,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                Balance = user.Balance,
+                Role = user.Role
+            };
+        }
         private static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);

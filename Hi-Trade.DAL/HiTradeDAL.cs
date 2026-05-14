@@ -254,5 +254,26 @@ namespace Hi_Trade.DAL
             var portfolio = user.Portfolios.FirstOrDefault(p => p.Id == portfolioId) ?? throw new Exception("Portfolio not found");
             return portfolio.Transactions;
         }
+        public async Task<User> EditProfile(string oldEmail, string email, string fullName, string address, string profilePictureUrl, CancellationToken ct)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == oldEmail, ct) ?? throw new Exception("User does not exist");
+            if(email != oldEmail)
+            {
+                var otherUser = await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+                if(otherUser != null)
+                {
+                    throw new Exception("Email already in use!");
+                }
+            }
+            user.Email = email;
+            user.FullName = fullName;
+            user.Address = address;
+            if (!string.IsNullOrEmpty(profilePictureUrl))
+            {
+                user.ProfilePictureUrl = profilePictureUrl;
+            }
+            await context.SaveChangesAsync(ct);
+            return user;
+        }
     }
 }

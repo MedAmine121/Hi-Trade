@@ -1,4 +1,5 @@
 ﻿
+using Azure.Core;
 using Hi_Trade.DAL.Entities;
 
 namespace Hi_Trade.DAL
@@ -17,5 +18,6 @@ namespace Hi_Trade.DAL
         Task<User> FetchUser(string email, CancellationToken ct);
         Task<(bool, string)> AddFunds(string paymentId, string email, long amount, CancellationToken ct);
         Task<List<Transaction>> GetPortfolioTransactions(int portfolioId,string email, CancellationToken ct);
+        Task<User> EditProfile(string oldEmail, string email, string fullName, string address, string profilePictureUrl, CancellationToken ct);
     }
 }

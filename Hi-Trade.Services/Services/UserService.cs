@@ -254,5 +254,44 @@ namespace Hi_Trade.Services.Services
                 };
             }
         }
+        public async Task<BaseResult<UserDTO>> EditProfile(string token, EditProfileRequest request, CancellationToken ct)
+        {
+            try
+            {
+                string email = GetUserEmailFromToken(token);
+                request.OldEmail = email;
+                UserDTO? user = await Validate(hiTradeBLL.EditProfile!, request, ct);
+                if (user != null)
+                {
+                    user = tokenBLL.GenerateJwtToken(user);
+                }
+                return new BaseResult<UserDTO>
+                {
+                    Model = user,
+                    ResultType = ResultType.Success
+                };
+            }
+
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while editing profile");
+                return new BaseResult<UserDTO>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while editing profile");
+                return new BaseResult<UserDTO>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

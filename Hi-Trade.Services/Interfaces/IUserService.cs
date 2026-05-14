@@ -13,5 +13,6 @@ namespace Hi_Trade.Services.Interfaces
         Task<BaseResult<UserDTO>> FetchUser(string token, CancellationToken ct);
         Task<BaseResult<SaveResponse>> GetCheckoutLink(string token, AddFundsRequest request, CancellationToken ct);
         Task<BaseResult<SaveResponse>> ConfirmPayment(string token, ConfirmPaymentRequest request, CancellationToken ct);
+        Task<BaseResult<UserDTO>> EditProfile(string token, EditProfileRequest request, CancellationToken ct);
     }
 }

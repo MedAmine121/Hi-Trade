@@ -46,5 +46,11 @@ namespace Hi_Trade.Controllers
         {
             return await userService.ConfirmPayment(token, request, ct);
         }
+        [Authorize]
+        [HttpPost("edit")]
+        public async Task<BaseResult<UserDTO>> EditProfile([FromHeader(Name = "Authorization")] string token, [FromBody] EditProfileRequest request, CancellationToken ct)
+        {
+            return await userService.EditProfile(token, request, ct);
+        }
     }
 }

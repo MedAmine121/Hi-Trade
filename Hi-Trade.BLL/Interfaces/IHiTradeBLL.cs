@@ -19,5 +19,6 @@ namespace Hi_Trade.BLL.Interfaces
         Task<SaveResponse> GetCheckoutLink(AddFundsRequest request, CancellationToken ct);
         Task<SaveResponse> ConfirmPayment(ConfirmPaymentRequest request, CancellationToken ct);
         Task<List<TransactionDTO>> GetPortfolioTransactions(GetPortfolioTransactionsRequest request, CancellationToken ct);
+        Task<UserDTO> EditProfile(EditProfileRequest request, CancellationToken ct);
     }
 }
