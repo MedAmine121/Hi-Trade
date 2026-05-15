@@ -12,7 +12,7 @@ namespace Hi_Trade.Models.Requests
         public GetPortfolioTransactionsValidator()
         {
             RuleFor(user => user.PortfolioId).GreaterThan(0).WithMessage("Portfolio not found!");
-            RuleFor(user => user.Email).NotEmpty().WithMessage("Email not found.");
+            RuleFor(user => user.Email).EmailAddress().WithMessage("Email not found.");
         }
     }
 }
