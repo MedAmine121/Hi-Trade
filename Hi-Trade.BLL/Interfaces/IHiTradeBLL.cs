@@ -7,12 +7,15 @@ namespace Hi_Trade.BLL.Interfaces
     public interface IHiTradeBLL
     {
         Task<UserDTO> CreateUser(CreateUserRequest request, CancellationToken ct);
+        Task SeedAdminAsync(AdminSeedOptions options, CancellationToken ct);
         Task<UserDTO?> LoginUser(LoginUserRequest request, CancellationToken ct);
         Task<SaveResponse> CreateAsset(CreateAssetRequest request, CancellationToken ct);
         Task UpdateAssetPrices(CancellationToken ct);
         Task<List<PortfolioDTO>> GetUserPortfolios(string email, CancellationToken ct);
         Task<SaveResponse> CreateUserPortfolio(CreatePortfolioRequest request, CancellationToken ct);
         Task<List<AssetDTO>> GetAllEnabledAssets(CancellationToken ct);
+        Task<List<AssetDTO>> GetAllAssets(string? search, bool? enabled, CancellationToken ct);
+        Task<SaveResponse> ToggleAssetStatus(int assetId, CancellationToken ct);
         Task<SaveResponse> BuyAsset(BuyAssetRequest request, CancellationToken ct);
         Task<SaveResponse> SellAsset(SellAssetRequest request, CancellationToken ct);
         Task<UserDTO> FetchUser(string email, CancellationToken ct);

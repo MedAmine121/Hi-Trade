@@ -12,5 +12,6 @@ namespace Hi_Trade.Models.Responses
         public string Ticker { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public decimal CurrentPrice { get; set; } = 0;
+        public bool Enabled { get; set; } = true;
     }
 }

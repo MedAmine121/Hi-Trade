@@ -1,0 +1,81 @@
+@if (isOpen()) {
+<div class="modal-backdrop" (click)="closeModal()">
+  <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="createAssetTitle">
+    <div class="modal-header">
+      <div>
+        <h2 id="createAssetTitle" class="modal-title">Create New Asset</h2>
+        <p class="modal-subtitle">Add a stock or tradable instrument to the platform catalog.</p>
+      </div>
+      <button
+        type="button"
+        class="close-btn"
+        (click)="closeModal()"
+        [disabled]="isSubmitting()"
+        aria-label="Close modal"
+      >
+        &times;
+      </button>
+    </div>
+
+    <form class="modal-form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="assetTicker" class="form-label">Ticker Symbol</label>
+        <input
+          id="assetTicker"
+          name="ticker"
+          type="text"
+          class="form-input ticker-input"
+          placeholder="e.g. AAPL"
+          maxlength="16"
+          [ngModel]="ticker()"
+          (ngModelChange)="onTickerInput($event)"
+          [disabled]="isSubmitting()"
+          required
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="assetName" class="form-label">Asset Name</label>
+        <input
+          id="assetName"
+          name="name"
+          type="text"
+          class="form-input"
+          placeholder="e.g. Apple Inc."
+          maxlength="100"
+          [ngModel]="name()"
+          (ngModelChange)="onNameInput($event)"
+          [disabled]="isSubmitting()"
+          required
+          autocomplete="off"
+        />
+      </div>
+
+      @if (validationError()) {
+      <div class="error-banner" role="alert">
+        {{ validationError() }}
+      </div>
+      }
+
+      <div class="modal-actions">
+        <button
+          type="button"
+          class="btn-secondary"
+          (click)="closeModal()"
+          [disabled]="isSubmitting()"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+          Creating...
+          } @else {
+          Create Asset
+          }
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+}

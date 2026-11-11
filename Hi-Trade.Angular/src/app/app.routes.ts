@@ -1,25 +1,21 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './www/5_Modules/home/home-component/home-component';
 import { NavConstants } from './www/6_Common/nav-constants';
-import { LoginComponent } from './www/5_Modules/user/login-component/login-component';
-import { LogoutComponent } from './www/5_Modules/user/logout-component/logout-component';
-import { SignupComponent } from './www/5_Modules/user/signup-component/signup-component';
 
 export const routes: Routes = [
     {
         path: "",
-        component: HomeComponent
+        loadComponent: () => import('./www/5_Modules/home/home-component/home-component').then((m) => m.HomeComponent)
     },
     {
         path: NavConstants.login,
-        component: LoginComponent
+        loadComponent: () => import('./www/5_Modules/user/login-component/login-component').then((m) => m.LoginComponent)
     },
     {
         path: NavConstants.signup,
-        component: SignupComponent
+        loadComponent: () => import('./www/5_Modules/user/signup-component/signup-component').then((m) => m.SignupComponent)
     },
     {
         path: NavConstants.logout,
-        component: LogoutComponent
+        loadComponent: () => import('./www/5_Modules/user/logout-component/logout-component').then((m) => m.LogoutComponent)
     }
 ];

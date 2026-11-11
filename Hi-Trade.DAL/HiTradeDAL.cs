@@ -13,12 +13,25 @@ namespace Hi_Trade.DAL
     {
         public async Task<User> CreateUser(string email, string password, string fullName, string address, CancellationToken ct)
         {
+            return await CreateUserWithRole(email, password, fullName, address, Roles.User, ct);
+        }
+        public async Task<bool> AdminExistsAsync(CancellationToken ct)
+        {
+            return await context.Users.AnyAsync(u => u.Role == Roles.Admin, ct);
+        }
+        public async Task<User> CreateAdminUser(string email, string password, string fullName, string address, CancellationToken ct)
+        {
+            return await CreateUserWithRole(email, password, fullName, address, Roles.Admin, ct);
+        }
+        private async Task<User> CreateUserWithRole(string email, string password, string fullName, string address, Roles role, CancellationToken ct)
+        {
             User user = new()
             {
                 Email = email,
                 Password = password,
                 FullName = fullName,
-                Address = address
+                Address = address,
+                Role = role
             };
             if (await context.Users.AnyAsync(u => u.Email == email, ct))
             {
@@ -65,6 +78,36 @@ namespace Hi_Trade.DAL
         public async Task<List<Asset>> GetAllAssets(CancellationToken ct)
         {
             return await context.Assets.ToListAsync(ct);
+        }
+        public async Task<List<Asset>> GetAssetsFiltered(string? search, bool? enabled, CancellationToken ct)
+        {
+            var query = context.Assets.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string term = search.Trim().ToLower();
+                query = query.Where(a => a.Ticker.ToLower().Contains(term) || a.Name.ToLower().Contains(term));
+            }
+
+            if (enabled.HasValue)
+            {
+                query = query.Where(a => a.Enabled == enabled.Value);
+            }
+
+            return await query.OrderBy(a => a.Ticker).ToListAsync(ct);
+        }
+        public async Task<Asset> ToggleAssetStatus(int assetId, CancellationToken ct)
+        {
+            var asset = await context.Assets.FirstOrDefaultAsync(a => a.Id == assetId, ct)
+                ?? throw new Exception("Asset not found.");
+            asset.Enabled = !asset.Enabled;
+            context.Assets.Update(asset);
+            int result = await context.SaveChangesAsync(ct);
+            if (result <= 0)
+            {
+                throw new Exception("Failed to toggle asset status.");
+            }
+            return asset;
         }
         public async Task UpdateAssetPrice(int assetId, decimal newPrice, CancellationToken ct)
         {
@@ -126,6 +169,10 @@ namespace Hi_Trade.DAL
             if(asset == null)
             {
                 throw new Exception("Asset not found");
+            }
+            if(!asset.Enabled)
+            {
+                return (0, "Asset is currently disabled");
             }
             if(user.Balance < asset.CurrentPrice * quantity)
             {

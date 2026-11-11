@@ -1,9 +1,15 @@
 @if(isAuthenticated === 1){
-    <app-user-index-component></app-user-index-component>
+    @defer (on immediate) {
+        <app-user-index-component></app-user-index-component>
+    }
 }
 @else if(isAuthenticated === 2){
-
+    @defer (on immediate) {
+        <app-admin-index-component></app-admin-index-component>
+    }
 }
 @else {
-    <app-landing-page></app-landing-page>
+    @defer (on immediate) {
+        <app-landing-page></app-landing-page>
+    }
 }

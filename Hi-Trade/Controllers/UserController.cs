@@ -34,13 +34,13 @@ namespace Hi_Trade.Controllers
         {
             return await userService.FetchUser(token, ct);
         }
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost("checkout")]
         public async Task<BaseResult<SaveResponse>> GetCheckoutLink([FromHeader(Name = "Authorization")] string token, [FromBody] AddFundsRequest request, CancellationToken ct)
         {
             return await userService.GetCheckoutLink(token, request, ct);
         }
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpPost("confirmpayment")]
         public async Task<BaseResult<SaveResponse>> ConfirmPayment([FromHeader(Name = "Authorization")] string token, [FromBody] ConfirmPaymentRequest request, CancellationToken ct)
         {

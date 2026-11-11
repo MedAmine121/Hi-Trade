@@ -4,4 +4,5 @@ export interface AssetDTO extends BaseDTO{
     ticker: string;
     name: string;
     currentPrice: number;
+    enabled: boolean;
 }

@@ -22,5 +22,17 @@ namespace Hi_Trade.Controllers
         {
             return await assetService.GetAllEnabledAssets(ct);
         }
+        [HttpGet("all")]
+        [Authorize(Roles = "Admin")]
+        public async Task<BaseResult<List<AssetDTO>>> GetAllAssets([FromQuery] string? search, [FromQuery] bool? enabled, CancellationToken ct)
+        {
+            return await assetService.GetAllAssets(search, enabled, ct);
+        }
+        [HttpPost("toggle/{id:int}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<BaseResult<SaveResponse>> ToggleAssetStatus(int id, CancellationToken ct)
+        {
+            return await assetService.ToggleAssetStatus(id, ct);
+        }
     }
 }

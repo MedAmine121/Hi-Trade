@@ -1,4 +1,5 @@
 ﻿using Hi_Trade.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -16,13 +17,15 @@ namespace Hi_Trade
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             var endpoint = context.GetEndpoint();
-            if(endpoint?.Metadata.GetMetadata<Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute>() == null)
+            bool requiresAuth = endpoint?.Metadata.GetMetadata<IAuthorizeData>() != null
+                && endpoint.Metadata.GetMetadata<AllowAnonymousAttribute>() == null;
+            if (requiresAuth)
             {
-                var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-                if(token != null)
+                var token = context.Request.Headers["Authorization"].ToString().Replace("Bearer ", "").Trim();
+                if (!string.IsNullOrWhiteSpace(token))
                 {
                     var blacklisted = await userService.CheckBlacklisted(token);
-                    if(blacklisted)
+                    if (blacklisted)
                     {
                         context.Response.StatusCode = 401;
                         await context.Response.WriteAsync("Unauthorized");

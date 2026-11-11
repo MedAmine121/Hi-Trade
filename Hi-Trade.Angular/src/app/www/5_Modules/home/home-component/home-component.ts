@@ -3,9 +3,11 @@ import { AuthService } from '../../../1_Services/auth.service';
 import { UserIndexComponent } from "../user-index-component/user-index-component";
 import { LandingPageComponent } from '../../landing-page/landing-page.component';
 
+import { AdminIndexComponent } from '../admin-index-component/admin-index-component';
+
 @Component({
   selector: 'app-home-component',
-  imports: [UserIndexComponent, LandingPageComponent],
+  imports: [UserIndexComponent, AdminIndexComponent, LandingPageComponent],
   templateUrl: './home-component.html',
   styleUrl: './home-component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

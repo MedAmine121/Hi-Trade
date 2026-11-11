@@ -1,0 +1,158 @@
+<app-nav-bar-component></app-nav-bar-component>
+
+<div class="admin-dashboard">
+  <header class="dashboard-header">
+    <div>
+      <span class="role-pill">Admin Console</span>
+      <h1 class="dashboard-title">Asset Catalog Management</h1>
+      <p class="dashboard-subtitle">
+        Create tradable instruments, monitor live pricing, and control market availability.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button type="button" class="btn-refresh" (click)="loadAssets()" [disabled]="isLoading()">
+        Refresh
+      </button>
+      <button type="button" class="btn-create" (click)="openCreateAssetModal()">
+        + Create Asset
+      </button>
+    </div>
+  </header>
+
+  <section class="stats-grid" aria-label="Asset summary metrics">
+    <article class="stat-card">
+      <span class="stat-label">{{ hasActiveFilters() ? 'Matching Assets' : 'Total Assets' }}</span>
+      <strong class="stat-value">{{ totalCount() }}</strong>
+    </article>
+    <article class="stat-card stat-card-enabled">
+      <span class="stat-label">Enabled</span>
+      <strong class="stat-value">{{ enabledCount() }}</strong>
+    </article>
+    <article class="stat-card stat-card-disabled">
+      <span class="stat-label">Disabled</span>
+      <strong class="stat-value">{{ disabledCount() }}</strong>
+    </article>
+  </section>
+
+  <section class="catalog-card">
+    <div class="toolbar">
+      <div class="search-box">
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Search by ticker or name..."
+          aria-label="Search assets"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchChange($event)"
+        />
+      </div>
+
+      <div class="filter-group" role="group" aria-label="Filter assets by status">
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="statusFilter() === 'all'"
+          (click)="onStatusFilterChange('all')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="statusFilter() === 'enabled'"
+          (click)="onStatusFilterChange('enabled')"
+        >
+          Enabled
+        </button>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="statusFilter() === 'disabled'"
+          (click)="onStatusFilterChange('disabled')"
+        >
+          Disabled
+        </button>
+
+        @if (hasActiveFilters()) {
+        <button type="button" class="clear-btn" (click)="clearFilters()">Reset</button>
+        }
+      </div>
+    </div>
+
+    @if (isLoading()) {
+    <div class="state-box">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Loading assets...</p>
+    </div>
+    } @else if (assets().length === 0) {
+    <div class="state-box">
+      <h3>No assets found</h3>
+      <p>
+        @if (hasActiveFilters()) {
+        No assets match the current search or status filter.
+        } @else {
+        Get started by creating your first tradable asset.
+        }
+      </p>
+      @if (hasActiveFilters()) {
+      <button type="button" class="btn-refresh" (click)="clearFilters()">Clear Filters</button>
+      } @else {
+      <button type="button" class="btn-create" (click)="openCreateAssetModal()">
+        + Create Asset
+      </button>
+      }
+    </div>
+    } @else {
+    <div class="table-wrapper">
+      <table class="assets-table">
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Asset Name</th>
+            <th>Current Price</th>
+            <th>Status</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (asset of assets(); track asset.id) {
+          <tr [class.row-disabled]="!asset.enabled">
+            <td>
+              <span class="ticker-badge">{{ asset.ticker }}</span>
+            </td>
+            <td class="asset-name">{{ asset.name }}</td>
+            <td class="asset-price">${{ asset.currentPrice | number: '1.2-4' }}</td>
+            <td>
+              <span class="status-pill" [class.enabled]="asset.enabled" [class.disabled]="!asset.enabled">
+                {{ asset.enabled ? 'Enabled' : 'Disabled' }}
+              </span>
+            </td>
+            <td class="actions-col">
+              <button
+                type="button"
+                class="toggle-btn"
+                [class.btn-disable]="asset.enabled"
+                [class.btn-enable]="!asset.enabled"
+                [disabled]="togglingAssetId() === asset.id"
+                (click)="toggleAssetStatus(asset)"
+              >
+                @if (togglingAssetId() === asset.id) {
+                Updating...
+                } @else if (asset.enabled) {
+                Disable
+                } @else {
+                Enable
+                }
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </section>
+</div>
+
+<app-create-asset-modal-component (assetCreated)="onAssetCreated()"></app-create-asset-modal-component>
