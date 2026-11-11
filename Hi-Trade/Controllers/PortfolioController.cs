@@ -8,34 +8,30 @@ using Microsoft.AspNetCore.Mvc;
 namespace Hi_Trade.Controllers
 {
     [Route("portfolio")]
+    [Authorize(Roles = "User")]
     public class PortfolioController(IPortfolioService portfolioService) : Controller
     {
         [HttpGet("get")]
-        [Authorize]
         public async Task<BaseResult<List<PortfolioDTO>>> GetUserPortfolios([FromHeader(Name = "Authorization")] string token, CancellationToken ct)
         {
             return await portfolioService.GetUserPortfolios(token, ct);
         }
         [HttpPost("create")]
-        [Authorize]
         public async Task<BaseResult<SaveResponse>> CreatePortfolio([FromHeader(Name = "Authorization")] string token, [FromBody] CreatePortfolioRequest request, CancellationToken ct)
         {
             return await portfolioService.CreatePortfolio(request, token, ct);
         }
         [HttpPost("buyasset")]
-        [Authorize]
         public async Task<BaseResult<SaveResponse>> BuyAsset([FromHeader(Name = "Authorization")] string token, [FromBody] BuyAssetRequest request, CancellationToken ct)
         {
             return await portfolioService.BuyAsset(request, token, ct);
         }
         [HttpPost("sellasset")]
-        [Authorize]
         public async Task<BaseResult<SaveResponse>> SellAsset([FromHeader(Name = "Authorization")] string token, [FromBody] SellAssetRequest request, CancellationToken ct)
         {
             return await portfolioService.SellAsset(request, token, ct);
         }
         [HttpPost("transactions")]
-        [Authorize]
         public async Task<BaseResult<List<TransactionDTO>>> GetPortfolioTransactions([FromHeader(Name = "Authorization")] string token, [FromBody] GetPortfolioTransactionsRequest request, CancellationToken ct)
         {
             return await portfolioService.GetPortfolioTransactions(request, token, ct);

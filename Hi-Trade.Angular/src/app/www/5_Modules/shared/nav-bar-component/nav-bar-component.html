@@ -10,7 +10,7 @@
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
-        @if (isAuthenticated && userService.user()) {
+        @if (isAuthenticated && !isAdmin && userService.user()) {
         <div class="balance-display" (click)="addFunds()">
             <span class="balance-label">Balance:</span>
             <span class="balance-amount">${{ userService.user()?.balance | number: '1.2-2' }}</span>
@@ -37,7 +37,7 @@
                     }
                         <div class="user-info">
                             <p class="user-name">{{ userService.user()?.fullName }}</p>
-                            <p class="user-label">Trader</p>
+                            <p class="user-label">{{ isAdmin ? 'Administrator' : 'Trader' }}</p>
                         </div>
                     </div>
                     <div class="dropdown-divider"></div>

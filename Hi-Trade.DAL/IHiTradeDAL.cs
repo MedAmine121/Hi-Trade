@@ -7,9 +7,13 @@ namespace Hi_Trade.DAL
     public interface IHiTradeDAL
     {
         Task<User> CreateUser(string email, string password, string fullName, string address, CancellationToken ct);
+        Task<bool> AdminExistsAsync(CancellationToken ct);
+        Task<User> CreateAdminUser(string email, string password, string fullName, string address, CancellationToken ct);
         Task<User?> LoginUser(string email, CancellationToken ct);
         Task<Asset> CreateAsset(string ticker, string name, CancellationToken ct);
         Task<List<Asset>> GetAllAssets(CancellationToken ct);
+        Task<List<Asset>> GetAssetsFiltered(string? search, bool? enabled, CancellationToken ct);
+        Task<Asset> ToggleAssetStatus(int assetId, CancellationToken ct);
         Task UpdateAssetPrice(int assetId, decimal newPrice, CancellationToken ct);
         Task<List<Portfolio>> GetPortfolios(string email, CancellationToken ct);
         Task<(int, string)> CreateUserPortfolio(string name, string email, CancellationToken ct);

@@ -19,6 +19,7 @@ export class NavBarComponent extends BaseComponent implements OnInit {
   private authService = inject(AuthService);
   protected userService = inject(UserService);
   isAuthenticated: boolean = false;
+  isAdmin: boolean = false;
   userName: string = '';
   userAvatar: string = '👤';
   showProfileDropdown: boolean = false;
@@ -27,6 +28,7 @@ export class NavBarComponent extends BaseComponent implements OnInit {
   @ViewChild(ProfileComponent) profileModal!: ProfileComponent; 
   ngOnInit(): void {
     this.isAuthenticated = this.authService.isAuthenticated();
+    this.isAdmin = this.authService.isAdmin();
     if (this.isAuthenticated) {
       const context = this.authService.getContext();
       this.userName = context.fullName;

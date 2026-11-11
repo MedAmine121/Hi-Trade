@@ -2,6 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import { StorageService } from "./storage.service";
 import { Constants } from "../6_Common/constants";
 import { Context } from "../2_Models/responses/context.model";
+import { Roles } from "../6_Common/roles.enum";
 import { HttpHeaders } from "@angular/common/http";
 
 @Injectable({
@@ -11,16 +12,25 @@ export class AuthService {
     private storageService = inject(StorageService);
     constructor() { }
 
-    isAuthenticated(): boolean {
+    private getValidContext(): Context | null {
         const context = <Context>this.storageService.getLocalStorage(Constants.CONTEXT_KEY);
-        if(new Date(context?.expires) < new Date()) {
-            this.storageService.removeLocalStorage(Constants.CONTEXT_KEY);
-            return false;
+        if (!context) {
+            return null;
         }
-        return !!context;
+        if (new Date(context.expires) < new Date()) {
+            this.storageService.removeLocalStorage(Constants.CONTEXT_KEY);
+            return null;
+        }
+        return context;
     }
-    isAdmin(): boolean{
-        return false;
+
+    isAuthenticated(): boolean {
+        return !!this.getValidContext();
+    }
+
+    isAdmin(): boolean {
+        const context = this.getValidContext();
+        return !!context && (context.role === Roles.Admin || String(context.role) === 'Admin');
     }
     getAuthHeaders(): HttpHeaders {
         const context = <Context>this.storageService.getLocalStorage(Constants.CONTEXT_KEY);

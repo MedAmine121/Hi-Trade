@@ -393,5 +393,104 @@ namespace Hi_Trade.Tests
         }
 
         #endregion
+
+        #region GetAllAssets Tests
+
+        [TestMethod]
+        public async Task GetAllAssets_WithSearchAndEnabledFilters_ReturnsFilteredAssets()
+        {
+            // Arrange
+            var assets = new List<AssetDTO>
+            {
+                new AssetDTO { Id = 1, Ticker = "AAPL", Name = "Apple Inc.", CurrentPrice = 180.00m, Enabled = false }
+            };
+
+            _mockHiTradeBLL.Setup(x => x.GetAllAssets("AAP", false, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(assets);
+
+            // Act
+            var result = await _assetService.GetAllAssets("AAP", false, CancellationToken.None);
+
+            // Assert
+            result.ResultType.Should().Be(ResultType.Success);
+            result.Model.Should().HaveCount(1);
+            result.Model![0].Enabled.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public async Task GetAllAssets_WhenBLLReturnsNull_ReturnsFailResult()
+        {
+            // Arrange
+            _mockHiTradeBLL.Setup(x => x.GetAllAssets(null, null, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((List<AssetDTO>)null!);
+
+            // Act
+            var result = await _assetService.GetAllAssets(null, null, CancellationToken.None);
+
+            // Assert
+            result.ResultType.Should().Be(ResultType.Fail);
+            result.Model.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task GetAllAssets_WhenBLLThrowsException_ReturnsErrorResult()
+        {
+            // Arrange
+            _mockHiTradeBLL.Setup(x => x.GetAllAssets(It.IsAny<string?>(), It.IsAny<bool?>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("Database failure"));
+
+            // Act
+            var result = await _assetService.GetAllAssets("TSLA", true, CancellationToken.None);
+
+            // Assert
+            result.ResultType.Should().Be(ResultType.Error);
+            result.Model.Should().BeNull();
+            result.Message.Should().Contain("Database failure");
+        }
+
+        #endregion
+
+        #region ToggleAssetStatus Tests
+
+        [TestMethod]
+        public async Task ToggleAssetStatus_WithValidAssetId_ReturnsSuccessResult()
+        {
+            // Arrange
+            var saveResponse = new SaveResponse
+            {
+                Success = true,
+                Message = "Asset AAPL disabled successfully"
+            };
+
+            _mockHiTradeBLL.Setup(x => x.ToggleAssetStatus(1, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(saveResponse);
+
+            // Act
+            var result = await _assetService.ToggleAssetStatus(1, CancellationToken.None);
+
+            // Assert
+            result.ResultType.Should().Be(ResultType.Success);
+            result.Model.Should().NotBeNull();
+            result.Model!.Success.Should().BeTrue();
+            result.Model.Message.Should().Be("Asset AAPL disabled successfully");
+        }
+
+        [TestMethod]
+        public async Task ToggleAssetStatus_WhenBLLThrowsException_ReturnsErrorResult()
+        {
+            // Arrange
+            _mockHiTradeBLL.Setup(x => x.ToggleAssetStatus(999, It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("Asset not found."));
+
+            // Act
+            var result = await _assetService.ToggleAssetStatus(999, CancellationToken.None);
+
+            // Assert
+            result.ResultType.Should().Be(ResultType.Error);
+            result.Model.Should().BeNull();
+            result.Message.Should().Be("Asset not found.");
+        }
+
+        #endregion
     }
 }

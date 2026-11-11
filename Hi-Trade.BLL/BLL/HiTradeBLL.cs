@@ -35,6 +35,19 @@ namespace Hi_Trade.BLL.BLL
                 Role = user.Role
             };
         }
+        public async Task SeedAdminAsync(AdminSeedOptions options, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(options.Email) || string.IsNullOrWhiteSpace(options.Password))
+            {
+                return;
+            }
+            if (await hiTradeDAL.AdminExistsAsync(ct))
+            {
+                return;
+            }
+            var hashedPassword = HashPassword(options.Password);
+            await hiTradeDAL.CreateAdminUser(options.Email, hashedPassword, options.FullName, options.Address, ct);
+        }
         public async Task<UserDTO?> LoginUser(LoginUserRequest request, CancellationToken ct)
         {
             var user = await hiTradeDAL.LoginUser(request.Email, ct);
@@ -69,7 +82,7 @@ namespace Hi_Trade.BLL.BLL
         public async Task UpdateAssetPrices(CancellationToken ct)
         {
             var assets = await hiTradeDAL.GetAllAssets(ct);
-            foreach (var asset in assets)
+            foreach (var asset in assets.Where(a => a.Enabled))
             {
                 var newPrice = await GetNewPriceForAsset(asset.Ticker, ct);
                 await hiTradeDAL.UpdateAssetPrice(asset.Id, newPrice, ct);
@@ -112,23 +125,19 @@ namespace Hi_Trade.BLL.BLL
             List<PortfolioDTO> portfolioDTOs = new();
             foreach (Portfolio portfolio in portfolios)
             {
-                PortfolioDTO portfolioDTO = new();
-                portfolioDTO.Name = portfolio.Name;
-                portfolioDTO.Id = portfolio.Id;
-                portfolioDTO.CurrentValue = portfolio.Positions.Sum(p => p.Quantity * p.Asset.CurrentPrice);
+                PortfolioDTO portfolioDTO = new()
+                {
+                    Name = portfolio.Name,
+                    Id = portfolio.Id,
+                    CurrentValue = portfolio.Positions.Sum(p => p.Quantity * p.Asset.CurrentPrice)
+                };
                 portfolioDTO.GainLoss = portfolio.TotalRealizedGainLoss + portfolioDTO.CurrentValue - portfolio.Positions.Sum(p => p.Quantity * p.AveragePrice);
                 portfolioDTO.Performance = portfolio.NetInvested != 0 ? (portfolioDTO.GainLoss / portfolio.NetInvested) * 100 : 0;
                 portfolioDTO.Positions = portfolio.Positions.Select(p => new PositionDTO()
                 {
                     AveragePrice = p.AveragePrice,
                     Quantity = p.Quantity,
-                    Asset = new AssetDTO()
-                    {
-                        Ticker = p.Asset.Ticker,
-                        Name = p.Asset.Name,
-                        CurrentPrice = p.Asset.CurrentPrice,
-                        Id = p.Asset.Id
-                    },
+                    Asset = MapAssetToDto(p.Asset),
                     Id = p.Id
                 }).ToList();
                 portfolioDTOs.Add(portfolioDTO);
@@ -158,13 +167,31 @@ namespace Hi_Trade.BLL.BLL
         }
         public async Task<List<AssetDTO>> GetAllEnabledAssets(CancellationToken ct)
         {
-            return (await hiTradeDAL.GetAllAssets(ct)).Where(a => a.Enabled).Select(a => new AssetDTO()
+            return (await hiTradeDAL.GetAllAssets(ct)).Where(a => a.Enabled).Select(MapAssetToDto).ToList();
+        }
+        public async Task<List<AssetDTO>> GetAllAssets(string? search, bool? enabled, CancellationToken ct)
+        {
+            return (await hiTradeDAL.GetAssetsFiltered(search, enabled, ct)).Select(MapAssetToDto).ToList();
+        }
+        public async Task<SaveResponse> ToggleAssetStatus(int assetId, CancellationToken ct)
+        {
+            var asset = await hiTradeDAL.ToggleAssetStatus(assetId, ct);
+            return new SaveResponse
             {
-                Name = a.Name,
-                Ticker = a.Ticker,
-                CurrentPrice = a.CurrentPrice,
-                Id = a.Id
-            }).ToList();
+                Success = true,
+                Message = $"Asset {asset.Ticker} {(asset.Enabled ? "enabled" : "disabled")} successfully"
+            };
+        }
+        private static AssetDTO MapAssetToDto(Asset asset)
+        {
+            return new AssetDTO()
+            {
+                Name = asset.Name,
+                Ticker = asset.Ticker,
+                CurrentPrice = asset.CurrentPrice,
+                Id = asset.Id,
+                Enabled = asset.Enabled
+            };
         }
         public async Task<UserDTO> FetchUser(string email, CancellationToken ct)
         {

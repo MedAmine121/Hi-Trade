@@ -8,5 +8,7 @@ namespace Hi_Trade.Services.Interfaces
     {
         Task<BaseResult<SaveResponse>> CreateAsset(CreateAssetRequest request, CancellationToken ct);
         Task<BaseResult<List<AssetDTO>>> GetAllEnabledAssets(CancellationToken ct);
+        Task<BaseResult<List<AssetDTO>>> GetAllAssets(string? search, bool? enabled, CancellationToken ct);
+        Task<BaseResult<SaveResponse>> ToggleAssetStatus(int assetId, CancellationToken ct);
     }
 }

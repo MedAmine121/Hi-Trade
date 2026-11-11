@@ -1,6 +1,8 @@
-﻿using FluentValidation;
+using FluentValidation;
+using Hi_Trade.DAL.Entities;
 using Hi_Trade.Models.Common;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Hi_Trade.Services.Services
 {
@@ -21,17 +23,31 @@ namespace Hi_Trade.Services.Services
             }
             return await invoke(request, ct);
         }
-        protected string GetUserEmailFromToken(string token)
+        protected static string GetUserEmailFromToken(string token)
         {
-            var handler = new JwtSecurityTokenHandler();
-            token = token.Replace("Bearer ", "");
-            var jwtToken = handler.ReadJwtToken(token);
-            string? email = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub")?.Value;
+            string? email = GetClaimFromToken(token, JwtRegisteredClaimNames.Sub, "sub");
             if (email == null)
             {
                 throw new Exception("Email not found in JWT token");
             }
             return email;
+        }
+
+        protected static Roles GetUserRoleFromToken(string token)
+        {
+            string? roleValue = GetClaimFromToken(token, ClaimTypes.Role, "role");
+            if (!Enum.TryParse<Roles>(roleValue, ignoreCase: true, out var role))
+            {
+                throw new Exception("Role not found in JWT token");
+            }
+            return role;
+        }
+
+        private static string? GetClaimFromToken(string token, params string[] claimTypes)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token.Replace("Bearer ", ""));
+            return jwtToken.Claims.FirstOrDefault(c => claimTypes.Contains(c.Type))?.Value;
         }
     }
 }
