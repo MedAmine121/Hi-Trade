@@ -4,12 +4,21 @@
             <span class="logo-icon">📈</span>
             <span class="logo-text">Hi-Trade</span>
         </div>
+        @if (isAdmin) {
+        <ul class="nav-menu mb-0">
+            <li><a href="javascript:void(0)" (click)="navigateToBackoffice('overview')">Overview</a></li>
+            <li><a href="javascript:void(0)" (click)="navigateToBackoffice('users')">Traders</a></li>
+            <li><a href="javascript:void(0)" (click)="navigateToBackoffice('assets')">Asset Catalog</a></li>
+            <li><a href="javascript:void(0)" (click)="navigateToBackoffice('transactions')">Ledger</a></li>
+        </ul>
+        } @else {
         <ul class="nav-menu mb-0">
             <li><a href="#features">Features</a></li>
             <li><a href="#pricing">Pricing</a></li>
             <li><a href="#about">About</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
+        }
         @if (isAuthenticated && !isAdmin && userService.user()) {
         <div class="balance-display" (click)="addFunds()">
             <span class="balance-label">Balance:</span>
@@ -42,6 +51,9 @@
                     </div>
                     <div class="dropdown-divider"></div>
                     <ul class="dropdown-menu-custom">
+                        @if (isAdmin) {
+                        <li><a href="javascript:void(0)" (click)="navigateToBackoffice('overview')">Backoffice Dashboard</a></li>
+                        }
                         <li><a href="#" (click)="openProfile()">Profile</a></li>
                         <li><a href="#" (click)="closeProfileDropdown()">Settings</a></li>
                     </ul>

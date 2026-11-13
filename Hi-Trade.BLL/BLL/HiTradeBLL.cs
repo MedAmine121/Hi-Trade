@@ -295,6 +295,114 @@ namespace Hi_Trade.BLL.BLL
                 Role = user.Role
             };
         }
+        public async Task<AdminDashboardStatsDTO> GetAdminDashboardStats(CancellationToken ct)
+        {
+            var metrics = await hiTradeDAL.GetPlatformMetrics(ct);
+            var recentTransactionsEntities = await hiTradeDAL.GetRecentTransactions(10, ct);
+            var recentUsersEntities = await hiTradeDAL.GetRecentUsers(10, ct);
+
+            var recentTransactions = recentTransactionsEntities.Select(t => new AdminTransactionDTO
+            {
+                Id = t.Id,
+                TransactionDate = t.CreatedAt,
+                UserFullName = t.Portfolio?.User?.FullName ?? string.Empty,
+                UserEmail = t.Portfolio?.User?.Email ?? string.Empty,
+                PortfolioName = t.Portfolio?.Name ?? string.Empty,
+                AssetTicker = t.Asset?.Ticker ?? string.Empty,
+                AssetName = t.Asset?.Name ?? string.Empty,
+                TransactionType = t.Type.ToString(),
+                Quantity = t.Quantity,
+                PriceAtPurchase = t.PriceAtPurchase,
+                TotalAmount = t.Quantity * t.PriceAtPurchase
+            }).ToList();
+
+            var recentUsers = recentUsersEntities.Select(u => new AdminUserDTO
+            {
+                Id = u.Id,
+                FullName = u.FullName,
+                Email = u.Email,
+                Address = u.Address,
+                Balance = u.Balance,
+                Role = u.Role.ToString(),
+                PortfoliosCount = u.Portfolios.Count,
+                CreatedAt = u.CreatedAt,
+                Enabled = u.Enabled
+            }).ToList();
+
+            return new AdminDashboardStatsDTO
+            {
+                TotalUsers = metrics.TotalUsers,
+                TotalTraders = metrics.TotalTraders,
+                TotalAdmins = metrics.TotalAdmins,
+                TotalPortfolios = metrics.TotalPortfolios,
+                TotalAssets = metrics.TotalAssets,
+                EnabledAssets = metrics.EnabledAssets,
+                DisabledAssets = metrics.DisabledAssets,
+                TotalTransactions = metrics.TotalTransactions,
+                BuyTransactionsCount = metrics.BuyTransactionsCount,
+                SellTransactionsCount = metrics.SellTransactionsCount,
+                TotalTradingVolume = metrics.TotalTradingVolume,
+                TotalUserBalances = metrics.TotalUserBalances,
+                TotalDepositedAmount = metrics.TotalDepositedAmount,
+                RecentTransactions = recentTransactions,
+                RecentUsers = recentUsers
+            };
+        }
+        public async Task<List<AdminUserDTO>> GetAdminUsers(string? search, string? role, bool? enabled, CancellationToken ct)
+        {
+            Roles? roleFilter = null;
+            if (!string.IsNullOrWhiteSpace(role) && Enum.TryParse<Roles>(role, true, out var parsedRole))
+            {
+                roleFilter = parsedRole;
+            }
+
+            var users = await hiTradeDAL.GetUsersFiltered(search, roleFilter, enabled, ct);
+            return users.Select(u => new AdminUserDTO
+            {
+                Id = u.Id,
+                FullName = u.FullName,
+                Email = u.Email,
+                Address = u.Address,
+                Balance = u.Balance,
+                Role = u.Role.ToString(),
+                PortfoliosCount = u.Portfolios.Count,
+                CreatedAt = u.CreatedAt,
+                Enabled = u.Enabled
+            }).ToList();
+        }
+        public async Task<SaveResponse> ToggleUserStatus(int userId, string adminEmail, CancellationToken ct)
+        {
+            var user = await hiTradeDAL.ToggleUserStatus(userId, adminEmail, ct);
+            return new SaveResponse
+            {
+                Success = true,
+                Message = $"User {user.Email} is now {(user.Enabled ? "enabled" : "disabled")}."
+            };
+        }
+        public async Task<List<AdminTransactionDTO>> GetAdminTransactions(string? search, string? type, CancellationToken ct)
+        {
+            TransactionType? typeFilter = null;
+            if (!string.IsNullOrWhiteSpace(type) && Enum.TryParse<TransactionType>(type, true, out var parsedType))
+            {
+                typeFilter = parsedType;
+            }
+
+            var transactions = await hiTradeDAL.GetAllTransactions(search, typeFilter, ct);
+            return transactions.Select(t => new AdminTransactionDTO
+            {
+                Id = t.Id,
+                TransactionDate = t.CreatedAt,
+                UserFullName = t.Portfolio?.User?.FullName ?? string.Empty,
+                UserEmail = t.Portfolio?.User?.Email ?? string.Empty,
+                PortfolioName = t.Portfolio?.Name ?? string.Empty,
+                AssetTicker = t.Asset?.Ticker ?? string.Empty,
+                AssetName = t.Asset?.Name ?? string.Empty,
+                TransactionType = t.Type.ToString(),
+                Quantity = t.Quantity,
+                PriceAtPurchase = t.PriceAtPurchase,
+                TotalAmount = t.Quantity * t.PriceAtPurchase
+            }).ToList();
+        }
         private static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);

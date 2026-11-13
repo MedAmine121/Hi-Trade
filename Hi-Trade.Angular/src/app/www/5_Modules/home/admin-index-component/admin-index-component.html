@@ -1,18 +1,29 @@
 <app-nav-bar-component></app-nav-bar-component>
 
 <div class="admin-dashboard">
+  <!-- Backoffice Header -->
   <header class="dashboard-header">
-    <div>
-      <span class="role-pill">Admin Console</span>
-      <h1 class="dashboard-title">Asset Catalog Management</h1>
+    <div class="header-intro">
+      <div class="header-badge-row">
+        <span class="role-pill">Admin Backoffice Console</span>
+        <span class="system-status-pill">
+          <span class="status-dot"></span> Live Feed Active
+        </span>
+      </div>
+      <h1 class="dashboard-title">Executive Management Dashboard</h1>
       <p class="dashboard-subtitle">
-        Create tradable instruments, monitor live pricing, and control market availability.
+        Platform analytics, trader directory, asset catalog, and global transaction audit.
       </p>
     </div>
 
     <div class="header-actions">
-      <button type="button" class="btn-refresh" (click)="loadAssets()" [disabled]="isLoading()">
-        Refresh
+      <button
+        type="button"
+        class="btn-refresh"
+        (click)="refreshCurrent()"
+        [disabled]="isLoadingStats() || isLoadingUsers() || isLoadingAssets() || isLoadingTransactions()"
+      >
+        <span class="btn-icon">↻</span> Refresh
       </button>
       <button type="button" class="btn-create" (click)="openCreateAssetModal()">
         + Create Asset
@@ -20,21 +31,411 @@
     </div>
   </header>
 
-  <section class="stats-grid" aria-label="Asset summary metrics">
-    <article class="stat-card">
-      <span class="stat-label">{{ hasActiveFilters() ? 'Matching Assets' : 'Total Assets' }}</span>
-      <strong class="stat-value">{{ totalCount() }}</strong>
-    </article>
-    <article class="stat-card stat-card-enabled">
-      <span class="stat-label">Enabled</span>
-      <strong class="stat-value">{{ enabledCount() }}</strong>
-    </article>
-    <article class="stat-card stat-card-disabled">
-      <span class="stat-label">Disabled</span>
-      <strong class="stat-value">{{ disabledCount() }}</strong>
-    </article>
-  </section>
+  <!-- Navigation Tabs -->
+  <nav class="backoffice-tabs" aria-label="Admin Sections">
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'overview'"
+      (click)="setActiveTab('overview')"
+    >
+      <span class="tab-icon">📊</span> Overview & Analytics
+    </button>
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'users'"
+      (click)="setActiveTab('users')"
+    >
+      <span class="tab-icon">👥</span> Traders & Users
+      @if (dashboardStats()) {
+      <span class="tab-count-badge">{{ dashboardStats()?.totalUsers }}</span>
+      }
+    </button>
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'assets'"
+      (click)="setActiveTab('assets')"
+    >
+      <span class="tab-icon">🏷️</span> Asset Catalog
+      @if (dashboardStats()) {
+      <span class="tab-count-badge">{{ dashboardStats()?.totalAssets }}</span>
+      }
+    </button>
+    <button
+      type="button"
+      class="tab-btn"
+      [class.active]="activeTab() === 'transactions'"
+      (click)="setActiveTab('transactions')"
+    >
+      <span class="tab-icon">📜</span> Global Ledger
+      @if (dashboardStats()) {
+      <span class="tab-count-badge">{{ dashboardStats()?.totalTransactions }}</span>
+      }
+    </button>
+  </nav>
 
+  <!-- ============================================================== -->
+  <!-- TAB 1: OVERVIEW & ANALYTICS                                     -->
+  <!-- ============================================================== -->
+  @if (activeTab() === 'overview') {
+  <section class="overview-section">
+    @if (isLoadingStats()) {
+    <div class="state-box">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Loading platform metrics...</p>
+    </div>
+    } @else if (dashboardStats(); as stats) {
+    <!-- 6 Primary KPI Metric Cards -->
+    <div class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-header">
+          <span class="stat-label">Registered Accounts</span>
+          <span class="stat-badge-sub">{{ stats.totalTraders }} Traders · {{ stats.totalAdmins }} Admin</span>
+        </div>
+        <strong class="stat-value">{{ stats.totalUsers }}</strong>
+      </article>
+
+      <article class="stat-card stat-card-portfolios">
+        <div class="stat-header">
+          <span class="stat-label">Active Portfolios</span>
+          <span class="stat-badge-sub">Managed Portfolios</span>
+        </div>
+        <strong class="stat-value">{{ stats.totalPortfolios }}</strong>
+      </article>
+
+      <article class="stat-card stat-card-assets">
+        <div class="stat-header">
+          <span class="stat-label">Tradable Assets</span>
+          <span class="stat-badge-sub">{{ stats.enabledAssets }} Active · {{ stats.disabledAssets }} Off</span>
+        </div>
+        <strong class="stat-value">{{ stats.totalAssets }}</strong>
+      </article>
+
+      <article class="stat-card stat-card-volume">
+        <div class="stat-header">
+          <span class="stat-label">Total Trading Volume</span>
+          <span class="stat-badge-sub">{{ stats.totalTransactions }} Executed Trades</span>
+        </div>
+        <strong class="stat-value">${{ stats.totalTradingVolume | number: '1.2-2' }}</strong>
+      </article>
+
+      <article class="stat-card stat-card-deposits">
+        <div class="stat-header">
+          <span class="stat-label">Total Deposits Succeeded</span>
+          <span class="stat-badge-sub">Stripe Inflow</span>
+        </div>
+        <strong class="stat-value text-emerald-600">${{ stats.totalDepositedAmount | number: '1.2-2' }}</strong>
+      </article>
+
+      <article class="stat-card stat-card-balances">
+        <div class="stat-header">
+          <span class="stat-label">Combined User Balances</span>
+          <span class="stat-badge-sub">Available Liquidity</span>
+        </div>
+        <strong class="stat-value text-indigo-600">${{ stats.totalUserBalances | number: '1.2-2' }}</strong>
+      </article>
+    </div>
+
+    <!-- Quick Insights Banner -->
+    <div class="insights-bar">
+      <div class="insight-item">
+        <span class="insight-title">Platform Order Flow</span>
+        <span class="insight-desc">
+          <strong class="text-emerald-600">{{ stats.buyTransactionsCount }}</strong> Buys vs
+          <strong class="text-indigo-600">{{ stats.sellTransactionsCount }}</strong> Sells
+        </span>
+      </div>
+      <div class="insight-item">
+        <span class="insight-title">Asset Market Readiness</span>
+        <span class="insight-desc">
+          <strong>{{ stats.enabledAssets }}</strong> of <strong>{{ stats.totalAssets }}</strong> assets actively tradable
+        </span>
+      </div>
+      <div class="insight-item">
+        <span class="insight-title">Admin Account Protection</span>
+        <span class="insight-desc">
+          Active administrative session: <strong>{{ userService.user()?.email }}</strong>
+        </span>
+      </div>
+    </div>
+
+    <!-- Overview 2-Column Grid: Recent Trades & Recent Users -->
+    <div class="overview-dual-grid">
+      <!-- Recent Trades -->
+      <article class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title">Recent Platform Trades</h3>
+            <span class="panel-subtitle">Latest market activity across all portfolios</span>
+          </div>
+          <button type="button" class="panel-action-btn" (click)="setActiveTab('transactions')">
+            View All Ledger →
+          </button>
+        </div>
+
+        @if (!stats.recentTransactions || stats.recentTransactions.length === 0) {
+        <p class="empty-panel-text">No trades executed yet.</p>
+        } @else {
+        <div class="table-wrapper">
+          <table class="compact-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Trader</th>
+                <th>Ticker</th>
+                <th>Type</th>
+                <th class="text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (tx of stats.recentTransactions; track tx.id) {
+              <tr>
+                <td class="text-xs text-slate-500">{{ tx.transactionDate | date: 'short' }}</td>
+                <td class="font-medium text-slate-700">{{ tx.userFullName || tx.userEmail }}</td>
+                <td>
+                  <span class="ticker-badge-sm">{{ tx.assetTicker }}</span>
+                </td>
+                <td>
+                  <span
+                    class="type-pill"
+                    [class.type-buy]="tx.transactionType === 'Buy'"
+                    [class.type-sell]="tx.transactionType === 'Sell'"
+                  >
+                    {{ tx.transactionType }}
+                  </span>
+                </td>
+                <td class="text-right font-semibold">${{ tx.totalAmount | number: '1.2-2' }}</td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+      </article>
+
+      <!-- Recent Users -->
+      <article class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title">Recently Registered Traders</h3>
+            <span class="panel-subtitle">Latest trader signups & accounts</span>
+          </div>
+          <button type="button" class="panel-action-btn" (click)="setActiveTab('users')">
+            Manage Traders →
+          </button>
+        </div>
+
+        @if (!stats.recentUsers || stats.recentUsers.length === 0) {
+        <p class="empty-panel-text">No users registered yet.</p>
+        } @else {
+        <div class="table-wrapper">
+          <table class="compact-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Balance</th>
+                <th>Portfolios</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of stats.recentUsers; track user.id) {
+              <tr>
+                <td>
+                  <div class="user-inline-cell">
+                    <span class="avatar-chip">{{ getAvatarInitials(user.fullName) }}</span>
+                    <div>
+                      <div class="font-semibold text-slate-800">{{ user.fullName }}</div>
+                      <div class="text-xs text-slate-400">{{ user.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="role-badge" [class.role-admin]="user.role === 'Admin'">
+                    {{ user.role }}
+                  </span>
+                </td>
+                <td class="font-medium">${{ user.balance | number: '1.2-2' }}</td>
+                <td class="text-center font-semibold text-slate-600">{{ user.portfoliosCount }}</td>
+                <td>
+                  <span class="status-pill" [class.enabled]="user.enabled" [class.disabled]="!user.enabled">
+                    {{ user.enabled ? 'Active' : 'Disabled' }}
+                  </span>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+      </article>
+    </div>
+    }
+  </section>
+  }
+
+  <!-- ============================================================== -->
+  <!-- TAB 2: TRADERS & USERS DIRECTORY                               -->
+  <!-- ============================================================== -->
+  @if (activeTab() === 'users') {
+  <section class="catalog-card">
+    <div class="toolbar">
+      <div class="search-box">
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Search traders by name or email..."
+          aria-label="Search users"
+          [ngModel]="userSearchQuery()"
+          (ngModelChange)="onUserSearchChange($event)"
+        />
+      </div>
+
+      <div class="filter-group" role="group" aria-label="Filter users by role">
+        <span class="filter-label">Role:</span>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="userRoleFilter() === 'all'"
+          (click)="onUserRoleFilterChange('all')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="userRoleFilter() === 'User'"
+          (click)="onUserRoleFilterChange('User')"
+        >
+          Traders
+        </button>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="userRoleFilter() === 'Admin'"
+          (click)="onUserRoleFilterChange('Admin')"
+        >
+          Admins
+        </button>
+      </div>
+
+      <div class="filter-group" role="group" aria-label="Filter users by status">
+        <span class="filter-label">Status:</span>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="userStatusFilter() === 'all'"
+          (click)="onUserStatusFilterChange('all')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="userStatusFilter() === 'enabled'"
+          (click)="onUserStatusFilterChange('enabled')"
+        >
+          Active
+        </button>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="userStatusFilter() === 'disabled'"
+          (click)="onUserStatusFilterChange('disabled')"
+        >
+          Disabled
+        </button>
+      </div>
+    </div>
+
+    @if (isLoadingUsers()) {
+    <div class="state-box">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Loading traders and users...</p>
+    </div>
+    } @else if (users().length === 0) {
+    <div class="state-box">
+      <h3>No users found</h3>
+      <p>No registered users match the search criteria or filter.</p>
+    </div>
+    } @else {
+    <div class="table-wrapper">
+      <table class="assets-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Address</th>
+            <th>Cash Balance</th>
+            <th>Portfolios</th>
+            <th>Joined</th>
+            <th>Status</th>
+            <th class="actions-col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.id) {
+          <tr [class.row-disabled]="!user.enabled">
+            <td>
+              <div class="user-inline-cell">
+                <span class="avatar-chip">{{ getAvatarInitials(user.fullName) }}</span>
+                <div>
+                  <div class="font-semibold text-slate-800">{{ user.fullName }}</div>
+                  <div class="text-xs text-slate-400">{{ user.email }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="role-badge" [class.role-admin]="user.role === 'Admin'">
+                {{ user.role === 'Admin' ? 'Administrator' : 'Trader' }}
+              </span>
+            </td>
+            <td class="text-sm text-slate-600">{{ user.address || '—' }}</td>
+            <td class="font-semibold text-slate-900">${{ user.balance | number: '1.2-2' }}</td>
+            <td class="text-center font-semibold text-slate-600">{{ user.portfoliosCount }}</td>
+            <td class="text-xs text-slate-500">{{ user.createdAt | date: 'mediumDate' }}</td>
+            <td>
+              <span class="status-pill" [class.enabled]="user.enabled" [class.disabled]="!user.enabled">
+                {{ user.enabled ? 'Active' : 'Disabled' }}
+              </span>
+            </td>
+            <td class="actions-col">
+              <button
+                type="button"
+                class="toggle-btn"
+                [class.btn-disable]="user.enabled"
+                [class.btn-enable]="!user.enabled"
+                [disabled]="togglingUserId() === user.id || user.email === userService.user()?.email"
+                (click)="toggleUserStatus(user)"
+                [title]="user.email === userService.user()?.email ? 'Cannot disable self' : ''"
+              >
+                @if (togglingUserId() === user.id) {
+                Updating...
+                } @else if (user.email === userService.user()?.email) {
+                Self (Locked)
+                } @else if (user.enabled) {
+                Disable Account
+                } @else {
+                Enable Account
+                }
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </section>
+  }
+
+  <!-- ============================================================== -->
+  <!-- TAB 3: ASSET CATALOG MANAGEMENT                                -->
+  <!-- ============================================================== -->
+  @if (activeTab() === 'assets') {
   <section class="catalog-card">
     <div class="toolbar">
       <div class="search-box">
@@ -55,7 +456,7 @@
           [class.active]="statusFilter() === 'all'"
           (click)="onStatusFilterChange('all')"
         >
-          All
+          All ({{ totalCount() }})
         </button>
         <button
           type="button"
@@ -63,7 +464,7 @@
           [class.active]="statusFilter() === 'enabled'"
           (click)="onStatusFilterChange('enabled')"
         >
-          Enabled
+          Enabled ({{ enabledCount() }})
         </button>
         <button
           type="button"
@@ -71,7 +472,7 @@
           [class.active]="statusFilter() === 'disabled'"
           (click)="onStatusFilterChange('disabled')"
         >
-          Disabled
+          Disabled ({{ disabledCount() }})
         </button>
 
         @if (hasActiveFilters()) {
@@ -80,7 +481,7 @@
       </div>
     </div>
 
-    @if (isLoading()) {
+    @if (isLoadingAssets()) {
     <div class="state-box">
       <div class="spinner" aria-hidden="true"></div>
       <p>Loading assets...</p>
@@ -110,8 +511,8 @@
           <tr>
             <th>Ticker</th>
             <th>Asset Name</th>
-            <th>Current Price</th>
-            <th>Status</th>
+            <th>Current Finnhub Price</th>
+            <th>Market Status</th>
             <th class="actions-col">Actions</th>
           </tr>
         </thead>
@@ -125,7 +526,7 @@
             <td class="asset-price">${{ asset.currentPrice | number: '1.2-4' }}</td>
             <td>
               <span class="status-pill" [class.enabled]="asset.enabled" [class.disabled]="!asset.enabled">
-                {{ asset.enabled ? 'Enabled' : 'Disabled' }}
+                {{ asset.enabled ? 'Tradable' : 'Disabled' }}
               </span>
             </td>
             <td class="actions-col">
@@ -140,9 +541,9 @@
                 @if (togglingAssetId() === asset.id) {
                 Updating...
                 } @else if (asset.enabled) {
-                Disable
+                Halt / Disable
                 } @else {
-                Enable
+                Enable Trading
                 }
               </button>
             </td>
@@ -153,6 +554,116 @@
     </div>
     }
   </section>
+  }
+
+  <!-- ============================================================== -->
+  <!-- TAB 4: GLOBAL TRADING LEDGER & AUDIT TRAIL                     -->
+  <!-- ============================================================== -->
+  @if (activeTab() === 'transactions') {
+  <section class="catalog-card">
+    <div class="toolbar">
+      <div class="search-box">
+        <input
+          type="search"
+          class="search-input"
+          placeholder="Search by ticker, trader email, or portfolio..."
+          aria-label="Search transactions"
+          [ngModel]="txSearchQuery()"
+          (ngModelChange)="onTxSearchChange($event)"
+        />
+      </div>
+
+      <div class="filter-group" role="group" aria-label="Filter transactions by type">
+        <span class="filter-label">Order Type:</span>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="txTypeFilter() === 'all'"
+          (click)="onTxTypeFilterChange('all')"
+        >
+          All Orders
+        </button>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="txTypeFilter() === 'Buy'"
+          (click)="onTxTypeFilterChange('Buy')"
+        >
+          Buys
+        </button>
+        <button
+          type="button"
+          class="filter-btn"
+          [class.active]="txTypeFilter() === 'Sell'"
+          (click)="onTxTypeFilterChange('Sell')"
+        >
+          Sells
+        </button>
+      </div>
+    </div>
+
+    @if (isLoadingTransactions()) {
+    <div class="state-box">
+      <div class="spinner" aria-hidden="true"></div>
+      <p>Loading transaction audit log...</p>
+    </div>
+    } @else if (transactions().length === 0) {
+    <div class="state-box">
+      <h3>No transactions recorded</h3>
+      <p>No trades have been executed yet matching the specified filter.</p>
+    </div>
+    } @else {
+    <div class="table-wrapper">
+      <table class="assets-table">
+        <thead>
+          <tr>
+            <th>Execution Time</th>
+            <th>Trader</th>
+            <th>Portfolio</th>
+            <th>Asset</th>
+            <th>Type</th>
+            <th>Shares</th>
+            <th>Execution Price</th>
+            <th class="text-right">Total Trade Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (tx of transactions(); track tx.id) {
+          <tr>
+            <td class="text-xs text-slate-500 whitespace-nowrap">
+              {{ tx.transactionDate | date: 'medium' }}
+            </td>
+            <td>
+              <div class="font-medium text-slate-800">{{ tx.userFullName }}</div>
+              <div class="text-xs text-slate-400">{{ tx.userEmail }}</div>
+            </td>
+            <td class="text-sm font-medium text-slate-700">{{ tx.portfolioName }}</td>
+            <td>
+              <div class="flex items-center gap-1.5">
+                <span class="ticker-badge-sm">{{ tx.assetTicker }}</span>
+                <span class="text-xs text-slate-500">{{ tx.assetName }}</span>
+              </div>
+            </td>
+            <td>
+              <span
+                class="type-pill"
+                [class.type-buy]="tx.transactionType === 'Buy'"
+                [class.type-sell]="tx.transactionType === 'Sell'"
+              >
+                {{ tx.transactionType }}
+              </span>
+            </td>
+            <td class="font-medium text-slate-700">{{ tx.quantity | number: '1.0-4' }}</td>
+            <td class="font-medium text-slate-700">${{ tx.priceAtPurchase | number: '1.2-4' }}</td>
+            <td class="text-right font-bold text-slate-900">${{ tx.totalAmount | number: '1.2-2' }}</td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    }
+  </section>
+  }
 </div>
 
 <app-create-asset-modal-component (assetCreated)="onAssetCreated()"></app-create-asset-modal-component>

@@ -23,5 +23,9 @@ namespace Hi_Trade.BLL.Interfaces
         Task<SaveResponse> ConfirmPayment(ConfirmPaymentRequest request, CancellationToken ct);
         Task<List<TransactionDTO>> GetPortfolioTransactions(GetPortfolioTransactionsRequest request, CancellationToken ct);
         Task<UserDTO> EditProfile(EditProfileRequest request, CancellationToken ct);
+        Task<AdminDashboardStatsDTO> GetAdminDashboardStats(CancellationToken ct);
+        Task<List<AdminUserDTO>> GetAdminUsers(string? search, string? role, bool? enabled, CancellationToken ct);
+        Task<SaveResponse> ToggleUserStatus(int userId, string adminEmail, CancellationToken ct);
+        Task<List<AdminTransactionDTO>> GetAdminTransactions(string? search, string? type, CancellationToken ct);
     }
 }

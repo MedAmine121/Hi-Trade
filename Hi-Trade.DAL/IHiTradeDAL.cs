@@ -23,5 +23,11 @@ namespace Hi_Trade.DAL
         Task<(bool, string)> AddFunds(string paymentId, string email, long amount, CancellationToken ct);
         Task<List<Transaction>> GetPortfolioTransactions(int portfolioId,string email, CancellationToken ct);
         Task<User> EditProfile(string oldEmail, string email, string fullName, string address, string profilePictureUrl, CancellationToken ct);
+        Task<List<User>> GetUsersFiltered(string? search, Roles? role, bool? enabled, CancellationToken ct);
+        Task<User> ToggleUserStatus(int userId, string adminEmail, CancellationToken ct);
+        Task<List<Transaction>> GetAllTransactions(string? search, TransactionType? type, CancellationToken ct);
+        Task<(int TotalUsers, int TotalTraders, int TotalAdmins, int TotalPortfolios, int TotalAssets, int EnabledAssets, int DisabledAssets, int TotalTransactions, int BuyTransactionsCount, int SellTransactionsCount, decimal TotalTradingVolume, decimal TotalUserBalances, decimal TotalDepositedAmount)> GetPlatformMetrics(CancellationToken ct);
+        Task<List<Transaction>> GetRecentTransactions(int count, CancellationToken ct);
+        Task<List<User>> GetRecentUsers(int count, CancellationToken ct);
     }
 }

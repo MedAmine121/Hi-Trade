@@ -322,5 +322,114 @@ namespace Hi_Trade.DAL
             await context.SaveChangesAsync(ct);
             return user;
         }
+        public async Task<List<User>> GetUsersFiltered(string? search, Roles? role, bool? enabled, CancellationToken ct)
+        {
+            var query = context.Users.Include(u => u.Portfolios).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string term = search.Trim().ToLower();
+                query = query.Where(u => u.FullName.ToLower().Contains(term) || u.Email.ToLower().Contains(term));
+            }
+
+            if (role.HasValue)
+            {
+                query = query.Where(u => u.Role == role.Value);
+            }
+
+            if (enabled.HasValue)
+            {
+                query = query.Where(u => u.Enabled == enabled.Value);
+            }
+
+            return await query.OrderByDescending(u => u.CreatedAt).ToListAsync(ct);
+        }
+        public async Task<User> ToggleUserStatus(int userId, string adminEmail, CancellationToken ct)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId, ct)
+                ?? throw new Exception("User not found.");
+
+            if (user.Email.Equals(adminEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new Exception("Cannot disable your own administrator account.");
+            }
+
+            user.Enabled = !user.Enabled;
+            context.Users.Update(user);
+            int result = await context.SaveChangesAsync(ct);
+            if (result <= 0)
+            {
+                throw new Exception("Failed to update user status.");
+            }
+            return user;
+        }
+        public async Task<List<Transaction>> GetAllTransactions(string? search, TransactionType? type, CancellationToken ct)
+        {
+            var query = context.Transactions
+                .Include(t => t.Asset)
+                .Include(t => t.Portfolio)
+                .ThenInclude(p => p.User)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string term = search.Trim().ToLower();
+                query = query.Where(t => t.Asset.Ticker.ToLower().Contains(term)
+                    || t.Asset.Name.ToLower().Contains(term)
+                    || t.Portfolio.Name.ToLower().Contains(term)
+                    || t.Portfolio.User.Email.ToLower().Contains(term)
+                    || t.Portfolio.User.FullName.ToLower().Contains(term));
+            }
+
+            if (type.HasValue)
+            {
+                query = query.Where(t => t.Type == type.Value);
+            }
+
+            return await query.OrderByDescending(t => t.CreatedAt).ToListAsync(ct);
+        }
+        public async Task<(int TotalUsers, int TotalTraders, int TotalAdmins, int TotalPortfolios, int TotalAssets, int EnabledAssets, int DisabledAssets, int TotalTransactions, int BuyTransactionsCount, int SellTransactionsCount, decimal TotalTradingVolume, decimal TotalUserBalances, decimal TotalDepositedAmount)> GetPlatformMetrics(CancellationToken ct)
+        {
+            int totalUsers = await context.Users.CountAsync(ct);
+            int totalTraders = await context.Users.CountAsync(u => u.Role == Roles.User, ct);
+            int totalAdmins = await context.Users.CountAsync(u => u.Role == Roles.Admin, ct);
+            int totalPortfolios = await context.Portfolios.CountAsync(ct);
+            int totalAssets = await context.Assets.CountAsync(ct);
+            int enabledAssets = await context.Assets.CountAsync(a => a.Enabled, ct);
+            int disabledAssets = await context.Assets.CountAsync(a => !a.Enabled, ct);
+            int totalTransactions = await context.Transactions.CountAsync(ct);
+            int buyCount = await context.Transactions.CountAsync(t => t.Type == TransactionType.Buy, ct);
+            int sellCount = await context.Transactions.CountAsync(t => t.Type == TransactionType.Sell, ct);
+            decimal volume = totalTransactions > 0
+                ? await context.Transactions.SumAsync(t => t.Quantity * t.PriceAtPurchase, ct)
+                : 0m;
+            decimal totalBalances = totalUsers > 0
+                ? await context.Users.SumAsync(u => u.Balance, ct)
+                : 0m;
+            long? depositCents = await context.PaymentTraces
+                .Where(p => p.Status == "succeeded")
+                .SumAsync(p => (long?)p.Amount, ct);
+            decimal totalDeposited = (depositCents ?? 0L) / 100m;
+
+            return (totalUsers, totalTraders, totalAdmins, totalPortfolios, totalAssets, enabledAssets, disabledAssets, totalTransactions, buyCount, sellCount, volume, totalBalances, totalDeposited);
+        }
+        public async Task<List<Transaction>> GetRecentTransactions(int count, CancellationToken ct)
+        {
+            return await context.Transactions
+                .Include(t => t.Asset)
+                .Include(t => t.Portfolio)
+                .ThenInclude(p => p.User)
+                .OrderByDescending(t => t.CreatedAt)
+                .Take(count)
+                .ToListAsync(ct);
+        }
+        public async Task<List<User>> GetRecentUsers(int count, CancellationToken ct)
+        {
+            return await context.Users
+                .Include(u => u.Portfolios)
+                .OrderByDescending(u => u.CreatedAt)
+                .Take(count)
+                .ToListAsync(ct);
+        }
     }
 }
