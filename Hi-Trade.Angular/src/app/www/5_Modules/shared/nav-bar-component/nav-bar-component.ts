@@ -69,6 +69,10 @@ export class NavBarComponent extends BaseComponent implements OnInit {
   onLogout(): void {
     this.redirectTo([this.navConstants.logout]);
   }
+  navigateToBackoffice(tab: string = 'overview'): void {
+    this.closeProfileDropdown();
+    this.router.navigate([this.navConstants.backoffice], { queryParams: { tab } });
+  }
   addFunds(): void {
     this.addFundsModal.openModal();
   }
