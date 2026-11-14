@@ -1,4 +1,6 @@
 ﻿using Hi_Trade.BLL.Interfaces;
+using Hi_Trade.Services.Common;
+using Hi_Trade.Services.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -22,8 +24,15 @@ namespace Hi_Trade.Services.Services
                     try
                     {
                         var hiTradeBLL = scope.ServiceProvider.GetRequiredService<IHiTradeBLL>();
+                        var cacheService = scope.ServiceProvider.GetService<ICacheService>();
                         logger.LogInformation("Updating asset prices...");
                         await hiTradeBLL.UpdateAssetPrices(ct);
+                        if (cacheService != null)
+                        {
+                            await cacheService.RemoveAsync(CacheKeys.EnabledAssets, ct);
+                            await cacheService.RemoveByPrefixAsync(CacheKeys.AssetsPrefix, ct);
+                            await cacheService.RemoveByPrefixAsync(CacheKeys.UserPrefix + "portfolios", ct);
+                        }
                         RetryCount = 0;
                         logger.LogInformation("Asset prices updated successfully.");
                     }
