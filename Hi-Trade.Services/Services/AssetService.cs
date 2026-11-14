@@ -6,6 +6,7 @@ using Hi_Trade.DAL.Entities;
 using Hi_Trade.Models.Common;
 using Hi_Trade.Models.Requests;
 using Hi_Trade.Models.Responses;
+using Hi_Trade.Services.Common;
 using Hi_Trade.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Hi_Trade.Services.Services
 {
-    public class AssetService(IHiTradeBLL hiTradeBLL, ILogger<AssetService> logger, IServiceProvider serviceProvider) : BaseService(serviceProvider), IAssetService
+    public class AssetService(IHiTradeBLL hiTradeBLL, ILogger<AssetService> logger, IServiceProvider serviceProvider, ICacheService? cacheService = null) : BaseService(serviceProvider), IAssetService
     {
         public async Task<BaseResult<SaveResponse>> CreateAsset(CreateAssetRequest request, CancellationToken ct)
         {
@@ -25,6 +26,11 @@ namespace Hi_Trade.Services.Services
                 SaveResponse? asset = await Validate(hiTradeBLL.CreateAsset!, request, ct);
                 if (asset != null)
                 {
+                    if (asset.Success && cacheService != null)
+                    {
+                        await cacheService.RemoveAsync(CacheKeys.EnabledAssets, ct);
+                        await cacheService.RemoveByPrefixAsync(CacheKeys.AssetsPrefix, ct);
+                    }
                     return new BaseResult<SaveResponse>
                     {
                         Model = asset,
@@ -61,17 +67,59 @@ namespace Hi_Trade.Services.Services
         }
         public async Task<BaseResult<List<AssetDTO>>> GetAllEnabledAssets(CancellationToken ct)
         {
-            return await ExecuteAssetQuery(() => hiTradeBLL.GetAllEnabledAssets(ct), "Failed to fetch assets", "An error occurred while fetching assets");
+            if (cacheService != null)
+            {
+                var cached = await cacheService.GetAsync<List<AssetDTO>>(CacheKeys.EnabledAssets, ct);
+                if (cached != null)
+                {
+                    return new BaseResult<List<AssetDTO>>
+                    {
+                        Model = cached,
+                        ResultType = ResultType.Success
+                    };
+                }
+            }
+
+            var result = await ExecuteAssetQuery(() => hiTradeBLL.GetAllEnabledAssets(ct), "Failed to fetch assets", "An error occurred while fetching assets");
+            if (result.ResultType == ResultType.Success && result.Model != null && cacheService != null)
+            {
+                await cacheService.SetAsync(CacheKeys.EnabledAssets, result.Model, CacheKeys.DefaultAssetsExpiry, ct);
+            }
+            return result;
         }
         public async Task<BaseResult<List<AssetDTO>>> GetAllAssets(string? search, bool? enabled, CancellationToken ct)
         {
-            return await ExecuteAssetQuery(() => hiTradeBLL.GetAllAssets(search, enabled, ct), "Failed to fetch assets", "An error occurred while fetching all assets");
+            var cacheKey = CacheKeys.AllAssets(search, enabled);
+            if (cacheService != null)
+            {
+                var cached = await cacheService.GetAsync<List<AssetDTO>>(cacheKey, ct);
+                if (cached != null)
+                {
+                    return new BaseResult<List<AssetDTO>>
+                    {
+                        Model = cached,
+                        ResultType = ResultType.Success
+                    };
+                }
+            }
+
+            var result = await ExecuteAssetQuery(() => hiTradeBLL.GetAllAssets(search, enabled, ct), "Failed to fetch assets", "An error occurred while fetching all assets");
+            if (result.ResultType == ResultType.Success && result.Model != null && cacheService != null)
+            {
+                await cacheService.SetAsync(cacheKey, result.Model, CacheKeys.DefaultAssetsExpiry, ct);
+            }
+            return result;
         }
         public async Task<BaseResult<SaveResponse>> ToggleAssetStatus(int assetId, CancellationToken ct)
         {
             try
             {
                 SaveResponse response = await hiTradeBLL.ToggleAssetStatus(assetId, ct);
+                if (response.Success && cacheService != null)
+                {
+                    await cacheService.RemoveAsync(CacheKeys.EnabledAssets, ct);
+                    await cacheService.RemoveByPrefixAsync(CacheKeys.AssetsPrefix, ct);
+                }
                 return new BaseResult<SaveResponse>
                 {
                     Model = response,

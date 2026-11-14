@@ -1,6 +1,7 @@
 using Hi_Trade.BLL.Interfaces;
 using Hi_Trade.Models.Common;
 using Hi_Trade.Models.Responses;
+using Hi_Trade.Services.Common;
 using Hi_Trade.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
@@ -10,14 +11,32 @@ using System.Threading.Tasks;
 
 namespace Hi_Trade.Services.Services
 {
-    public class AdminService(IHiTradeBLL hiTradeBLL, ILogger<AdminService> logger, IServiceProvider serviceProvider)
+    public class AdminService(IHiTradeBLL hiTradeBLL, ILogger<AdminService> logger, IServiceProvider serviceProvider, ICacheService? cacheService = null)
         : BaseService(serviceProvider), IAdminService
     {
         public async Task<BaseResult<AdminDashboardStatsDTO>> GetDashboardStats(CancellationToken ct)
         {
             try
             {
+                if (cacheService != null)
+                {
+                    var cached = await cacheService.GetAsync<AdminDashboardStatsDTO>(CacheKeys.AdminDashboardStats, ct);
+                    if (cached != null)
+                    {
+                        return new BaseResult<AdminDashboardStatsDTO>
+                        {
+                            Model = cached,
+                            ResultType = ResultType.Success
+                        };
+                    }
+                }
+
                 var stats = await hiTradeBLL.GetAdminDashboardStats(ct);
+                if (stats != null && cacheService != null)
+                {
+                    await cacheService.SetAsync(CacheKeys.AdminDashboardStats, stats, CacheKeys.DefaultDashboardStatsExpiry, ct);
+                }
+
                 return new BaseResult<AdminDashboardStatsDTO>
                 {
                     Model = stats,
@@ -65,6 +84,11 @@ namespace Hi_Trade.Services.Services
             {
                 string adminEmail = GetUserEmailFromToken(token);
                 var response = await hiTradeBLL.ToggleUserStatus(userId, adminEmail, ct);
+                if (response.Success && cacheService != null)
+                {
+                    await cacheService.RemoveByPrefixAsync(CacheKeys.UserPrefix, ct);
+                    await cacheService.RemoveAsync(CacheKeys.AdminDashboardStats, ct);
+                }
                 return new BaseResult<SaveResponse>
                 {
                     Model = response,

@@ -3,6 +3,7 @@ using Hi_Trade.BLL.Interfaces;
 using Hi_Trade.Models.Common;
 using Hi_Trade.Models.Requests;
 using Hi_Trade.Models.Responses;
+using Hi_Trade.Services.Common;
 using Hi_Trade.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
@@ -14,16 +15,33 @@ using System.Threading.Tasks;
 
 namespace Hi_Trade.Services.Services
 {
-    public class PortfolioService(IHiTradeBLL hiTradeBLL, ILogger<PortfolioService> logger, IServiceProvider serviceProvider) : BaseService(serviceProvider), IPortfolioService
+    public class PortfolioService(IHiTradeBLL hiTradeBLL, ILogger<PortfolioService> logger, IServiceProvider serviceProvider, ICacheService? cacheService = null) : BaseService(serviceProvider), IPortfolioService
     {
         public async Task<BaseResult<List<PortfolioDTO>>> GetUserPortfolios(string token, CancellationToken ct)
         {
             try
             {
                 string email = GetUserEmailFromToken(token);
+                if (cacheService != null)
+                {
+                    var cachedPortfolios = await cacheService.GetAsync<List<PortfolioDTO>>(CacheKeys.UserPortfolios(email), ct);
+                    if (cachedPortfolios != null)
+                    {
+                        return new BaseResult<List<PortfolioDTO>>
+                        {
+                            Model = cachedPortfolios,
+                            ResultType = ResultType.Success
+                        };
+                    }
+                }
+
                 List<PortfolioDTO> portfolios = await hiTradeBLL.GetUserPortfolios(email, ct);
                 if (portfolios != null)
                 {
+                    if (cacheService != null)
+                    {
+                        await cacheService.SetAsync(CacheKeys.UserPortfolios(email), portfolios, CacheKeys.DefaultPortfoliosExpiry, ct);
+                    }
                     return new BaseResult<List<PortfolioDTO>>
                     {
                         Model = portfolios,
@@ -52,6 +70,10 @@ namespace Hi_Trade.Services.Services
                 SaveResponse? asset = await Validate(hiTradeBLL.CreateUserPortfolio!, request, ct);
                 if (asset != null)
                 {
+                    if (asset.Success && cacheService != null)
+                    {
+                        await cacheService.RemoveAsync(CacheKeys.UserPortfolios(email), ct);
+                    }
                     return new BaseResult<SaveResponse>
                     {
                         Model = asset,
@@ -95,6 +117,12 @@ namespace Hi_Trade.Services.Services
                 SaveResponse? asset = await Validate(hiTradeBLL.BuyAsset!, request, ct);
                 if (asset != null)
                 {
+                    if (asset.Success && cacheService != null)
+                    {
+                        await cacheService.RemoveAsync(CacheKeys.UserProfile(email), ct);
+                        await cacheService.RemoveAsync(CacheKeys.UserPortfolios(email), ct);
+                        await cacheService.RemoveAsync(CacheKeys.AdminDashboardStats, ct);
+                    }
                     return new BaseResult<SaveResponse>
                     {
                         Model = asset,
@@ -138,6 +166,12 @@ namespace Hi_Trade.Services.Services
                 SaveResponse? asset = await Validate(hiTradeBLL.SellAsset!, request, ct);
                 if (asset != null)
                 {
+                    if (asset.Success && cacheService != null)
+                    {
+                        await cacheService.RemoveAsync(CacheKeys.UserProfile(email), ct);
+                        await cacheService.RemoveAsync(CacheKeys.UserPortfolios(email), ct);
+                        await cacheService.RemoveAsync(CacheKeys.AdminDashboardStats, ct);
+                    }
                     return new BaseResult<SaveResponse>
                     {
                         Model = asset,

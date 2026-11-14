@@ -3,6 +3,7 @@ using Hi_Trade.BLL.Interfaces;
 using Hi_Trade.Models.Common;
 using Hi_Trade.Models.Requests;
 using Hi_Trade.Models.Responses;
+using Hi_Trade.Services.Common;
 using Hi_Trade.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,7 +18,7 @@ using ResultType = Hi_Trade.Models.Common.ResultType;
 
 namespace Hi_Trade.Services.Services
 {
-    public class UserService(IHiTradeBLL hiTradeBLL, ITokenBLL tokenBLL, ILogger<UserService> logger, IServiceProvider serviceProvider, IOptions<RedisOptions> redisOptions) : BaseService(serviceProvider), IUserService
+    public class UserService(IHiTradeBLL hiTradeBLL, ITokenBLL tokenBLL, ILogger<UserService> logger, IServiceProvider serviceProvider, IOptions<RedisOptions> redisOptions, ICacheService? cacheService = null) : BaseService(serviceProvider), IUserService
     {
         public async Task<BaseResult<UserDTO>> CreateUser(CreateUserRequest request, CancellationToken ct)
         {
@@ -63,6 +64,10 @@ namespace Hi_Trade.Services.Services
                 if (user != null)
                 {
                     user = tokenBLL.GenerateJwtToken(user);
+                    if (cacheService != null)
+                    {
+                        await cacheService.SetAsync(CacheKeys.UserProfile(user.Email), user, CacheKeys.DefaultUserExpiry, ct);
+                    }
                 }
                 else
                 {
@@ -94,16 +99,7 @@ namespace Hi_Trade.Services.Services
         {
             try
             {
-                token = token.Replace("Bearer ", "");
-                var redis = await ConnectionMultiplexer.ConnectAsync(
-                    new ConfigurationOptions
-                    {
-                        EndPoints = { { redisOptions.Value.EndpointUrl, redisOptions.Value.Port } },
-                        User = redisOptions.Value.User,
-                        Password = redisOptions.Value.Password
-                    }
-                );
-                IDatabase db = redis.GetDatabase();
+                token = token.Replace("Bearer ", "").Trim();
                 var handler = new JwtSecurityTokenHandler();
                 var jwtToken = handler.ReadJwtToken(token);
                 var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == "jti")?.Value;
@@ -117,7 +113,36 @@ namespace Hi_Trade.Services.Services
                     };
                 }
                 var exp = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim)).UtcDateTime;
-                await db.StringSetAsync(jti, "revoked", exp - DateTime.UtcNow);
+                var ttl = exp - DateTime.UtcNow;
+                if (ttl <= TimeSpan.Zero)
+                {
+                    ttl = TimeSpan.FromMinutes(1);
+                }
+
+                if (cacheService != null)
+                {
+                    await cacheService.SetAsync(CacheKeys.TokenBlacklist(jti), "revoked", ttl);
+                    var emailClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "sub" || c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+                    if (!string.IsNullOrWhiteSpace(emailClaim))
+                    {
+                        await cacheService.RemoveAsync(CacheKeys.UserProfile(emailClaim));
+                        await cacheService.RemoveAsync(CacheKeys.UserPortfolios(emailClaim));
+                    }
+                }
+                else
+                {
+                    var redis = await ConnectionMultiplexer.ConnectAsync(
+                        new ConfigurationOptions
+                        {
+                            EndPoints = { { redisOptions.Value.EndpointUrl, redisOptions.Value.Port } },
+                            User = redisOptions.Value.User,
+                            Password = redisOptions.Value.Password
+                        }
+                    );
+                    IDatabase db = redis.GetDatabase();
+                    await db.StringSetAsync(jti, "revoked", ttl);
+                }
+
                 return new BaseResult<SaveResponse>
                 {
                     Model = new SaveResponse { Success = true },
@@ -140,7 +165,25 @@ namespace Hi_Trade.Services.Services
             try
             {
                 string email = GetUserEmailFromToken(token);
+                if (cacheService != null)
+                {
+                    var cachedUser = await cacheService.GetAsync<UserDTO>(CacheKeys.UserProfile(email), ct);
+                    if (cachedUser != null)
+                    {
+                        return new BaseResult<UserDTO>
+                        {
+                            Model = cachedUser,
+                            ResultType = ResultType.Success
+                        };
+                    }
+                }
+
                 UserDTO? user = await hiTradeBLL.FetchUser(email, ct);
+                if (user != null && cacheService != null)
+                {
+                    await cacheService.SetAsync(CacheKeys.UserProfile(email), user, CacheKeys.DefaultUserExpiry, ct);
+                }
+
                 return new BaseResult<UserDTO>
                 {
                     Model = user,
@@ -162,6 +205,19 @@ namespace Hi_Trade.Services.Services
         {
             try
             {
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token.Replace("Bearer ", "").Trim());
+                var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == "jti")?.Value;
+                if (string.IsNullOrWhiteSpace(jti))
+                {
+                    return false;
+                }
+
+                if (cacheService != null)
+                {
+                    return await cacheService.ExistsAsync(CacheKeys.TokenBlacklist(jti));
+                }
+
                 var redis = ConnectionMultiplexer.Connect(
                     new ConfigurationOptions
                     {
@@ -171,9 +227,6 @@ namespace Hi_Trade.Services.Services
                     }
                 );
                 IDatabase db = redis.GetDatabase();
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
-                var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == "jti")?.Value;
                 var blacklisted = await db.StringGetAsync(jti);
                 if(blacklisted.HasValue)
                 {
@@ -227,6 +280,11 @@ namespace Hi_Trade.Services.Services
                 string email = GetUserEmailFromToken(token);
                 request.Email = email;
                 SaveResponse? user = await Validate(hiTradeBLL.ConfirmPayment!, request, ct);
+                if (user != null && user.Success && cacheService != null)
+                {
+                    await cacheService.RemoveAsync(CacheKeys.UserProfile(email), ct);
+                    await cacheService.RemoveAsync(CacheKeys.AdminDashboardStats, ct);
+                }
                 return new BaseResult<SaveResponse>
                 {
                     Model = user,
@@ -264,6 +322,15 @@ namespace Hi_Trade.Services.Services
                 if (user != null)
                 {
                     user = tokenBLL.GenerateJwtToken(user);
+                    if (cacheService != null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(request.OldEmail))
+                        {
+                            await cacheService.RemoveAsync(CacheKeys.UserProfile(request.OldEmail), ct);
+                            await cacheService.RemoveAsync(CacheKeys.UserPortfolios(request.OldEmail), ct);
+                        }
+                        await cacheService.SetAsync(CacheKeys.UserProfile(user.Email), user, CacheKeys.DefaultUserExpiry, ct);
+                    }
                 }
                 return new BaseResult<UserDTO>
                 {
