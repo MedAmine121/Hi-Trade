@@ -1,0 +1,92 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hitrade-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-HiTrade@2026Password!}"
+      MSSQL_PID: "Developer"
+    ports:
+      - "${MSSQL_PORT:-1433}:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+      - ./scripts:/scripts:ro
+    healthcheck:
+      test: >
+        /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" 2>/dev/null ||
+        /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -Q "SELECT 1" 2>/dev/null ||
+        exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - hitrade-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: hitrade-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - hitrade-network
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: hitrade-mailhog
+    restart: unless-stopped
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025" # SMTP server
+      - "${MAILHOG_UI_PORT:-8025}:8025"   # Web UI dashboard
+    networks:
+      - hitrade-network
+
+  db-seed:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hitrade-db-seed
+    restart: "no"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - ./scripts:/scripts:ro
+    environment:
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-HiTrade@2026Password!}"
+    entrypoint: |
+      /bin/bash -c "
+      set -e
+      echo 'SQL Server is healthy. Initializing database schema...'
+      SQLCMD='/opt/mssql-tools18/bin/sqlcmd'
+      FLAGS='-C'
+      if [ ! -f \"\$$SQLCMD\" ]; then
+          SQLCMD='/opt/mssql-tools/bin/sqlcmd'
+          FLAGS=''
+      fi
+      \"\$$SQLCMD\" -S sqlserver -U sa -P \"\$$MSSQL_SA_PASSWORD\" \$$FLAGS -i /scripts/init-migrations.sql
+      echo 'Schema initialized. Seeding current platform assets...'
+      \"\$$SQLCMD\" -S sqlserver -U sa -P \"\$$MSSQL_SA_PASSWORD\" \$$FLAGS -i /scripts/seed-assets.sql
+      echo 'Database initialization and asset seeding completed successfully!'
+      "
+    networks:
+      - hitrade-network
+
+volumes:
+  sqlserver_data:
+    name: hitrade_sqlserver_data
+  redis_data:
+    name: hitrade_redis_data
+
+networks:
+  hitrade-network:
+    name: hitrade-network
+    driver: bridge

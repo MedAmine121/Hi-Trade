@@ -16,13 +16,15 @@ Hi-Trade is a full-stack web application that provides a complete trading platfo
 ### Backend
 - **.NET 8** - Modern ASP.NET Core framework
 - **Entity Framework Core 8** - ORM for database access
-- **SQL Server** - Primary data store
-- **JWT Authentication** - Secure token-based authentication
-- **Serilog** - Structured logging
-- **Redis** - Caching and session management
-- **Swagger/OpenAPI** - API documentation
-- **FluentValidation** - Input validation
-- **Stripe** - Payment processing
+- **SQL Server 2022** - Primary relational data store (Docker container)
+- **Redis 7** - Distributed caching, session revocation & performance optimization (Docker container)
+- **MailHog** - Local SMTP testing & web-based email viewer (Docker container)
+- **JWT Authentication** - Secure token-based authentication with Redis revocation
+- **Serilog** - Structured logging (Console & Rolling File)
+- **Swagger/OpenAPI** - Interactive API documentation
+- **FluentValidation** - Robust request model validation
+- **Stripe** - Payment processing & wallet funding
+- **Finnhub** - Real-time market quotes and automated price synchronization
 
 ### Frontend
 - **Angular** - Progressive web application framework
@@ -91,72 +93,140 @@ Hi-Trade/                    # Main API project
 
 ### Prerequisites
 
-- .NET 8 SDK or later
-- SQL Server (or SQL Server LocalDB)
-- Node.js 18+ (for Angular frontend)
-- Redis (optional, for caching)
-- Stripe account (for payment processing)
-- Finnhub API key (for stock prices)
+- **Docker & Docker Compose** (for running SQL Server, Redis, and MailHog containers)
+- **.NET 8 SDK** or later
+- **Node.js 18+** (for the Angular frontend)
+- **Stripe Account** (for payment processing / funding)
+- **Finnhub API Key** (for real-time stock price synchronization)
 
-### Installation & Setup
+---
 
-#### 1. Database Configuration
+### 1. Start Docker Infrastructure (SQL Server, Redis & MailHog)
 
-Update `appsettings.json` with your SQL Server connection string:
+Hi-Trade includes a `docker-compose.yml` that provisions all local development services:
+- **SQL Server 2022**: Relational database engine on port `1433`.
+- **Redis 7 (Alpine)**: In-memory cache & JWT token revocation store on port `6379`.
+- **MailHog**: Local mock SMTP server on port `1025` with a Web UI inbox on port `8025`.
+- **Automated Seeder (`db-seed`)**: Initializes schema migrations and seeds the current asset catalog once SQL Server is healthy.
 
-```json
-"ConnectionStrings": {
-  "HiTradeConnection": "Server=YOUR_SERVER;Database=HiTrade;Trusted_Connection=true;"
-}
-```
-
-#### 2. JWT Configuration
-
-Configure JWT settings in `appsettings.json`:
-
-```json
-"JWTOptions": {
-  "Secret": "your_secret_key_here",
-  "Issuer": "your_issuer",
-  "Audience": "your_audience",
-  "ExpirationMinutes": 60
-}
-```
-
-#### 3. External Services Configuration
-
-Configure required external services:
-
-```json
-"FinnhubToken": "your_finnhub_api_key",
-"stripeRestrictedKey": "your_stripe_key",
-"Redis": {
-  "EndpointUrl": "localhost",
-  "EndpointPort": "6379",
-  "User": "",
-  "Password": ""
-},
-"AngularUrl": "http://localhost:4200"
-```
-
-#### 4. Run Migrations
-
-Apply Entity Framework Core migrations:
+Start all containers in detached mode:
 
 ```bash
-dotnet ef database update
+docker compose up -d
 ```
 
-#### 5. Start Backend
+Verify the status of all containers:
+
+```bash
+docker compose ps
+```
+
+#### Service Endpoints & Credentials
+
+| Service | Port | Host & Credentials / URL | Description |
+| :--- | :--- | :--- | :--- |
+| **SQL Server 2022** | `1433` | Host: `localhost,1433`<br>User: `sa`<br>Password: `HiTrade@2026Password!`<br>Database: `HiTrade` | Relational database storage |
+| **Redis 7** | `6379` | Host: `localhost:6379` *(no password required in dev)* | Token revocation & response caching |
+| **MailHog SMTP** | `1025` | Host: `localhost:1025` | Local mock SMTP server |
+| **MailHog Web UI** | `8025` | [http://localhost:8025](http://localhost:8025) | Webmail viewer to inspect outgoing emails |
+
+---
+
+### 2. Database Migrations & Initial Asset Seeding
+
+On first startup with `docker compose up -d`, the `db-seed` container automatically applies all Entity Framework Core migrations and populates the `[Assets]` table with the current platform assets.
+
+#### Running or Re-Running the Seed Script Manually
+
+If you need to seed or re-seed the database manually at any point, several convenient methods are available:
+
+- **PowerShell (Windows)**:
+  ```powershell
+  ./scripts/seed-assets.ps1
+  ```
+
+- **Bash (Linux / macOS)**:
+  ```bash
+  chmod +x ./scripts/seed-assets.sh
+  ./scripts/seed-assets.sh
+  ```
+
+- **Docker Compose Service**:
+  ```bash
+  docker compose run --rm db-seed
+  ```
+
+- **Direct SQL Execution via `docker exec`**:
+  ```bash
+  docker exec -i hitrade-sqlserver /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "HiTrade@2026Password!" -C -i /scripts/seed-assets.sql
+  ```
+
+- **Apply EF Core Migrations via .NET CLI**:
+  ```bash
+  dotnet ef database update --project Hi-Trade.DAL --startup-project Hi-Trade
+  ```
+
+#### Current Platform Assets Seeded:
+
+The seed script idempotently populates the following major stock assets:
+- `AAPL` — Apple Inc.
+- `MSFT` — Microsoft Corporation
+- `GOOGL` — Alphabet Inc.
+- `AMZN` — Amazon.com Inc.
+- `TSLA` — Tesla Inc.
+- `NVDA` — NVIDIA Corporation
+- `META` — Meta Platforms Inc.
+- `NFLX` — Netflix Inc.
+- `BRK.A` — Berkshire Hathaway Inc.
+- `NIO` — NIO Inc.
+
+*(When the backend runs, `PriceBackgroundService` automatically fetches live quote updates for all enabled assets from Finnhub).*
+
+---
+
+### 3. Application Configuration
+
+In `Hi-Trade/appsettings.Development.json`, settings are pre-configured to connect seamlessly to the local Docker services:
+
+```json
+{
+  "ConnectionStrings": {
+    "HiTradeConnection": "Server=localhost,1433;Database=HiTrade;User Id=sa;Password=HiTrade@2026Password!;TrustServerCertificate=True;Encrypt=False;"
+  },
+  "Redis": {
+    "EndpointUrl": "localhost",
+    "Port": 6379,
+    "User": "",
+    "Password": ""
+  },
+  "Email": {
+    "SmtpHost": "localhost",
+    "SmtpPort": 1025
+  }
+}
+```
+
+Configure your personal keys in `appsettings.Development.json`:
+- `FinnhubToken`: Your Finnhub API token
+- `stripeRestrictedKey`: Your Stripe test restricted key
+- `AdminSeed`: Default admin account credentials (seeded automatically)
+
+---
+
+### 4. Start the Backend API
 
 ```bash
 cd Hi-Trade
 dotnet run
 ```
 
-The API will be available at `https://localhost:5001` with Swagger UI at `https://localhost:5001/swagger`
+The API will be available at:
+- **API URL**: `https://localhost:5001` or `http://localhost:5000`
+- **Swagger UI**: [https://localhost:5001/swagger](https://localhost:5001/swagger)
 
-#### 6. Start Frontend (Optional)
+---
+
+### 5. Start Frontend Application (Optional)
 
 ```bash
 cd Hi-Trade.Angular
@@ -164,7 +234,7 @@ npm install
 ng serve
 ```
 
-Angular application will be available at `http://localhost:4200`
+The Angular application will be available at [http://localhost:4200](http://localhost:4200).
 
 ## API Documentation
 
@@ -304,4 +374,4 @@ For issues, questions, or contributions, please visit the [GitHub repository](ht
 
 ---
 
-**Note**: This project is currently on the `unit-tests` branch. Development branches may contain experimental features.
+**Note**: This project is currently on the `docker-setup` branch. Development branches may contain experimental features.
