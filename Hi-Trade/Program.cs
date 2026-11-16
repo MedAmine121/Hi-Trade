@@ -44,6 +44,7 @@ builder.Services.AddCors(options =>
 builder.Services.Configure<JWTOptions>(builder.Configuration.GetSection("JWTOptions"));
 builder.Services.Configure<RedisOptions>(builder.Configuration.GetSection("Redis"));
 builder.Services.Configure<AdminSeedOptions>(builder.Configuration.GetSection("AdminSeed"));
+builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
         options.MapInboundClaims = false;

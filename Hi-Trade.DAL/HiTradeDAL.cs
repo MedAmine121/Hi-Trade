@@ -31,7 +31,8 @@ namespace Hi_Trade.DAL
                 Password = password,
                 FullName = fullName,
                 Address = address,
-                Role = role
+                Role = role,
+                IsEmailVerified = role == Roles.Admin
             };
             if (await context.Users.AnyAsync(u => u.Email == email, ct))
             {
@@ -135,6 +136,10 @@ namespace Hi_Trade.DAL
             {
                 throw new Exception("User not found");
             }
+            if(!user.IsEmailVerified)
+            {
+                return (0, "Email must be verified before buying assets");
+            }
             var portfolioExists = user.Portfolios.Any(p => p.Name == name);
             if(portfolioExists)
             {
@@ -159,6 +164,10 @@ namespace Hi_Trade.DAL
             if(user == null)
             {
                 throw new Exception("User not found");
+            }
+            if(!user.IsEmailVerified)
+            {
+                return (0, "Email must be verified before buying assets");
             }
             var portfolio = user.Portfolios.FirstOrDefault(p => p.Id == portfolioId);
             if(portfolio == null)
@@ -214,6 +223,10 @@ namespace Hi_Trade.DAL
             if (user == null)
             {
                 throw new Exception("User not found");
+            }
+            if (!user.IsEmailVerified)
+            {
+                return (0, "Email must be verified before selling assets");
             }
             var portfolio = user.Portfolios.FirstOrDefault(p => p.Id == portfolioId);
             if (portfolio == null)
@@ -430,6 +443,85 @@ namespace Hi_Trade.DAL
                 .OrderByDescending(u => u.CreatedAt)
                 .Take(count)
                 .ToListAsync(ct);
+        }
+
+        public async Task<User?> GetUserByEmail(string email, CancellationToken ct)
+        {
+            return await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+        }
+
+        public async Task<bool> SetEmailVerificationCode(string email, string code, DateTime expiresAt, CancellationToken ct)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+            if (user == null)
+            {
+                return false;
+            }
+            user.EmailVerificationCode = code;
+            user.EmailVerificationExpiresAt = expiresAt;
+            return await context.SaveChangesAsync(ct) > 0;
+        }
+
+        public async Task<(bool, string)> VerifyEmail(string email, string code, CancellationToken ct)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+            if (user == null)
+            {
+                return (false, "User not found");
+            }
+            if (user.IsEmailVerified)
+            {
+                return (true, "Email is already verified");
+            }
+            if (string.IsNullOrWhiteSpace(user.EmailVerificationCode) || user.EmailVerificationCode != code)
+            {
+                return (false, "Invalid verification code");
+            }
+            if (user.EmailVerificationExpiresAt == null || user.EmailVerificationExpiresAt < DateTime.UtcNow)
+            {
+                return (false, "Verification code has expired. Please request a new one.");
+            }
+
+            user.IsEmailVerified = true;
+            user.EmailVerificationCode = null;
+            user.EmailVerificationExpiresAt = null;
+            await context.SaveChangesAsync(ct);
+            return (true, "Email verified successfully");
+        }
+
+        public async Task<bool> SetPasswordResetToken(string email, string token, DateTime expiresAt, CancellationToken ct)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+            if (user == null)
+            {
+                return false;
+            }
+            user.PasswordResetToken = token;
+            user.PasswordResetExpiresAt = expiresAt;
+            return await context.SaveChangesAsync(ct) > 0;
+        }
+
+        public async Task<(bool, string)> ResetPassword(string email, string token, string newPasswordHash, CancellationToken ct)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+            if (user == null)
+            {
+                return (false, "User not found");
+            }
+            if (string.IsNullOrWhiteSpace(user.PasswordResetToken) || user.PasswordResetToken != token)
+            {
+                return (false, "Invalid or expired reset token");
+            }
+            if (user.PasswordResetExpiresAt == null || user.PasswordResetExpiresAt < DateTime.UtcNow)
+            {
+                return (false, "Reset token has expired. Please request a new one.");
+            }
+
+            user.Password = newPasswordHash;
+            user.PasswordResetToken = null;
+            user.PasswordResetExpiresAt = null;
+            await context.SaveChangesAsync(ct);
+            return (true, "Password has been reset successfully.");
         }
     }
 }

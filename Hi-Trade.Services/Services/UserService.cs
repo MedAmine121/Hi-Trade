@@ -18,7 +18,7 @@ using ResultType = Hi_Trade.Models.Common.ResultType;
 
 namespace Hi_Trade.Services.Services
 {
-    public class UserService(IHiTradeBLL hiTradeBLL, ITokenBLL tokenBLL, ILogger<UserService> logger, IServiceProvider serviceProvider, IOptions<RedisOptions> redisOptions, ICacheService? cacheService = null) : BaseService(serviceProvider), IUserService
+    public class UserService(IHiTradeBLL hiTradeBLL, ITokenBLL tokenBLL, ILogger<UserService> logger, IServiceProvider serviceProvider, IOptions<RedisOptions> redisOptions, ICacheService? cacheService = null, IEmailService? emailService = null) : BaseService(serviceProvider), IUserService
     {
         public async Task<BaseResult<UserDTO>> CreateUser(CreateUserRequest request, CancellationToken ct)
         {
@@ -353,6 +353,235 @@ namespace Hi_Trade.Services.Services
             {
                 logger.LogError(ex, "An error occurred while editing profile");
                 return new BaseResult<UserDTO>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<BaseResult<SaveResponse>> VerifyEmail(string? token, VerifyEmailRequest request, CancellationToken ct)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(request.Email) && !string.IsNullOrWhiteSpace(token))
+                {
+                    request.Email = GetUserEmailFromToken(token);
+                }
+
+                SaveResponse? result = await Validate(hiTradeBLL.VerifyEmail!, request, ct);
+                if (result != null)
+                {
+                    if (result.Success && cacheService != null)
+                    {
+                        await cacheService.RemoveAsync(CacheKeys.UserProfile(request.Email), ct);
+                        await cacheService.RemoveAsync(CacheKeys.AdminDashboardStats, ct);
+                    }
+                    return new BaseResult<SaveResponse>
+                    {
+                        Model = result,
+                        ResultType = result.Success ? ResultType.Success : ResultType.Fail,
+                        Message = result.Message
+                    };
+                }
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Fail,
+                    Message = "Verification failed."
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while verifying email");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while verifying email");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<BaseResult<SaveResponse>> ResendVerificationEmail(string? token, ResendVerificationEmailRequest? request, CancellationToken ct)
+        {
+            try
+            {
+                string email = string.Empty;
+                if (request != null && !string.IsNullOrWhiteSpace(request.Email))
+                {
+                    email = request.Email;
+                }
+                else if (!string.IsNullOrWhiteSpace(token))
+                {
+                    email = GetUserEmailFromToken(token);
+                }
+
+                var req = new ResendVerificationEmailRequest { Email = email };
+                await Validate<ResendVerificationEmailRequest, SaveResponse>((r, _) => Task.FromResult<SaveResponse?>(new SaveResponse { Success = true }), req, ct);
+
+                var user = await hiTradeBLL.FetchUser(email, ct);
+                if (user == null)
+                {
+                    return new BaseResult<SaveResponse>
+                    {
+                        Model = new SaveResponse { Success = false, Message = "User not found." },
+                        ResultType = ResultType.Fail,
+                        Message = "User not found."
+                    };
+                }
+                if (user.IsEmailVerified)
+                {
+                    return new BaseResult<SaveResponse>
+                    {
+                        Model = new SaveResponse { Success = true, Message = "Email is already verified." },
+                        ResultType = ResultType.Success,
+                        Message = "Email is already verified."
+                    };
+                }
+
+                var code = await hiTradeBLL.GenerateEmailVerificationCode(email, ct);
+                if (emailService != null)
+                {
+                    await emailService.SendEmailVerificationAsync(user.Email, user.FullName, code, ct);
+                }
+
+                return new BaseResult<SaveResponse>
+                {
+                    Model = new SaveResponse { Success = true, Message = "Verification email sent successfully." },
+                    ResultType = ResultType.Success,
+                    Message = "Verification email sent successfully."
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while resending verification email");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while resending verification email");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<BaseResult<SaveResponse>> ForgotPassword(ForgotPasswordRequest request, CancellationToken ct)
+        {
+            try
+            {
+                await Validate<ForgotPasswordRequest, SaveResponse>((r, _) => Task.FromResult<SaveResponse?>(new SaveResponse { Success = true }), request, ct);
+
+                var token = await hiTradeBLL.GeneratePasswordResetToken(request.Email, ct);
+                if (!string.IsNullOrWhiteSpace(token) && emailService != null)
+                {
+                    try
+                    {
+                        var user = await hiTradeBLL.FetchUser(request.Email, ct);
+                        if (user != null)
+                        {
+                            await emailService.SendPasswordResetAsync(user.Email, user.FullName, token, ct);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, "Failed to send password reset email to {Email}", request.Email);
+                    }
+                }
+
+                var response = new SaveResponse
+                {
+                    Success = true,
+                    Message = "If an account with that email exists, password reset instructions have been sent."
+                };
+                return new BaseResult<SaveResponse>
+                {
+                    Model = response,
+                    ResultType = ResultType.Success,
+                    Message = response.Message
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while processing forgot password request");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while processing forgot password request");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Error,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<BaseResult<SaveResponse>> ResetPassword(ResetPasswordRequest request, CancellationToken ct)
+        {
+            try
+            {
+                SaveResponse? result = await Validate(hiTradeBLL.ResetPassword!, request, ct);
+                if (result != null)
+                {
+                    if (result.Success && cacheService != null)
+                    {
+                        await cacheService.RemoveAsync(CacheKeys.UserProfile(request.Email), ct);
+                    }
+                    return new BaseResult<SaveResponse>
+                    {
+                        Model = result,
+                        ResultType = result.Success ? ResultType.Success : ResultType.Fail,
+                        Message = result.Message
+                    };
+                }
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.Fail,
+                    Message = "Password reset failed."
+                };
+            }
+            catch (ValidationException vex)
+            {
+                logger.LogWarning(vex, "Validation failed while resetting password");
+                return new BaseResult<SaveResponse>
+                {
+                    Model = null,
+                    ResultType = ResultType.BadRequest,
+                    Message = vex.Message
+                };
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while resetting password");
+                return new BaseResult<SaveResponse>
                 {
                     Model = null,
                     ResultType = ResultType.Error,

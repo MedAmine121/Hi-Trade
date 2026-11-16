@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { UserBLLService } from '../../../4_BLL/user-bll.service';
 import { LoginUserRequest } from '../../../2_Models/requests/login-request.model';
@@ -6,18 +6,24 @@ import { Context } from '../../../2_Models/responses/context.model';
 import { BaseComponent } from '../../shared/base-component/base-component';
 import { Constants } from '../../../6_Common/constants';
 import { NavBarComponent } from "../../shared/nav-bar-component/nav-bar-component";
+import { ForgotPasswordModalComponent } from '../../shared/forgot-password-modal-component/forgot-password-modal.component';
 
 @Component({
   selector: 'app-login-component',
-  imports: [FormsModule, NavBarComponent],
+  imports: [FormsModule, NavBarComponent, ForgotPasswordModalComponent],
   templateUrl: './login-component.html',
   styleUrl: './login-component.css',
 })
 export class LoginComponent extends BaseComponent{
+  @ViewChild(ForgotPasswordModalComponent) forgotPasswordModal!: ForgotPasswordModalComponent;
   email: string = '';
   password: string = '';
   rememberMe: boolean = false;
   private userService = inject(UserBLLService);
+
+  openForgotPassword(): void {
+    this.forgotPasswordModal.openModal(this.email);
+  }
 
   onLogin(): void {
     if (this.email && this.password) {

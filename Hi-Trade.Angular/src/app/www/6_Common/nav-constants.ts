@@ -4,5 +4,7 @@ export const NavConstants = {
     logout: 'logout',
     home: '/',
     admin: 'admin',
-    backoffice: 'backoffice'
+    backoffice: 'backoffice',
+    resetPassword: 'reset-password',
+    verifyEmail: 'verify-email'
 }

@@ -17,7 +17,8 @@ namespace Hi_Trade.Services.DI
                 .AddScoped<IUserService, UserService>()
                 .AddScoped<IAssetService, AssetService>()
                 .AddScoped<IPortfolioService,PortfolioService>()
-                .AddScoped<IAdminService, AdminService>();
+                .AddScoped<IAdminService, AdminService>()
+                .AddScoped<IEmailService, EmailService>();
             return services;
         }
     }

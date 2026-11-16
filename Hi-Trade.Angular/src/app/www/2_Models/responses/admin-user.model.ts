@@ -9,4 +9,5 @@ export interface AdminUserDTO extends BaseDTO {
   portfoliosCount: number;
   createdAt: string | Date;
   enabled: boolean;
+  isEmailVerified: boolean;
 }

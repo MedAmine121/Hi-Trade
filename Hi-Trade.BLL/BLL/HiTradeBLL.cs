@@ -32,7 +32,8 @@ namespace Hi_Trade.BLL.BLL
                 Address = user.Address,
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 Balance = user.Balance,
-                Role = user.Role
+                Role = user.Role,
+                IsEmailVerified = user.IsEmailVerified
             };
         }
         public async Task SeedAdminAsync(AdminSeedOptions options, CancellationToken ct)
@@ -67,7 +68,8 @@ namespace Hi_Trade.BLL.BLL
                 Address = user.Address,
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 Balance = user.Balance,
-                Role = user.Role
+                Role = user.Role,
+                IsEmailVerified = user.IsEmailVerified
             };
         }
         public async Task<SaveResponse> CreateAsset(CreateAssetRequest request, CancellationToken ct)
@@ -204,7 +206,8 @@ namespace Hi_Trade.BLL.BLL
                 Address = user.Address,
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 Balance = user.Balance,
-                Role = user.Role
+                Role = user.Role,
+                IsEmailVerified = user.IsEmailVerified
             };
         }
         public async Task<SaveResponse> GetCheckoutLink(AddFundsRequest request, CancellationToken ct)
@@ -292,7 +295,8 @@ namespace Hi_Trade.BLL.BLL
                 Address = user.Address,
                 ProfilePictureUrl = user.ProfilePictureUrl,
                 Balance = user.Balance,
-                Role = user.Role
+                Role = user.Role,
+                IsEmailVerified = user.IsEmailVerified
             };
         }
         public async Task<AdminDashboardStatsDTO> GetAdminDashboardStats(CancellationToken ct)
@@ -326,7 +330,8 @@ namespace Hi_Trade.BLL.BLL
                 Role = u.Role.ToString(),
                 PortfoliosCount = u.Portfolios.Count,
                 CreatedAt = u.CreatedAt,
-                Enabled = u.Enabled
+                Enabled = u.Enabled,
+                IsEmailVerified = u.IsEmailVerified
             }).ToList();
 
             return new AdminDashboardStatsDTO
@@ -367,7 +372,8 @@ namespace Hi_Trade.BLL.BLL
                 Role = u.Role.ToString(),
                 PortfoliosCount = u.Portfolios.Count,
                 CreatedAt = u.CreatedAt,
-                Enabled = u.Enabled
+                Enabled = u.Enabled,
+                IsEmailVerified = u.IsEmailVerified
             }).ToList();
         }
         public async Task<SaveResponse> ToggleUserStatus(int userId, string adminEmail, CancellationToken ct)
@@ -403,6 +409,47 @@ namespace Hi_Trade.BLL.BLL
                 TotalAmount = t.Quantity * t.PriceAtPurchase
             }).ToList();
         }
+
+        public async Task<string> GenerateEmailVerificationCode(string email, CancellationToken ct)
+        {
+            var code = System.Security.Cryptography.RandomNumberGenerator.GetInt32(100000, 1000000).ToString();
+            await hiTradeDAL.SetEmailVerificationCode(email, code, DateTime.UtcNow.AddHours(24), ct);
+            return code;
+        }
+
+        public async Task<SaveResponse> VerifyEmail(VerifyEmailRequest request, CancellationToken ct)
+        {
+            var (success, message) = await hiTradeDAL.VerifyEmail(request.Email, request.Code, ct);
+            return new SaveResponse
+            {
+                Success = success,
+                Message = message
+            };
+        }
+
+        public async Task<string?> GeneratePasswordResetToken(string email, CancellationToken ct)
+        {
+            var user = await hiTradeDAL.GetUserByEmail(email, ct);
+            if (user == null)
+            {
+                return null;
+            }
+            var token = Guid.NewGuid().ToString("N");
+            await hiTradeDAL.SetPasswordResetToken(email, token, DateTime.UtcNow.AddHours(1), ct);
+            return token;
+        }
+
+        public async Task<SaveResponse> ResetPassword(ResetPasswordRequest request, CancellationToken ct)
+        {
+            var hashedPassword = HashPassword(request.NewPassword);
+            var (success, message) = await hiTradeDAL.ResetPassword(request.Email, request.Token, hashedPassword, ct);
+            return new SaveResponse
+            {
+                Success = success,
+                Message = message
+            };
+        }
+
         private static string HashPassword(string password)
         {
             return BCrypt.Net.BCrypt.HashPassword(password);

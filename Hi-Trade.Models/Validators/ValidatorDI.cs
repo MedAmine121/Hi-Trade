@@ -21,7 +21,11 @@ namespace Hi_Trade.Models.Validators
                 .AddScoped<IValidator<ConfirmPaymentRequest>, ConfirmPaymentValidator>()
                 .AddScoped<IValidator<GetPortfolioTransactionsRequest>, GetPortfolioTransactionsValidator>()
                 .AddScoped<IValidator<EditProfileRequest>, EditProfileValidator>()
-                .AddScoped<IValidator<SellAssetRequest>, SellAssetRequestValidator>();
+                .AddScoped<IValidator<SellAssetRequest>, SellAssetRequestValidator>()
+                .AddScoped<IValidator<VerifyEmailRequest>, VerifyEmailValidator>()
+                .AddScoped<IValidator<ResendVerificationEmailRequest>, ResendVerificationEmailValidator>()
+                .AddScoped<IValidator<ForgotPasswordRequest>, ForgotPasswordValidator>()
+                .AddScoped<IValidator<ResetPasswordRequest>, ResetPasswordValidator>();
             return services;
         }
     }
