@@ -1,0 +1,102 @@
+@if (isOpen()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="header-title-wrap">
+          <span class="header-icon">✉️</span>
+          <h2>Verify Your Email</h2>
+        </div>
+        <button class="close-btn" (click)="closeModal()" aria-label="Close modal">×</button>
+      </div>
+
+      <div class="modal-body">
+        @if (!codeSent()) {
+          <p class="description">
+            Trading features like buying and selling assets are restricted until your email is verified.
+            Click below to send a 6-digit verification code to <strong>{{ email() }}</strong>.
+          </p>
+
+          @if (errorMessage()) {
+            <div class="alert-box error">
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+
+          <div class="send-action-wrapper">
+            <button
+              type="button"
+              class="btn-send-code"
+              (click)="sendVerificationCode()"
+              [disabled]="isResending()"
+            >
+              {{ isResending() ? 'Sending Code...' : 'Send Verification Code' }}
+            </button>
+          </div>
+
+          <div class="already-have-section">
+            <span>Already have a code?</span>
+            <button type="button" class="btn-link" (click)="showCodeInput()">Enter code</button>
+          </div>
+        } @else {
+          <p class="description">
+            We've sent a 6-digit verification code to <strong>{{ email() }}</strong>.
+            Please enter it below to verify your email and unlock all trading actions.
+          </p>
+
+          @if (errorMessage()) {
+            <div class="alert-box error">
+              <span>{{ errorMessage() }}</span>
+            </div>
+          }
+
+          @if (resendSuccess()) {
+            <div class="alert-box success">
+              <span>{{ resendSuccess() }}</span>
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="verificationCode">Verification Code</label>
+            <input
+              id="verificationCode"
+              type="text"
+              maxlength="6"
+              [ngModel]="verificationCode()"
+              (ngModelChange)="verificationCode.set($event)"
+              (keyup.enter)="verify()"
+              placeholder="123456"
+              class="code-input"
+              autocomplete="one-time-code"
+              autofocus
+            />
+          </div>
+
+          <div class="resend-section">
+            <span>Didn't receive the email?</span>
+            <button
+              type="button"
+              class="btn-link"
+              (click)="resendCode()"
+              [disabled]="isResending() || isLoading()"
+            >
+              {{ isResending() ? 'Resending...' : 'Resend Code' }}
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModal()">{{ codeSent() ? 'Later' : 'Close' }}</button>
+        @if (codeSent()) {
+          <button
+            class="btn-submit"
+            (click)="verify()"
+            [disabled]="isLoading() || !verificationCode().trim()"
+          >
+            {{ isLoading() ? 'Verifying...' : 'Verify Email' }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}

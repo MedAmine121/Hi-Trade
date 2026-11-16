@@ -2,6 +2,24 @@
 
 @if (userContext) {
 <div class="portfolio-container">
+  @if (!isEmailVerified()) {
+  <div class="verification-alert">
+    <div class="alert-info">
+      <span class="alert-icon">⚠️</span>
+      <div class="alert-text">
+        <h4 class="alert-heading">Email Verification Required</h4>
+        <p class="alert-description">Your email address is not verified yet. Trading actions such as buying and selling assets are restricted until your email is verified.</p>
+      </div>
+    </div>
+    <div class="alert-actions">
+      <button class="verify-action-btn primary-verify-btn" (click)="openVerifyEmailModal()">Verify Email</button>
+      <button class="verify-action-btn secondary-verify-btn" (click)="resendVerificationFromBanner()" [disabled]="isResendingVerification()">
+        {{ isResendingVerification() ? 'Sending...' : 'Send Code' }}
+      </button>
+    </div>
+  </div>
+  }
+
   <div class="portfolio-header">
     <div class="header-top">
       <h1>My Portfolios</h1>
@@ -56,7 +74,15 @@
         </div>
       </div>
       <div class="overflow-hidden">
-      <button class="add-btn m-3 float-end" (click)="buyAsset()">
+      <button
+        class="add-btn m-3 float-end"
+        [class.restricted-action]="!isEmailVerified()"
+        (click)="buyAsset()"
+        [title]="!isEmailVerified() ? 'Email verification required to buy assets' : 'Buy Asset'"
+      >
+        @if (!isEmailVerified()) {
+          <span class="action-lock-badge">🔒</span>
+        }
         <span>+ Buy Asset</span>
       </button>
       <button class="add-btn bg-success m-3 float-end" (click)="viewTransactions()">
@@ -95,7 +121,15 @@
                 ${{ position.asset.currentPrice | number: '1.2-2' }}
               </td>
               <td class="action">
-                <button class="sell-btn" (click)="sellAsset(position)" title="Sell this asset">
+                <button
+                  class="sell-btn"
+                  [class.restricted-action]="!isEmailVerified()"
+                  (click)="sellAsset(position)"
+                  [title]="!isEmailVerified() ? 'Email verification required to sell assets' : 'Sell this asset'"
+                >
+                  @if (!isEmailVerified()) {
+                    <span class="action-lock-badge">🔒</span>
+                  }
                   Sell
                 </button>
               </td>
@@ -134,3 +168,4 @@
 <app-buy-asset-modal-component [assets]="assets()" (buy)="onAssetBuy($event)"></app-buy-asset-modal-component>
 <app-sell-asset-modal-component (sell)="onAssetSell($event)"></app-sell-asset-modal-component>
 <app-transaction-history-component [transactions]="transactions()"></app-transaction-history-component>
+<app-verify-email-modal (verified)="onEmailVerified()"></app-verify-email-modal>

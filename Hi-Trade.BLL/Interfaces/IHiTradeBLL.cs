@@ -27,5 +27,9 @@ namespace Hi_Trade.BLL.Interfaces
         Task<List<AdminUserDTO>> GetAdminUsers(string? search, string? role, bool? enabled, CancellationToken ct);
         Task<SaveResponse> ToggleUserStatus(int userId, string adminEmail, CancellationToken ct);
         Task<List<AdminTransactionDTO>> GetAdminTransactions(string? search, string? type, CancellationToken ct);
+        Task<string> GenerateEmailVerificationCode(string email, CancellationToken ct);
+        Task<SaveResponse> VerifyEmail(VerifyEmailRequest request, CancellationToken ct);
+        Task<string?> GeneratePasswordResetToken(string email, CancellationToken ct);
+        Task<SaveResponse> ResetPassword(ResetPasswordRequest request, CancellationToken ct);
     }
 }

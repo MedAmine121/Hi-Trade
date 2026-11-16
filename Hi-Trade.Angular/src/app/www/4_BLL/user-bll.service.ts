@@ -11,6 +11,10 @@ import { CreateUserRequest } from "../2_Models/requests/create-user-request.mode
 import { AddFundsRequest } from "../2_Models/requests/add-funds-request.model";
 import { ConfirmPaymentRequest } from "../2_Models/requests/confirm-payment-request.model";
 import { EditProfileRequest } from "../2_Models/requests/edit-profile-request.model";
+import { VerifyEmailRequest } from "../2_Models/requests/verify-email-request.model";
+import { ResendVerificationRequest } from "../2_Models/requests/resend-verification-request.model";
+import { ForgotPasswordRequest } from "../2_Models/requests/forgot-password-request.model";
+import { ResetPasswordRequest } from "../2_Models/requests/reset-password-request.model";
 
 @Injectable({
     providedIn: 'root'
@@ -85,6 +89,50 @@ export class UserBLLService extends BaseBLLService{
     }
     editProfile$(request: EditProfileRequest): Observable<Context | null>{
         return this.userDALService.editProfile$(request).pipe(map((response: BaseResult<Context>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    verifyEmail$(request: VerifyEmailRequest): Observable<SaveResponse | null>{
+        return this.userDALService.verifyEmail$(request).pipe(map((response: BaseResult<SaveResponse>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    resendVerification$(request?: ResendVerificationRequest): Observable<SaveResponse | null>{
+        return this.userDALService.resendVerification$(request).pipe(map((response: BaseResult<SaveResponse>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    forgotPassword$(request: ForgotPasswordRequest): Observable<SaveResponse | null>{
+        return this.userDALService.forgotPassword$(request).pipe(map((response: BaseResult<SaveResponse>)=> {
+            if(response && response.resultType === ResultType.Success && response.model){
+                return response.model;
+            }
+            if(response.resultType !== ResultType.Success){
+                this.handleResult(response);
+            }
+            return null;
+        }));
+    }
+    resetPassword$(request: ResetPasswordRequest): Observable<SaveResponse | null>{
+        return this.userDALService.resetPassword$(request).pipe(map((response: BaseResult<SaveResponse>)=> {
             if(response && response.resultType === ResultType.Success && response.model){
                 return response.model;
             }

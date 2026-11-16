@@ -29,5 +29,10 @@ namespace Hi_Trade.DAL
         Task<(int TotalUsers, int TotalTraders, int TotalAdmins, int TotalPortfolios, int TotalAssets, int EnabledAssets, int DisabledAssets, int TotalTransactions, int BuyTransactionsCount, int SellTransactionsCount, decimal TotalTradingVolume, decimal TotalUserBalances, decimal TotalDepositedAmount)> GetPlatformMetrics(CancellationToken ct);
         Task<List<Transaction>> GetRecentTransactions(int count, CancellationToken ct);
         Task<List<User>> GetRecentUsers(int count, CancellationToken ct);
+        Task<User?> GetUserByEmail(string email, CancellationToken ct);
+        Task<bool> SetEmailVerificationCode(string email, string code, DateTime expiresAt, CancellationToken ct);
+        Task<(bool, string)> VerifyEmail(string email, string code, CancellationToken ct);
+        Task<bool> SetPasswordResetToken(string email, string token, DateTime expiresAt, CancellationToken ct);
+        Task<(bool, string)> ResetPassword(string email, string token, string newPasswordHash, CancellationToken ct);
     }
 }

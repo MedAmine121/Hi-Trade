@@ -10,6 +10,10 @@ import { CreateUserRequest } from "../2_Models/requests/create-user-request.mode
 import { AddFundsRequest } from "../2_Models/requests/add-funds-request.model";
 import { ConfirmPaymentRequest } from "../2_Models/requests/confirm-payment-request.model";
 import { EditProfileRequest } from "../2_Models/requests/edit-profile-request.model";
+import { VerifyEmailRequest } from "../2_Models/requests/verify-email-request.model";
+import { ResendVerificationRequest } from "../2_Models/requests/resend-verification-request.model";
+import { ForgotPasswordRequest } from "../2_Models/requests/forgot-password-request.model";
+import { ResetPasswordRequest } from "../2_Models/requests/reset-password-request.model";
 
 @Injectable({
     providedIn: 'root'
@@ -37,5 +41,17 @@ export class UserDALService extends BaseDALService {
     }
     editProfile$(request: EditProfileRequest) : Observable<BaseResult<Context>>{
         return this.SendPost$('edit', request);
+    }
+    verifyEmail$(request: VerifyEmailRequest) : Observable<BaseResult<SaveResponse>>{
+        return this.SendPost$('verify-email', request);
+    }
+    resendVerification$(request?: ResendVerificationRequest) : Observable<BaseResult<SaveResponse>>{
+        return this.SendPost$('resend-verification', request ?? {});
+    }
+    forgotPassword$(request: ForgotPasswordRequest) : Observable<BaseResult<SaveResponse>>{
+        return this.SendPost$('forgot-password', request, true);
+    }
+    resetPassword$(request: ResetPasswordRequest) : Observable<BaseResult<SaveResponse>>{
+        return this.SendPost$('reset-password', request, true);
     }
 }

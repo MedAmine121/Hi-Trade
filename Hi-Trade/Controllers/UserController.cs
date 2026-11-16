@@ -52,5 +52,30 @@ namespace Hi_Trade.Controllers
         {
             return await userService.EditProfile(token, request, ct);
         }
+        [AllowAnonymous]
+        [HttpPost("verify-email")]
+        public async Task<BaseResult<SaveResponse>> VerifyEmail([FromHeader(Name = "Authorization")] string? token, [FromBody] VerifyEmailRequest request, CancellationToken ct)
+        {
+            return await userService.VerifyEmail(token, request, ct);
+        }
+        [AllowAnonymous]
+        [HttpPost("send-verification")]
+        [HttpPost("resend-verification")]
+        public async Task<BaseResult<SaveResponse>> ResendVerificationEmail([FromHeader(Name = "Authorization")] string? token, [FromBody] ResendVerificationEmailRequest? request, CancellationToken ct)
+        {
+            return await userService.ResendVerificationEmail(token, request, ct);
+        }
+        [AllowAnonymous]
+        [HttpPost("forgot-password")]
+        public async Task<BaseResult<SaveResponse>> ForgotPassword([FromBody] ForgotPasswordRequest request, CancellationToken ct)
+        {
+            return await userService.ForgotPassword(request, ct);
+        }
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        public async Task<BaseResult<SaveResponse>> ResetPassword([FromBody] ResetPasswordRequest request, CancellationToken ct)
+        {
+            return await userService.ResetPassword(request, ct);
+        }
     }
 }

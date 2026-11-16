@@ -262,6 +262,40 @@ namespace Hi_Trade.Tests
             result.Model.Message.Should().Contain("Not enough balance");
         }
 
+        [TestMethod]
+        public async Task BuyAsset_WhenEmailNotVerified_ReturnsFail()
+        {
+            // Arrange
+            var request = new BuyAssetRequest
+            {
+                PortfolioId = 1,
+                AssetId = 5,
+                Quantity = 10,
+                Email = "test@example.com"
+            };
+
+            var token = GenerateToken("test@example.com");
+
+            var saveResponse = new SaveResponse
+            {
+                Success = false,
+                Message = "Email must be verified before buying assets"
+            };
+
+            _mockHiTradeBLL.Setup(x => x.BuyAsset(request, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(saveResponse);
+
+            var ct = CancellationToken.None;
+
+            // Act
+            var result = await _portfolioService.BuyAsset(request, token, ct);
+
+            // Assert
+            result.ResultType.Should().Be(ResultType.Success);
+            result.Model.Success.Should().BeFalse();
+            result.Model.Message.Should().Contain("Email must be verified");
+        }
+
         #endregion
 
         #region BuyAsset Failure Cases
@@ -365,6 +399,40 @@ namespace Hi_Trade.Tests
             // Assert
             result.ResultType.Should().Be(ResultType.Success);
             result.Model.Success.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public async Task SellAsset_WhenEmailNotVerified_ReturnsFail()
+        {
+            // Arrange
+            var request = new SellAssetRequest
+            {
+                PortfolioId = 1,
+                PositionId = 5,
+                Quantity = 5,
+                Email = "test@example.com"
+            };
+
+            var token = GenerateToken("test@example.com");
+
+            var saveResponse = new SaveResponse
+            {
+                Success = false,
+                Message = "Email must be verified before selling assets"
+            };
+
+            _mockHiTradeBLL.Setup(x => x.SellAsset(request, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(saveResponse);
+
+            var ct = CancellationToken.None;
+
+            // Act
+            var result = await _portfolioService.SellAsset(request, token, ct);
+
+            // Assert
+            result.ResultType.Should().Be(ResultType.Success);
+            result.Model.Success.Should().BeFalse();
+            result.Model.Message.Should().Contain("Email must be verified");
         }
 
         #endregion

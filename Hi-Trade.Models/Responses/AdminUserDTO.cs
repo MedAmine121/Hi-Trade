@@ -13,5 +13,6 @@ namespace Hi_Trade.Models.Responses
         public int PortfoliosCount { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool Enabled { get; set; }
+        public bool IsEmailVerified { get; set; } = false;
     }
 }

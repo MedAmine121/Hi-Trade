@@ -433,3 +433,33 @@ GO
 COMMIT;
 GO
 
+
+BEGIN TRANSACTION;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261116145634_AddEmailVerificationAndResetPassword'
+)
+BEGIN
+    ALTER TABLE [Users] ADD [EmailVerificationCode] nvarchar(max) NULL;
+    ALTER TABLE [Users] ADD [EmailVerificationExpiresAt] datetime2 NULL;
+    ALTER TABLE [Users] ADD [IsEmailVerified] bit NOT NULL DEFAULT 0;
+    ALTER TABLE [Users] ADD [PasswordResetExpiresAt] datetime2 NULL;
+    ALTER TABLE [Users] ADD [PasswordResetToken] nvarchar(max) NULL;
+    UPDATE [Users] SET [IsEmailVerified] = 1 WHERE [Role] = 1;
+END;
+GO
+
+IF NOT EXISTS (
+    SELECT * FROM [__EFMigrationsHistory]
+    WHERE [MigrationId] = N'20261116145634_AddEmailVerificationAndResetPassword'
+)
+BEGIN
+    INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+    VALUES (N'20261116145634_AddEmailVerificationAndResetPassword', N'8.0.26');
+END;
+GO
+
+COMMIT;
+GO

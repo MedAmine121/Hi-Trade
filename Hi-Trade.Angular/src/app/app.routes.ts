@@ -28,5 +28,13 @@ export const routes: Routes = [
     {
         path: NavConstants.logout,
         loadComponent: () => import('./www/5_Modules/user/logout-component/logout-component').then((m) => m.LogoutComponent)
+    },
+    {
+        path: NavConstants.resetPassword,
+        loadComponent: () => import('./www/5_Modules/user/reset-password-component/reset-password-component').then((m) => m.ResetPasswordComponent)
+    },
+    {
+        path: NavConstants.verifyEmail,
+        loadComponent: () => import('./www/5_Modules/user/verify-email-component/verify-email-component').then((m) => m.VerifyEmailComponent)
     }
 ];

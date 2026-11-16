@@ -20,10 +20,12 @@ import { StripeElementsOptions } from '@stripe/stripe-js';
 import { AddFundsComponent } from "../../shared/add-funds-component/add-funds-component";
 import { TransactionHistoryComponent } from "../../shared/transaction-history-component/transaction-history-component";
 import { TransactionDTO } from '../../../2_Models/responses/transaction.model';
+import { VerifyEmailModalComponent } from '../../shared/verify-email-modal-component/verify-email-modal.component';
+import { UserBLLService } from '../../../4_BLL/user-bll.service';
 
 @Component({
   selector: 'app-user-index-component',
-  imports: [NavBarComponent, CommonModule, AddPortfolioModalComponent, BuyAssetModalComponent, SellAssetModalComponent, MatTabsModule, TransactionHistoryComponent],
+  imports: [NavBarComponent, CommonModule, AddPortfolioModalComponent, BuyAssetModalComponent, SellAssetModalComponent, MatTabsModule, TransactionHistoryComponent, VerifyEmailModalComponent],
   templateUrl: './user-index-component.html',
   styleUrl: './user-index-component.css'
 })
@@ -33,10 +35,12 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
   @ViewChild(SellAssetModalComponent) sellAssetModal!: SellAssetModalComponent;
   @ViewChild(AddFundsComponent) addFundsModal!: AddFundsComponent;
   @ViewChild(TransactionHistoryComponent) transactionHistoryModal!: TransactionHistoryComponent;
+  @ViewChild(VerifyEmailModalComponent) verifyEmailModal!: VerifyEmailModalComponent;
 
   private portfolioBLLService = inject(PortfolioBLLService);
   private assetBLLService = inject(AssetBLLService);
   private userService = inject(UserService);
+  private userBLLService = inject(UserBLLService);
   elementsOptions: StripeElementsOptions = {
     locale: 'en',
     appearance: {
@@ -54,6 +58,16 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
   selectedPortfolioIndex = signal(0);
   selectedPortfolio = computed(() => this.portfolios()[this.selectedPortfolioIndex()]);
   transactions = signal<TransactionDTO[]>([]);
+  isResendingVerification = signal(false);
+
+  isEmailVerified = computed(() => {
+    const user = this.userService.user();
+    if (user !== null && user !== undefined) {
+      return !!user.isEmailVerified;
+    }
+    return !!this.userContext?.isEmailVerified;
+  });
+
   ngOnInit(): void {
     this.loadUserContext();
     this.loadPortfolios();
@@ -132,6 +146,11 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
   }
 
   buyAsset(): void {
+    if (!this.isEmailVerified()) {
+      this.notificationService.showWarningToast('Please verify your email address to buy assets.');
+      this.openVerifyEmailModal();
+      return;
+    }
     this.loadAssets();
     this.buyAssetModal.openModal();
   }
@@ -185,7 +204,55 @@ export class UserIndexComponent extends BaseComponent implements OnInit {
   }
 
   sellAsset(position: PositionDTO): void {
+    if (!this.isEmailVerified()) {
+      this.notificationService.showWarningToast('Please verify your email address to sell assets.');
+      this.openVerifyEmailModal();
+      return;
+    }
     this.sellAssetModal.openModal(position);
+  }
+
+  openVerifyEmailModal(codeAlreadySent: boolean = false): void {
+    const email = this.userService.user()?.email ?? this.userContext?.email;
+    this.verifyEmailModal.openModal(email, codeAlreadySent);
+  }
+
+  resendVerificationFromBanner(): void {
+    const email = this.userService.user()?.email ?? this.userContext?.email;
+    if (!email) {
+      this.notificationService.showErrorToast('User email not found.');
+      return;
+    }
+    this.isResendingVerification.set(true);
+    this.userBLLService.resendVerification$({ email }).subscribe({
+      next: (response) => {
+        this.isResendingVerification.set(false);
+        if (response?.success) {
+          this.notificationService.showSuccessToast('Verification code sent successfully. Please check your inbox.');
+          this.openVerifyEmailModal(true);
+        } else {
+          this.notificationService.showErrorToast(response?.message ?? 'Failed to send verification email.');
+        }
+      },
+      error: () => {
+        this.isResendingVerification.set(false);
+        this.notificationService.showErrorToast('Failed to send verification email.');
+      }
+    });
+  }
+
+  onEmailVerified(): void {
+    const current = this.userService.user();
+    if (current) {
+      this.userService.user.set({ ...current, isEmailVerified: true });
+    }
+    const ctx = this.storageService.getLocalStorage('context') as Context | null;
+    if (ctx) {
+      ctx.isEmailVerified = true;
+      this.storageService.setLocalStorage('context', ctx);
+      this.userContext = ctx;
+    }
+    this.notificationService.showSuccessToast('Email verified successfully! Trading actions are now unlocked.');
   }
 
   onAssetSell(data: { position: PositionDTO; quantity: number }): void {

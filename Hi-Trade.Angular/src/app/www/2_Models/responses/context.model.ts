@@ -11,4 +11,5 @@ export interface Context extends BaseDTO {
     role: Roles;
     token: string;
     expires: Date;
+    isEmailVerified: boolean;
 }

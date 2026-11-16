@@ -14,5 +14,9 @@ namespace Hi_Trade.Services.Interfaces
         Task<BaseResult<SaveResponse>> GetCheckoutLink(string token, AddFundsRequest request, CancellationToken ct);
         Task<BaseResult<SaveResponse>> ConfirmPayment(string token, ConfirmPaymentRequest request, CancellationToken ct);
         Task<BaseResult<UserDTO>> EditProfile(string token, EditProfileRequest request, CancellationToken ct);
+        Task<BaseResult<SaveResponse>> VerifyEmail(string? token, VerifyEmailRequest request, CancellationToken ct);
+        Task<BaseResult<SaveResponse>> ResendVerificationEmail(string? token, ResendVerificationEmailRequest? request, CancellationToken ct);
+        Task<BaseResult<SaveResponse>> ForgotPassword(ForgotPasswordRequest request, CancellationToken ct);
+        Task<BaseResult<SaveResponse>> ResetPassword(ResetPasswordRequest request, CancellationToken ct);
     }
 }

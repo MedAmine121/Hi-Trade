@@ -47,7 +47,7 @@
             <input type="checkbox" name="rememberMe" [(ngModel)]="rememberMe" />
             <span>Remember me</span>
           </label>
-          <a href="#" class="forgot-password">Forgot Password?</a>
+          <a (click)="openForgotPassword()" class="forgot-password" style="cursor: pointer;">Forgot Password?</a>
         </div>
 
         <!-- Submit Button -->
@@ -61,3 +61,5 @@
     </div>
   </div>
 </div>
+
+<app-forgot-password-modal></app-forgot-password-modal>
