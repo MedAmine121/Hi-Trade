@@ -1,287 +1,428 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hi-Trade - Smart Stock Trading Platform</title>
-</head>
-<body>
-  <div class="landing-page">
-    <!-- Navigation Bar -->
-    <app-nav-bar-component></app-nav-bar-component>
+<div class="landing-page-root">
+  <app-nav-bar-component></app-nav-bar-component>
 
-    <!-- Hero Section -->
-    <section class="hero">
+  <!-- Ambient Background Glow -->
+  <div class="ambient-glow" aria-hidden="true"></div>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-container">
       <div class="hero-content">
-        <h1 class="hero-title">Smart Stock Trading Made Simple</h1>
-        <p class="hero-subtitle">Start building your investment portfolio with Hi-Trade. Real-time data, powerful analytics, and intuitive controls.</p>
-        <div class="hero-buttons">
-          <button class="btn btn-primary-large">Get Started Now</button>
-          <button class="btn btn-secondary-large">Watch Demo</button>
+        <div class="hero-badge">
+          <span class="ht-status-dot"></span>
+          <span>Live Market Gateway</span>
+          <span class="badge-separator">·</span>
+          <span class="badge-sub">Finnhub Real-Time Quote Feed</span>
         </div>
-        <div class="hero-stats">
-          <div class="stat-item">
-            <span class="stat-number">100K+</span>
-            <span class="stat-label">Active Traders</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">$2.5B</span>
-            <span class="stat-label">Assets Managed</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-number">24/7</span>
-            <span class="stat-label">Market Monitoring</span>
-          </div>
-        </div>
-      </div>
-      <div class="hero-image">
-        <div class="chart-visualization">
-          <div class="chart-bar bar-1"></div>
-          <div class="chart-bar bar-2"></div>
-          <div class="chart-bar bar-3"></div>
-          <div class="chart-bar bar-4"></div>
-          <div class="chart-bar bar-5"></div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Features Section -->
-    <section id="features" class="features">
-      <div class="section-header">
-        <h2>Powerful Features</h2>
-        <p>Everything you need to trade smarter</p>
+        <h1 class="hero-heading">
+          Institutional-Grade Trading, <br />
+          <span class="gradient-text">Engineered for Precision.</span>
+        </h1>
+
+        <p class="hero-description">
+          Build, rebalance, and scale multi-portfolio investment strategies with live asset pricing, 
+          real-time P&L analytics, and frictionless Stripe account funding.
+        </p>
+
+        <div class="hero-cta-group">
+          <button type="button" class="ht-btn ht-btn-primary ht-btn-lg" (click)="navigateToSignup()">
+            Launch Trading Terminal
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+          <button type="button" class="ht-btn ht-btn-secondary ht-btn-lg" (click)="navigateToLogin()">
+            Sign In to Account
+          </button>
+        </div>
+
+        <div class="hero-metrics-strip">
+          <div class="metric-item">
+            <span class="metric-value ht-tabular-num">$2.5B+</span>
+            <span class="metric-label">Volume Tracked</span>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <span class="metric-value ht-tabular-num">&lt; 1s</span>
+            <span class="metric-label">Quote Ingestion</span>
+          </div>
+          <div class="metric-divider"></div>
+          <div class="metric-item">
+            <span class="metric-value ht-tabular-num">99.99%</span>
+            <span class="metric-label">Execution Uptime</span>
+          </div>
+        </div>
       </div>
+
+      <!-- Hero Visual: Live Market Terminal Preview -->
+      <div class="hero-visual">
+        <div class="terminal-card">
+          <div class="terminal-header">
+            <div class="terminal-dots">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+            </div>
+            <div class="terminal-title">HI-TRADE REAL-TIME QUOTE DESK</div>
+            <div class="terminal-live-pill">
+              <span class="live-dot"></span> LIVE FEED
+            </div>
+          </div>
+
+          <!-- Ticker items -->
+          <div class="terminal-ticker-list">
+            <div class="ticker-row">
+              <div class="ticker-meta">
+                <span class="ht-badge ht-badge-ticker">AAPL</span>
+                <span class="ticker-name">Apple Inc.</span>
+              </div>
+              <div class="ticker-sparkline">
+                <svg width="80" height="24" viewBox="0 0 80 24" fill="none">
+                  <path d="M0 18L18 12L36 16L54 6L80 2" stroke="#10B981" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="ticker-price-group">
+                <span class="ticker-price ht-tabular-num">$189.45</span>
+                <span class="ticker-delta ht-badge ht-badge-success ht-tabular-num">+2.45%</span>
+              </div>
+            </div>
+
+            <div class="ticker-row">
+              <div class="ticker-meta">
+                <span class="ht-badge ht-badge-ticker">NVDA</span>
+                <span class="ticker-name">NVIDIA Corp.</span>
+              </div>
+              <div class="ticker-sparkline">
+                <svg width="80" height="24" viewBox="0 0 80 24" fill="none">
+                  <path d="M0 20L20 18L40 8L60 10L80 2" stroke="#10B981" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="ticker-price-group">
+                <span class="ticker-price ht-tabular-num">$875.20</span>
+                <span class="ticker-delta ht-badge ht-badge-success ht-tabular-num">+4.18%</span>
+              </div>
+            </div>
+
+            <div class="ticker-row">
+              <div class="ticker-meta">
+                <span class="ht-badge ht-badge-ticker">MSFT</span>
+                <span class="ticker-name">Microsoft Corp.</span>
+              </div>
+              <div class="ticker-sparkline">
+                <svg width="80" height="24" viewBox="0 0 80 24" fill="none">
+                  <path d="M0 14L22 10L44 12L62 6L80 4" stroke="#10B981" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="ticker-price-group">
+                <span class="ticker-price ht-tabular-num">$425.10</span>
+                <span class="ticker-delta ht-badge ht-badge-success ht-tabular-num">+1.12%</span>
+              </div>
+            </div>
+
+            <div class="ticker-row">
+              <div class="ticker-meta">
+                <span class="ht-badge ht-badge-ticker">TSLA</span>
+                <span class="ticker-name">Tesla Inc.</span>
+              </div>
+              <div class="ticker-sparkline">
+                <svg width="80" height="24" viewBox="0 0 80 24" fill="none">
+                  <path d="M0 6L25 8L50 16L75 12L80 18" stroke="#F43F5E" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="ticker-price-group">
+                <span class="ticker-price ht-tabular-num">$178.60</span>
+                <span class="ticker-delta ht-badge ht-badge-danger ht-tabular-num">-0.85%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary Bar in terminal -->
+          <div class="terminal-footer">
+            <div class="footer-stat">
+              <span class="label">NET PORTFOLIO VALUE</span>
+              <span class="val ht-tabular-num">$128,450.00</span>
+            </div>
+            <div class="footer-stat text-right">
+              <span class="label">24H PERFORMANCE</span>
+              <span class="val text-emerald ht-tabular-num">+12.4% ($14,210.00)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Platform Features Section -->
+  <section id="features" class="features-section">
+    <div class="section-container">
+      <div class="section-badge-center">
+        <span class="ht-badge ht-badge-info">CAPABILITIES</span>
+      </div>
+      <h2 class="section-heading">Architected for Speed & Reliability</h2>
+      <p class="section-subheading">
+        Every layer is optimized to give traders instant market clarity, seamless execution, and strict capital controls.
+      </p>
+
       <div class="features-grid">
-        <!-- Feature 1 -->
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <h3>Real-Time Data</h3>
-          <p>Access live market data and quotes for all major stocks with instant updates and historical analysis.</p>
+        <div class="ht-card ht-card-hover feature-card">
+          <div class="feature-icon-wrapper icon-emerald">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+          </div>
+          <h3 class="feature-title">Live Quote Ingestion</h3>
+          <p class="feature-desc">
+            Direct integration with the Finnhub Market Quote API updating asset prices continuously in the background.
+          </p>
         </div>
 
-        <!-- Feature 2 -->
-        <div class="feature-card">
-          <div class="feature-icon">🎯</div>
-          <h3>Smart Analytics</h3>
-          <p>Advanced charting tools and technical indicators to help you make informed trading decisions.</p>
+        <div class="ht-card ht-card-hover feature-card">
+          <div class="feature-icon-wrapper icon-cyan">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Multi-Portfolio Hub</h3>
+          <p class="feature-desc">
+            Create independent investment portfolios to isolate tactical strategies, retirement pools, and speculative allocations.
+          </p>
         </div>
 
-        <!-- Feature 3 -->
-        <div class="feature-card">
-          <div class="feature-icon">💼</div>
-          <h3>Portfolio Management</h3>
-          <p>Track all your holdings in one place with detailed performance metrics and allocation insights.</p>
+        <div class="ht-card ht-card-hover feature-card">
+          <div class="feature-icon-wrapper icon-indigo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Real-Time P&amp;L Accounting</h3>
+          <p class="feature-desc">
+            Weighted average purchase price tracking, position valuation, and realized gain/loss ledger calculation upon each execution.
+          </p>
         </div>
 
-        <!-- Feature 4 -->
-        <div class="feature-card">
-          <div class="feature-icon">🔔</div>
-          <h3>Smart Alerts</h3>
-          <p>Get notified instantly when stocks reach your target price or when market conditions change.</p>
+        <div class="ht-card ht-card-hover feature-card">
+          <div class="feature-icon-wrapper icon-emerald">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+          </div>
+          <h3 class="feature-title">Stripe Payment Rails</h3>
+          <p class="feature-desc">
+            Fund your trading account instantly via Stripe PaymentIntents with automatic server verification and balance crediting.
+          </p>
         </div>
 
-        <!-- Feature 5 -->
-        <div class="feature-card">
-          <div class="feature-icon">🛡️</div>
-          <h3>Secure Trading</h3>
-          <p>Enterprise-grade security with two-factor authentication and encrypted transactions.</p>
+        <div class="ht-card ht-card-hover feature-card">
+          <div class="feature-icon-wrapper icon-amber">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Security &amp; Token Revocation</h3>
+          <p class="feature-desc">
+            BCrypt credential hashing, HMAC-SHA256 JWT validation, and high-performance Redis cache token blacklist enforcement.
+          </p>
         </div>
 
-        <!-- Feature 6 -->
-        <div class="feature-card">
-          <div class="feature-icon">📱</div>
-          <h3>Mobile App</h3>
-          <p>Trade on the go with our fully-featured mobile application for iOS and Android.</p>
+        <div class="ht-card ht-card-hover feature-card">
+          <div class="feature-icon-wrapper icon-cyan">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <h3 class="feature-title">Audit Ledger &amp; Admin Console</h3>
+          <p class="feature-desc">
+            Comprehensive backoffice management console for trader activity, asset catalog configuration, and transaction history.
+          </p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- How It Works Section -->
-    <section class="how-it-works">
-      <div class="section-header">
-        <h2>How Hi-Trade Works</h2>
-        <p>Get started in three simple steps</p>
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="workflow-section">
+    <div class="section-container">
+      <div class="section-badge-center">
+        <span class="ht-badge ht-badge-success">SIMPLE ONBOARDING</span>
       </div>
-      <div class="steps-container">
-        <div class="step">
-          <div class="step-number">1</div>
-          <h3>Create Account</h3>
-          <p>Sign up in minutes with just your email. Verify your identity and you're ready to trade.</p>
-          <div class="step-icon">📝</div>
-        </div>
-        <div class="connector">→</div>
-        <div class="step">
-          <div class="step-number">2</div>
-          <h3>Fund Wallet</h3>
-          <p>Add funds to your trading account using your preferred payment method securely.</p>
-          <div class="step-icon">💰</div>
-        </div>
-        <div class="connector">→</div>
-        <div class="step">
-          <div class="step-number">3</div>
-          <h3>Start Trading</h3>
-          <p>Browse stocks, analyze data, and execute trades with just a few clicks.</p>
-          <div class="step-icon">📈</div>
-        </div>
-      </div>
-    </section>
+      <h2 class="section-heading">From Registration to Execution in 3 Steps</h2>
+      <p class="section-subheading">Get your capital in motion with a frictionless, verified workflow.</p>
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="pricing">
-      <div class="section-header">
-        <h2>Simple Transparent Pricing</h2>
-        <p>Choose the plan that works best for you</p>
+      <div class="workflow-grid">
+        <div class="workflow-step-card ht-card">
+          <div class="step-badge">STEP 01</div>
+          <h3 class="step-title">Open Trader Account</h3>
+          <p class="step-desc">
+            Register your credentials in seconds. Verify your email to activate trading access and protect account integrity.
+          </p>
+        </div>
+
+        <div class="workflow-step-card ht-card">
+          <div class="step-badge">STEP 02</div>
+          <h3 class="step-title">Fund Your Account</h3>
+          <p class="step-desc">
+            Add funds securely through Stripe checkout. Balance is credited instantly with verified cryptographic payment trace.
+          </p>
+        </div>
+
+        <div class="workflow-step-card ht-card">
+          <div class="step-badge">STEP 03</div>
+          <h3 class="step-title">Trade &amp; Monitor Holdings</h3>
+          <p class="step-desc">
+            Create custom portfolios, execute live market orders, and monitor your positions and performance in real time.
+          </p>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Pricing Tiers Section -->
+  <section id="pricing" class="pricing-section">
+    <div class="section-container">
+      <div class="section-badge-center">
+        <span class="ht-badge ht-badge-neutral">TRANSPARENT TIERS</span>
+      </div>
+      <h2 class="section-heading">Account Plans for Every Scale</h2>
+      <p class="section-subheading">Straightforward pricing with no hidden spread fees or maintenance overhead.</p>
+
       <div class="pricing-grid">
-        <!-- Basic Plan -->
-        <div class="pricing-card">
-          <div class="plan-name">Basic</div>
-          <div class="plan-price"><span class="currency">$</span>0<span class="period">/month</span></div>
-          <p class="plan-description">Perfect for beginners</p>
-          <ul class="features-list">
-            <li>✓ Real-time market data</li>
-            <li>✓ Basic charting tools</li>
-            <li>✓ Portfolio tracking</li>
-            <li>✗ Advanced analytics</li>
-            <li>✗ Priority support</li>
+        <!-- Starter Tier -->
+        <div class="ht-card pricing-card">
+          <span class="tier-name">Individual Trader</span>
+          <div class="tier-price">
+            <span class="tier-currency">$</span>0<span class="tier-period">/month</span>
+          </div>
+          <p class="tier-desc">Essential tools for retail traders starting out in equity markets.</p>
+          <ul class="tier-features">
+            <li><span class="check-icon">✓</span> Real-time Finnhub quote updates</li>
+            <li><span class="check-icon">✓</span> Up to 3 active investment portfolios</li>
+            <li><span class="check-icon">✓</span> Real-time P&amp;L and transaction history</li>
+            <li><span class="check-icon">✓</span> Stripe instant card funding</li>
           </ul>
-          <button class="btn btn-secondary">Get Started</button>
+          <button type="button" class="ht-btn ht-btn-secondary w-full" (click)="navigateToSignup()">
+            Open Free Account
+          </button>
         </div>
 
-        <!-- Pro Plan -->
-        <div class="pricing-card featured">
-          <div class="badge">POPULAR</div>
-          <div class="plan-name">Pro</div>
-          <div class="plan-price"><span class="currency">$</span>9.99<span class="period">/month</span></div>
-          <p class="plan-description">Best for active traders</p>
-          <ul class="features-list">
-            <li>✓ Real-time market data</li>
-            <li>✓ Advanced charting tools</li>
-            <li>✓ Portfolio tracking</li>
-            <li>✓ Advanced analytics</li>
-            <li>✓ Email support</li>
+        <!-- Pro Tier (Featured) -->
+        <div class="ht-card pricing-card featured-tier">
+          <div class="tier-highlight-badge">MOST POPULAR</div>
+          <span class="tier-name">Pro Terminal</span>
+          <div class="tier-price">
+            <span class="tier-currency">$</span>9.99<span class="tier-period">/month</span>
+          </div>
+          <p class="tier-desc">Enhanced capacity and multi-portfolio execution for active participants.</p>
+          <ul class="tier-features">
+            <li><span class="check-icon">✓</span> Unlimited investment portfolios</li>
+            <li><span class="check-icon">✓</span> Sub-second quote refresh interval</li>
+            <li><span class="check-icon">✓</span> Detailed ledger export &amp; transaction analysis</li>
+            <li><span class="check-icon">✓</span> Priority email and trading desk support</li>
           </ul>
-          <button class="btn btn-primary">Start Free Trial</button>
+          <button type="button" class="ht-btn ht-btn-primary w-full" (click)="navigateToSignup()">
+            Start 14-Day Free Trial
+          </button>
         </div>
 
-        <!-- Elite Plan -->
-        <div class="pricing-card">
-          <div class="plan-name">Elite</div>
-          <div class="plan-price"><span class="currency">$</span>19.99<span class="period">/month</span></div>
-          <p class="plan-description">For professional traders</p>
-          <ul class="features-list">
-            <li>✓ Real-time market data</li>
-            <li>✓ Advanced charting tools</li>
-            <li>✓ Portfolio tracking</li>
-            <li>✓ Advanced analytics</li>
-            <li>✓ 24/7 priority support</li>
+        <!-- Institutional Tier -->
+        <div class="ht-card pricing-card">
+          <span class="tier-name">Institutional Desk</span>
+          <div class="tier-price">
+            <span class="tier-currency">$</span>29.99<span class="tier-period">/month</span>
+          </div>
+          <p class="tier-desc">Designed for high-net-worth operators, advisors, and corporate treasury.</p>
+          <ul class="tier-features">
+            <li><span class="check-icon">✓</span> Everything in Pro Terminal</li>
+            <li><span class="check-icon">✓</span> Dedicated administrator backoffice views</li>
+            <li><span class="check-icon">✓</span> Direct API endpoint access keys</li>
+            <li><span class="check-icon">✓</span> 24/7 designated compliance desk</li>
           </ul>
-          <button class="btn btn-secondary">Get Started</button>
+          <button type="button" class="ht-btn ht-btn-secondary w-full" (click)="navigateToSignup()">
+            Contact Institutional Sales
+          </button>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Testimonials Section -->
-    <section class="testimonials">
-      <div class="section-header">
-        <h2>What Traders Say</h2>
-        <p>Trusted by thousands of successful investors</p>
-      </div>
-      <div class="testimonials-grid">
-        <div class="testimonial-card">
-          <div class="rating">⭐⭐⭐⭐⭐</div>
-          <p class="testimonial-text">"Hi-Trade made investing accessible to me. The interface is intuitive and the tools are powerful. I've improved my portfolio performance significantly."</p>
-          <div class="testimonial-author">
-            <div class="author-avatar">JD</div>
-            <div>
-              <p class="author-name">John Davis</p>
-              <p class="author-title">Investor</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="testimonial-card">
-          <div class="rating">⭐⭐⭐⭐⭐</div>
-          <p class="testimonial-text">"The real-time alerts feature has been a game-changer. I never miss an opportunity to buy or sell at the right moment."</p>
-          <div class="testimonial-author">
-            <div class="author-avatar">SM</div>
-            <div>
-              <p class="author-name">Sarah Martinez</p>
-              <p class="author-title">Day Trader</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="testimonial-card">
-          <div class="rating">⭐⭐⭐⭐⭐</div>
-          <p class="testimonial-text">"The customer support is exceptional. Anytime I had a question, the team was there to help immediately."</p>
-          <div class="testimonial-author">
-            <div class="author-avatar">MK</div>
-            <div>
-              <p class="author-name">Michael Kim</p>
-              <p class="author-title">Swing Trader</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Call to Action Section -->
-    <section class="cta">
-      <div class="cta-content">
-        <h2>Ready to Start Trading?</h2>
-        <p>Join thousands of successful traders on Hi-Trade today. Sign up for free and get started in minutes.</p>
+  <!-- CTA Banner Section -->
+  <section class="cta-section">
+    <div class="section-container">
+      <div class="cta-card">
+        <h2 class="cta-title">Ready to Upgrade Your Portfolio Experience?</h2>
+        <p class="cta-subtitle">
+          Join thousands of traders executing on Hi-Trade. Create your account in less than 2 minutes.
+        </p>
         <div class="cta-buttons">
-          <button class="btn btn-primary-large">Sign Up Now</button>
-          <button class="btn btn-secondary-outline">Learn More</button>
+          <button type="button" class="ht-btn ht-btn-primary ht-btn-lg" (click)="navigateToSignup()">
+            Create Free Account
+          </button>
+          <button type="button" class="ht-btn ht-btn-secondary ht-btn-lg" (click)="navigateToLogin()">
+            Access Terminal
+          </button>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-container">
-        <div class="footer-section">
-          <h4>Hi-Trade</h4>
-          <p>Smart stock trading platform for modern investors.</p>
+  <!-- Footer -->
+  <footer class="ht-footer">
+    <div class="footer-container">
+      <div class="footer-top">
+        <div class="footer-brand-col">
+          <div class="footer-brand">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M3 17L9 11L13 15L21 7" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 7H21V12" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>HI-TRADE</span>
+          </div>
+          <p class="footer-tagline">
+            Institutional stock trading &amp; multi-portfolio analytics platform.
+          </p>
         </div>
-        <div class="footer-section">
-          <h4>Product</h4>
+
+        <div class="footer-links-col">
+          <h4>Platform</h4>
           <ul>
-            <li><a href="#">Features</a></li>
-            <li><a href="#">Pricing</a></li>
-            <li><a href="#">Security</a></li>
-            <li><a href="#">Mobile App</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-it-works">Execution</a></li>
+            <li><a href="#pricing">Tiers</a></li>
           </ul>
         </div>
-        <div class="footer-section">
-          <h4>Company</h4>
+
+        <div class="footer-links-col">
+          <h4>Security &amp; Tech</h4>
           <ul>
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Blog</a></li>
-            <li><a href="#">Careers</a></li>
-            <li><a href="#">Press</a></li>
+            <li><span>Stripe Certified</span></li>
+            <li><span>Redis Token Vault</span></li>
+            <li><span>Finnhub Market Data</span></li>
           </ul>
         </div>
-        <div class="footer-section">
-          <h4>Legal</h4>
+
+        <div class="footer-links-col">
+          <h4>Account</h4>
           <ul>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Contact</a></li>
-            <li><a href="#">Support</a></li>
+            <li><a href="javascript:void(0)" (click)="navigateToLogin()">Sign In</a></li>
+            <li><a href="javascript:void(0)" (click)="navigateToSignup()">Open Account</a></li>
           </ul>
         </div>
       </div>
+
       <div class="footer-bottom">
-        <p>&copy; 2024 Hi-Trade. All rights reserved.</p>
-        <div class="social-links">
-          <a href="#">Twitter</a>
-          <a href="#">LinkedIn</a>
-          <a href="#">Facebook</a>
+        <p>&copy; 2026 Hi-Trade Trading Technologies. All rights reserved.</p>
+        <div class="compliance-note">
+          Simulated trading platform. Market quotes provided by Finnhub API.
         </div>
       </div>
-    </footer>
-  </div>
-</body>
-</html>
+    </div>
+  </footer>
+</div>

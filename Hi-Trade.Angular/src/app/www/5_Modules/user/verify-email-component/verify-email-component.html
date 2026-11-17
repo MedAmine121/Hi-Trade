@@ -1,88 +1,106 @@
 <app-nav-bar-component></app-nav-bar-component>
-<div class="verify-container">
-  <div class="verify-wrapper">
-    <div class="logo-section" (click)="redirectToHome()">
-      <div class="logo-icon">📈</div>
-      <span class="logo-text">Hi-Trade</span>
+
+<div class="auth-page-container">
+  <div class="auth-card ht-card">
+    <div class="auth-header" (click)="redirectToHome()" role="button" tabindex="0">
+      <div class="auth-brand-mark">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M3 17L9 11L13 15L21 7" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 7H21V12" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      @if (isSuccess()) {
+        <h1 class="auth-title">Email Verified</h1>
+        <p class="auth-subtitle">Your trading account is now fully active</p>
+      } @else {
+        <h1 class="auth-title">Verify Your Email</h1>
+        <p class="auth-subtitle">
+          Enter the 6-digit verification code sent to <strong class="text-white">{{ email || 'your email' }}</strong>
+        </p>
+      }
     </div>
 
     @if (isSuccess()) {
-      <div class="success-card">
-        <div class="success-icon">✅</div>
-        <h1 class="verify-title">Email Verified!</h1>
-        <p class="verify-subtitle">Your email address has been successfully verified. You now have full access to trade, buy, and sell assets.</p>
-        <p class="redirecting-text">Redirecting to your portfolio...</p>
-        <button class="btn-verify-submit" (click)="redirectToHome()">Go to My Portfolios</button>
+      <div class="success-box">
+        <div class="success-glyph">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <p class="text-sm text-slate-300">
+          Your email address has been verified. You can now execute asset purchases, sales, and portfolio rebalances.
+        </p>
+        <button type="button" class="ht-btn ht-btn-primary w-full mt-4" (click)="redirectToHome()">
+          Enter Trading Desk
+        </button>
       </div>
     } @else {
-      <div class="verify-form">
-        <h1 class="verify-title">Verify Your Email</h1>
-        <p class="verify-subtitle">Enter the 6-digit code sent to <strong>{{ email || 'your email' }}</strong> to activate your trading account.</p>
+      @if (errorMessage()) {
+        <div class="ht-alert ht-alert-danger mb-4">
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
 
-        @if (errorMessage()) {
-          <div class="alert-box error">
-            <span>{{ errorMessage() }}</span>
-          </div>
-        }
+      @if (resendSuccess()) {
+        <div class="ht-alert ht-alert-success mb-4">
+          <span>{{ resendSuccess() }}</span>
+        </div>
+      }
 
-        @if (resendSuccess()) {
-          <div class="alert-box success">
-            <span>{{ resendSuccess() }}</span>
-          </div>
-        }
-
-        <form (ngSubmit)="submitVerification()">
-          <div class="form-group">
-            <label for="email" class="form-label">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="form-input"
-              [(ngModel)]="email"
-              required
-              placeholder="your@email.com"
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="code" class="form-label">Verification Code</label>
-            <input
-              type="text"
-              id="code"
-              name="code"
-              class="form-input code-input"
-              maxlength="6"
-              [(ngModel)]="code"
-              required
-              placeholder="123456"
-            />
-          </div>
-
-          <button
-            type="submit"
-            class="btn-verify-submit"
-            [disabled]="isLoading() || !email || !code || code.length < 6"
-          >
-            {{ isLoading() ? 'Verifying...' : 'Verify Email' }}
-          </button>
-        </form>
-
-        <div class="resend-row">
-          <span>Didn't get the code?</span>
-          <button
-            type="button"
-            class="btn-resend-link"
-            (click)="resendCode()"
-            [disabled]="isResending() || isLoading() || !email"
-          >
-            {{ isResending() ? 'Resending...' : 'Resend Code' }}
-          </button>
+      <form (ngSubmit)="submitVerification()" class="auth-form">
+        <div class="ht-form-group">
+          <label for="email" class="ht-label">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            class="ht-input"
+            [(ngModel)]="email"
+            required
+            placeholder="trader@domain.com"
+          />
         </div>
 
-        <p class="back-link">
-          <a (click)="redirectToHome()">Back to Home</a>
-        </p>
+        <div class="ht-form-group">
+          <label for="code" class="ht-label">6-Digit Code</label>
+          <input
+            type="text"
+            id="code"
+            name="code"
+            class="ht-input code-input ht-tabular-num"
+            maxlength="6"
+            [(ngModel)]="code"
+            required
+            placeholder="123456"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="ht-btn ht-btn-primary auth-submit-btn"
+          [disabled]="isLoading() || !email || !code || code.length < 6"
+        >
+          {{ isLoading() ? 'Verifying...' : 'Confirm Verification Code' }}
+        </button>
+      </form>
+
+      <div class="resend-row">
+        <span>Didn't receive code?</span>
+        <button
+          type="button"
+          class="resend-btn"
+          (click)="resendCode()"
+          [disabled]="isResending() || isLoading() || !email"
+        >
+          {{ isResending() ? 'Sending...' : 'Resend Code' }}
+        </button>
+      </div>
+
+      <div class="auth-footer-text">
+        <button type="button" class="auth-switch-link" (click)="redirectToHome()">
+          Back to Terminal
+        </button>
       </div>
     }
   </div>

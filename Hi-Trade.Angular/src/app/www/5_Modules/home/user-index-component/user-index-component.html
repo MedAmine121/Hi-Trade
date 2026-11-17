@@ -1,164 +1,240 @@
 <app-nav-bar-component></app-nav-bar-component>
 
 @if (userContext) {
-<div class="portfolio-container">
+<div class="ht-page-container">
+  <!-- Email Verification Warning Banner -->
   @if (!isEmailVerified()) {
-  <div class="verification-alert">
-    <div class="alert-info">
-      <span class="alert-icon">⚠️</span>
-      <div class="alert-text">
-        <h4 class="alert-heading">Email Verification Required</h4>
-        <p class="alert-description">Your email address is not verified yet. Trading actions such as buying and selling assets are restricted until your email is verified.</p>
+  <div class="ht-alert ht-alert-warning">
+    <div class="verification-alert-content">
+      <div class="verification-alert-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+      <div>
+        <h4 class="verification-alert-title">Email Verification Required</h4>
+        <p class="verification-alert-desc">
+          Your email address is unverified. Trading actions (buy and sell executions) are restricted until confirmed.
+        </p>
       </div>
     </div>
-    <div class="alert-actions">
-      <button class="verify-action-btn primary-verify-btn" (click)="openVerifyEmailModal()">Verify Email</button>
-      <button class="verify-action-btn secondary-verify-btn" (click)="resendVerificationFromBanner()" [disabled]="isResendingVerification()">
-        {{ isResendingVerification() ? 'Sending...' : 'Send Code' }}
+    <div class="verification-alert-actions">
+      <button type="button" class="ht-btn ht-btn-sm verification-primary-btn" (click)="openVerifyEmailModal()">
+        Verify Email Now
+      </button>
+      <button 
+        type="button" 
+        class="ht-btn ht-btn-sm ht-btn-outline" 
+        (click)="resendVerificationFromBanner()" 
+        [disabled]="isResendingVerification()"
+      >
+        {{ isResendingVerification() ? 'Sending Code...' : 'Resend Code' }}
       </button>
     </div>
   </div>
   }
 
-  <div class="portfolio-header">
-    <div class="header-top">
-      <h1>My Portfolios</h1>
+  <!-- Page Header -->
+  <header class="ht-page-header">
+    <div>
+      <div class="flex items-center gap-2 mb-1">
+        <span class="ht-badge ht-badge-neutral">TRADING DESK</span>
+        <span class="ht-badge ht-badge-success">
+          <span class="ht-status-dot"></span> LIVE
+        </span>
+      </div>
+      <h1 class="ht-page-title">Investment Portfolios</h1>
+      <p class="ht-page-subtitle">Track holdings, realized performance, and execute market transactions.</p>
+    </div>
+
+    <div class="ht-page-actions">
       @if (portfolios().length > 0) {
-      <button class="add-btn" (click)="addPortfolio()">
+      <button type="button" class="ht-btn ht-btn-secondary" (click)="viewTransactions()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        <span>Global Ledger</span>
+      </button>
+      <button type="button" class="ht-btn ht-btn-primary" (click)="addPortfolio()">
         <span>+ Add Portfolio</span>
       </button>
       }
     </div>
-  </div>
+  </header>
 
+  <!-- Loading State -->
   @if (isLoading()) {
-  <div class="loading-container">
-    <p>Loading portfolios...</p>
+  <div class="ht-empty-state">
+    <div class="ht-spinner"></div>
+    <p>Retrieving portfolio positions from market gateway...</p>
   </div>
   }
 
+  <!-- Portfolios Available -->
   @if (!isLoading() && portfolios().length > 0) {
-  <mat-tab-group (selectedTabChange)="selectedPortfolioChanged($event)">
+  <mat-tab-group (selectedTabChange)="selectedPortfolioChanged($event)" animationDuration="150ms">
     @for (portfolio of portfolios(); track portfolio; let i = $index) {
     <mat-tab [label]="portfolio.name"></mat-tab>
     }
   </mat-tab-group>
 
-  <div class="portfolios-list">
-    @if (selectedPortfolio()) {
-    <div class="portfolio-item">
-      <div class="portfolio-summary">
-        <h3>{{ selectedPortfolio().name }}</h3>
-        <div class="summary-grid">
-          <div class="summary-item">
-            <span class="label">Current Value:</span>
-            <span class="value">${{ selectedPortfolio().currentValue | number: '1.2-2' }}</span>
-          </div>
-          <div class="summary-item">
-            <span class="label">Gain/Loss:</span>
-            <span class="value"
-              [ngClass]="{'positive': selectedPortfolio().gainLoss >= 0, 'negative': selectedPortfolio().gainLoss < 0}">
-              {{ selectedPortfolio().gainLoss >= 0 ? '+' : '' }}${{
-              selectedPortfolio().gainLoss | number: '1.2-2'
-              }}
-            </span>
-          </div>
-          <div class="summary-item">
-            <span class="label">Performance:</span>
-            <span class="value"
-              [ngClass]="{'positive': selectedPortfolio().performance >= 0, 'negative': selectedPortfolio().performance < 0}">
-              {{ selectedPortfolio().performance >= 0 ? '+' : '' }}{{ selectedPortfolio().performance | number: '1.2-2'
-              }}%
-            </span>
-          </div>
-        </div>
+  @if (selectedPortfolio()) {
+  <!-- Portfolio Metrics Strip -->
+  <div class="ht-stat-grid">
+    <div class="ht-stat-card ht-stat-card-accent-emerald">
+      <div class="ht-stat-header">
+        <span class="ht-stat-label">Current Portfolio Value</span>
+        <span class="ht-badge ht-badge-neutral">{{ selectedPortfolio().name }}</span>
       </div>
-      <div class="overflow-hidden">
-      <button
-        class="add-btn m-3 float-end"
-        [class.restricted-action]="!isEmailVerified()"
-        (click)="buyAsset()"
-        [title]="!isEmailVerified() ? 'Email verification required to buy assets' : 'Buy Asset'"
-      >
-        @if (!isEmailVerified()) {
-          <span class="action-lock-badge">🔒</span>
-        }
-        <span>+ Buy Asset</span>
-      </button>
-      <button class="add-btn bg-success m-3 float-end" (click)="viewTransactions()">
-        <span>View Transactions</span>
-      </button>
-      </div>
-      @if (selectedPortfolio().positions && selectedPortfolio().positions.length > 0) {
-      <div class="positions-section">
-        <h4>Holdings</h4>
-        <table class="positions-table">
-          <thead>
-            <tr>
-              <th>Ticker</th>
-              <th>Asset Name</th>
-              <th>Quantity</th>
-              <th>Avg Price</th>
-              <th>Position Value</th>
-              <th>Current Price</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (position of selectedPortfolio().positions; track position) {
-            <tr>
-              <td class="ticker">{{ position.asset.ticker }}</td>
-              <td class="name">{{ position.asset.name }}</td>
-              <td class="quantity">{{ position.quantity }}</td>
-              <td class="price">${{ position.averagePrice | number: '1.2-2' }}</td>
-              <td class="value">
-                ${{
-                getPositionValue(position.quantity, position.averagePrice)
-                | number: '1.2-2'
-                }}
-              </td>
-              <td class="current-price">
-                ${{ position.asset.currentPrice | number: '1.2-2' }}
-              </td>
-              <td class="action">
-                <button
-                  class="sell-btn"
-                  [class.restricted-action]="!isEmailVerified()"
-                  (click)="sellAsset(position)"
-                  [title]="!isEmailVerified() ? 'Email verification required to sell assets' : 'Sell this asset'"
-                >
-                  @if (!isEmailVerified()) {
-                    <span class="action-lock-badge">🔒</span>
-                  }
-                  Sell
-                </button>
-              </td>
-            </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      }
+      <span class="ht-stat-val ht-tabular-num">
+        ${{ selectedPortfolio().currentValue | number: '1.2-2' }}
+      </span>
+      <span class="ht-stat-sub">Aggregated real-time market mark</span>
+    </div>
 
-      @if (!selectedPortfolio().positions || selectedPortfolio().positions.length === 0) {
-      <div class="no-positions">
-        <p>No positions in this portfolio</p>
+    <div class="ht-stat-card" [class.ht-stat-card-accent-emerald]="selectedPortfolio().gainLoss >= 0" [class.ht-stat-card-accent-amber]="selectedPortfolio().gainLoss < 0">
+      <div class="ht-stat-header">
+        <span class="ht-stat-label">Realized Gain / Loss</span>
+        <span class="ht-badge" [ngClass]="selectedPortfolio().gainLoss >= 0 ? 'ht-badge-success' : 'ht-badge-danger'">
+          {{ selectedPortfolio().gainLoss >= 0 ? '+' : '' }}${{ selectedPortfolio().gainLoss | number: '1.2-2' }}
+        </span>
       </div>
-      }
+      <span class="ht-stat-val ht-tabular-num" [class.text-gain]="selectedPortfolio().gainLoss >= 0" [class.text-loss]="selectedPortfolio().gainLoss < 0">
+        {{ selectedPortfolio().gainLoss >= 0 ? '+' : '' }}${{ selectedPortfolio().gainLoss | number: '1.2-2' }}
+      </span>
+      <span class="ht-stat-sub">Cumulative trading P&amp;L</span>
+    </div>
+
+    <div class="ht-stat-card ht-stat-card-accent-cyan">
+      <div class="ht-stat-header">
+        <span class="ht-stat-label">Net Performance</span>
+        <span class="ht-badge" [ngClass]="selectedPortfolio().performance >= 0 ? 'ht-badge-success' : 'ht-badge-danger'">
+          {{ selectedPortfolio().performance >= 0 ? '▲' : '▼' }} {{ selectedPortfolio().performance | number: '1.2-2' }}%
+        </span>
+      </div>
+      <span class="ht-stat-val ht-tabular-num" [class.text-gain]="selectedPortfolio().performance >= 0" [class.text-loss]="selectedPortfolio().performance < 0">
+        {{ selectedPortfolio().performance >= 0 ? '+' : '' }}{{ selectedPortfolio().performance | number: '1.2-2' }}%
+      </span>
+      <span class="ht-stat-sub">Return on net invested capital</span>
+    </div>
+  </div>
+
+  <!-- Holdings Card -->
+  <div class="ht-card mb-8">
+    <div class="ht-card-header">
+      <div class="flex items-center gap-3">
+        <h3 class="ht-card-title">Active Holdings</h3>
+        @if (selectedPortfolio().positions) {
+        <span class="ht-badge ht-badge-neutral">{{ selectedPortfolio().positions.length }} Positions</span>
+        }
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="ht-btn ht-btn-success ht-btn-sm"
+          [class.restricted-action]="!isEmailVerified()"
+          (click)="buyAsset()"
+          [title]="!isEmailVerified() ? 'Email verification required to buy assets' : 'Execute new purchase'"
+        >
+          @if (!isEmailVerified()) {
+          <span class="action-lock-glyph">🔒</span>
+          }
+          <span>+ Buy Asset</span>
+        </button>
+      </div>
+    </div>
+
+    @if (selectedPortfolio().positions && selectedPortfolio().positions.length > 0) {
+    <div class="ht-table-container border-0 rounded-none shadow-none">
+      <table class="ht-table">
+        <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>Asset Name</th>
+            <th class="text-right">Shares</th>
+            <th class="text-right">Avg Purchase Price</th>
+            <th class="text-right">Position Value</th>
+            <th class="text-right">Current Price</th>
+            <th class="text-right">Execution</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (position of selectedPortfolio().positions; track position) {
+          <tr>
+            <td>
+              <span class="ht-badge ht-badge-ticker">{{ position.asset.ticker }}</span>
+            </td>
+            <td class="font-medium text-white">{{ position.asset.name }}</td>
+            <td class="text-right ht-tabular-num font-semibold">{{ position.quantity }}</td>
+            <td class="text-right ht-tabular-num text-slate-300">${{ position.averagePrice | number: '1.2-2' }}</td>
+            <td class="text-right ht-tabular-num font-bold text-white">
+              ${{ getPositionValue(position.quantity, position.averagePrice) | number: '1.2-2' }}
+            </td>
+            <td class="text-right ht-tabular-num text-emerald-400 font-semibold">
+              ${{ position.asset.currentPrice | number: '1.2-2' }}
+            </td>
+            <td class="text-right">
+              <button
+                type="button"
+                class="ht-btn ht-btn-danger ht-btn-sm"
+                [class.restricted-action]="!isEmailVerified()"
+                (click)="sellAsset(position)"
+                [title]="!isEmailVerified() ? 'Email verification required to sell assets' : 'Sell this position'"
+              >
+                @if (!isEmailVerified()) {
+                <span class="action-lock-glyph">🔒</span>
+                }
+                Sell
+              </button>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    } @else {
+    <div class="ht-empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+      </svg>
+      <p class="text-slate-400 font-medium">No open positions in {{ selectedPortfolio().name }}</p>
+      <button 
+        type="button" 
+        class="ht-btn ht-btn-success ht-btn-sm mt-1" 
+        (click)="buyAsset()" 
+        [disabled]="!isEmailVerified()"
+      >
+        <span>+ Purchase Your First Asset</span>
+      </button>
     </div>
     }
   </div>
   }
+  }
 
+  <!-- No Portfolios State -->
   @if (!isLoading() && portfolios().length === 0) {
-  <div class="no-data empty-state">
-    <div class="empty-state-content">
-      <h3>No Portfolios Yet</h3>
-      <p>Start creating your first portfolio to begin investing and tracking your assets.</p>
-      <button class="add-btn primary-btn" (click)="addPortfolio()">
-        <span>+ Add New Portfolio</span>
-      </button>
+  <div class="ht-card ht-empty-state py-16">
+    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-2">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
     </div>
+    <h3 class="text-xl font-bold text-white">No Portfolios Created Yet</h3>
+    <p class="text-slate-400 max-width-md text-center">
+      Initialize your first trading portfolio to begin allocating assets and tracking automated market performance.
+    </p>
+    <button type="button" class="ht-btn ht-btn-primary ht-btn-lg mt-3" (click)="addPortfolio()">
+      <span>+ Create Portfolio</span>
+    </button>
   </div>
   }
 </div>

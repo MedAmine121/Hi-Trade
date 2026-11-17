@@ -1,223 +1,58 @@
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
+/* Sell Asset Modal Component Styles */
 
-.modal-content {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 500px;
-  overflow: hidden;
-  max-height: 90vh;
+.position-summary-box {
+  background: var(--ht-bg-surface);
+  border: 1px solid var(--ht-border-subtle);
+  border-radius: var(--ht-radius-md);
+  padding: 1.15rem;
+  margin-bottom: 1.25rem;
   display: flex;
   flex-direction: column;
+  gap: 1rem;
 }
 
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
-  flex-shrink: 0;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-  color: #666;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.close-btn:hover {
-  background-color: #f0f0f0;
-}
-
-.modal-body {
-  padding: 20px;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.position-info {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-  margin-bottom: 20px;
-}
-
-.position-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
-}
-
-.position-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.asset-ticker {
-  font-weight: 600;
-  font-size: 16px;
-  color: #333;
-}
-
-.asset-name {
-  font-size: 13px;
-  color: #666;
-}
-
-.asset-price {
-  font-size: 14px;
-  font-weight: 500;
-  color: #e74c3c;
-}
-
-.position-stats {
+.position-stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
-.stat-item {
+.stat-cell {
+  background: #060a14;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px;
-  background-color: white;
-  border-radius: 4px;
+  gap: 0.2rem;
 }
 
-.stat-label {
-  font-size: 12px;
-  color: #666;
-  font-weight: 500;
+.stat-cell-label {
+  font-size: 0.725rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--ht-text-muted);
 }
 
-.stat-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
+.stat-cell-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ffffff;
 }
 
-.quantity-section {
+.proceeds-banner {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: var(--ht-radius-md);
+  margin-top: 0.75rem;
 }
 
-.quantity-section label {
-  font-weight: 500;
-  font-size: 14px;
-  color: #333;
-}
-
-.input-field {
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: inherit;
-  transition: border-color 0.2s;
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: #e74c3c;
-  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
-}
-
-.quantity-info {
-  font-size: 12px;
-  color: #666;
-  padding: 4px 0;
-}
-
-.total-proceeds {
-  font-size: 14px;
-  font-weight: 600;
-  color: #27ae60;
-  background-color: white;
-  padding: 10px;
-  border-radius: 4px;
-  text-align: right;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  padding: 20px;
-  border-top: 1px solid #e0e0e0;
-  flex-shrink: 0;
-}
-
-.btn-cancel,
-.btn-submit {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-cancel {
-  background-color: #f0f0f0;
-  color: #333;
-}
-
-.btn-cancel:hover {
-  background-color: #e0e0e0;
-}
-
-.btn-submit {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.btn-submit:hover:not(:disabled) {
-  background-color: #c0392b;
-}
-
-.btn-submit:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
+.proceeds-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #34d399;
 }

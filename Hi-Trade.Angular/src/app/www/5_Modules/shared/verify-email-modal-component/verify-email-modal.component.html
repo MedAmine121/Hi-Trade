@@ -1,31 +1,31 @@
 @if (isOpen()) {
-  <div class="modal-overlay" (click)="closeModal()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="header-title-wrap">
-          <span class="header-icon">✉️</span>
-          <h2>Verify Your Email</h2>
+  <div class="ht-modal-overlay" (click)="closeModal()">
+    <div class="ht-modal-dialog" (click)="$event.stopPropagation()">
+      <div class="ht-modal-header">
+        <div>
+          <h2 class="ht-modal-title">Verify Email Address</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Two-factor confirmation required for active trade execution</p>
         </div>
-        <button class="close-btn" (click)="closeModal()" aria-label="Close modal">×</button>
+        <button type="button" class="ht-modal-close" (click)="closeModal()" aria-label="Close modal">×</button>
       </div>
 
-      <div class="modal-body">
+      <div class="ht-modal-body">
         @if (!codeSent()) {
-          <p class="description">
+          <p class="text-sm text-slate-300 leading-relaxed mb-4">
             Trading features like buying and selling assets are restricted until your email is verified.
-            Click below to send a 6-digit verification code to <strong>{{ email() }}</strong>.
+            Send a 6-digit verification code to <strong class="text-white">{{ email() }}</strong>.
           </p>
 
           @if (errorMessage()) {
-            <div class="alert-box error">
+            <div class="ht-alert ht-alert-danger mb-4">
               <span>{{ errorMessage() }}</span>
             </div>
           }
 
-          <div class="send-action-wrapper">
+          <div class="mb-4">
             <button
               type="button"
-              class="btn-send-code"
+              class="ht-btn ht-btn-primary w-full"
               (click)="sendVerificationCode()"
               [disabled]="isResending()"
             >
@@ -33,30 +33,32 @@
             </button>
           </div>
 
-          <div class="already-have-section">
-            <span>Already have a code?</span>
-            <button type="button" class="btn-link" (click)="showCodeInput()">Enter code</button>
+          <div class="text-center text-xs text-slate-400">
+            <span>Already received your code? </span>
+            <button type="button" class="text-emerald-400 font-semibold underline bg-transparent border-0 cursor-pointer p-0" (click)="showCodeInput()">
+              Enter code manually
+            </button>
           </div>
         } @else {
-          <p class="description">
-            We've sent a 6-digit verification code to <strong>{{ email() }}</strong>.
-            Please enter it below to verify your email and unlock all trading actions.
+          <p class="text-sm text-slate-300 leading-relaxed mb-4">
+            We've transmitted a 6-digit verification code to <strong class="text-white">{{ email() }}</strong>.
+            Please enter it below to unlock full account trading execution.
           </p>
 
           @if (errorMessage()) {
-            <div class="alert-box error">
+            <div class="ht-alert ht-alert-danger mb-4">
               <span>{{ errorMessage() }}</span>
             </div>
           }
 
           @if (resendSuccess()) {
-            <div class="alert-box success">
+            <div class="ht-alert ht-alert-success mb-4">
               <span>{{ resendSuccess() }}</span>
             </div>
           }
 
-          <div class="form-group">
-            <label for="verificationCode">Verification Code</label>
+          <div class="ht-form-group">
+            <label for="verificationCode" class="ht-label">6-Digit Code</label>
             <input
               id="verificationCode"
               type="text"
@@ -65,17 +67,17 @@
               (ngModelChange)="verificationCode.set($event)"
               (keyup.enter)="verify()"
               placeholder="123456"
-              class="code-input"
+              class="ht-input ht-tabular-num text-center text-xl tracking-widest font-bold"
               autocomplete="one-time-code"
               autofocus
             />
           </div>
 
-          <div class="resend-section">
-            <span>Didn't receive the email?</span>
+          <div class="text-center text-xs text-slate-400 mt-2">
+            <span>Didn't receive the email? </span>
             <button
               type="button"
-              class="btn-link"
+              class="text-emerald-400 font-semibold underline bg-transparent border-0 cursor-pointer p-0"
               (click)="resendCode()"
               [disabled]="isResending() || isLoading()"
             >
@@ -85,15 +87,18 @@
         }
       </div>
 
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="closeModal()">{{ codeSent() ? 'Later' : 'Close' }}</button>
+      <div class="ht-modal-footer">
+        <button type="button" class="ht-btn ht-btn-secondary" (click)="closeModal()">
+          {{ codeSent() ? 'Later' : 'Close' }}
+        </button>
         @if (codeSent()) {
           <button
-            class="btn-submit"
+            type="button"
+            class="ht-btn ht-btn-primary"
             (click)="verify()"
             [disabled]="isLoading() || !verificationCode().trim()"
           >
-            {{ isLoading() ? 'Verifying...' : 'Verify Email' }}
+            {{ isLoading() ? 'Verifying...' : 'Confirm Verification' }}
           </button>
         }
       </div>
