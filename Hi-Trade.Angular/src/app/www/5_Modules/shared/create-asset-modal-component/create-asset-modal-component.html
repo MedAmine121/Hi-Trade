@@ -1,14 +1,14 @@
 @if (isOpen()) {
-<div class="modal-backdrop" (click)="closeModal()">
-  <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="createAssetTitle">
-    <div class="modal-header">
+<div class="ht-modal-overlay" (click)="closeModal()">
+  <div class="ht-modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="createAssetTitle">
+    <div class="ht-modal-header">
       <div>
-        <h2 id="createAssetTitle" class="modal-title">Create New Asset</h2>
-        <p class="modal-subtitle">Add a stock or tradable instrument to the platform catalog.</p>
+        <h2 id="createAssetTitle" class="ht-modal-title">Create New Catalog Instrument</h2>
+        <p class="text-xs text-slate-400 mt-0.5">Register a security or tradable asset into the market registry</p>
       </div>
       <button
         type="button"
-        class="close-btn"
+        class="ht-modal-close"
         (click)="closeModal()"
         [disabled]="isSubmitting()"
         aria-label="Close modal"
@@ -17,14 +17,14 @@
       </button>
     </div>
 
-    <form class="modal-form" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="assetTicker" class="form-label">Ticker Symbol</label>
+    <form class="ht-modal-body" (ngSubmit)="onSubmit()">
+      <div class="ht-form-group">
+        <label for="assetTicker" class="ht-label">Ticker Symbol</label>
         <input
           id="assetTicker"
           name="ticker"
           type="text"
-          class="form-input ticker-input"
+          class="ht-input ht-tabular-num font-bold uppercase tracking-wider"
           placeholder="e.g. AAPL"
           maxlength="16"
           [ngModel]="ticker()"
@@ -33,15 +33,16 @@
           required
           autocomplete="off"
         />
+        <span class="ht-form-hint">Must match Finnhub quote symbol identifier.</span>
       </div>
 
-      <div class="form-group">
-        <label for="assetName" class="form-label">Asset Name</label>
+      <div class="ht-form-group">
+        <label for="assetName" class="ht-label">Full Instrument Name</label>
         <input
           id="assetName"
           name="name"
           type="text"
-          class="form-input"
+          class="ht-input"
           placeholder="e.g. Apple Inc."
           maxlength="100"
           [ngModel]="name()"
@@ -53,29 +54,34 @@
       </div>
 
       @if (validationError()) {
-      <div class="error-banner" role="alert">
-        {{ validationError() }}
+      <div class="ht-alert ht-alert-danger mt-3 mb-0" role="alert">
+        <span>{{ validationError() }}</span>
       </div>
       }
-
-      <div class="modal-actions">
-        <button
-          type="button"
-          class="btn-secondary"
-          (click)="closeModal()"
-          [disabled]="isSubmitting()"
-        >
-          Cancel
-        </button>
-        <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
-          @if (isSubmitting()) {
-          Creating...
-          } @else {
-          Create Asset
-          }
-        </button>
-      </div>
     </form>
+
+    <div class="ht-modal-footer">
+      <button
+        type="button"
+        class="ht-btn ht-btn-secondary"
+        (click)="closeModal()"
+        [disabled]="isSubmitting()"
+      >
+        Cancel
+      </button>
+      <button 
+        type="button" 
+        class="ht-btn ht-btn-primary" 
+        (click)="onSubmit()"
+        [disabled]="isSubmitting()"
+      >
+        @if (isSubmitting()) {
+        Registering Asset...
+        } @else {
+        Create Asset
+        }
+      </button>
+    </div>
   </div>
 </div>
 }

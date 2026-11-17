@@ -1,35 +1,64 @@
 @if (isOpen()) {
-<div class="modal-overlay" (click)="onCancel()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-            <h2>Transaction History</h2>
-            <button class="close-btn" (click)="onCancel()">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="assets-list">
-                @if (transactions().length === 0) {
-                <div class="no-assets">No transactions available</div>
-                } @else {
-                @for (transaction of transactions(); track transaction.id) {
-                <div class="asset-item">
-                    <div class="asset-info">
-                        <div class="asset-ticker">{{ transaction.assetTicker }}</div>
-                        <div class="asset-name">{{ transaction.assetName }}</div>
-                        <div class="asset-name">{{ 'Quantity: ' + transaction.quantity }}</div>
-                        <div class="asset-price">{{ transaction.priceAtTransaction.toFixed(2) }}€</div>
-                    </div>
-                    <div class="transaction-type" [ngClass]="transaction.transactionType.toLowerCase()">
-                       {{ transaction.transactionType.toLowerCase() === 'buy' ? '-' : '+' }}     {{ transaction.totalValue }}€
-                    </div>
-                </div>
-                }
-                }
-            </div>
-
-        </div>
-        <div class="modal-footer">
-            <button class="btn-cancel" (click)="onCancel()">Close</button>
-        </div>
+<div class="ht-modal-overlay" (click)="onCancel()">
+  <div class="ht-modal-dialog max-w-2xl" (click)="$event.stopPropagation()">
+    <div class="ht-modal-header">
+      <div>
+        <h2 class="ht-modal-title">Portfolio Transaction Ledger</h2>
+        <p class="text-xs text-slate-400 mt-0.5">Immutable audit record of execution orders and settlement</p>
+      </div>
+      <button type="button" class="ht-modal-close" (click)="onCancel()" aria-label="Close modal">×</button>
     </div>
+
+    <div class="ht-modal-body">
+      @if (transactions().length === 0) {
+      <div class="ht-empty-state py-12">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.5">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        <p class="text-slate-400">No transactions recorded for this portfolio</p>
+      </div>
+      } @else {
+      <div class="ledger-list">
+        @for (transaction of transactions(); track transaction.id) {
+        <div class="ledger-row">
+          <div class="ledger-row-left">
+            <div class="flex items-center gap-2">
+              <span class="ht-badge ht-badge-ticker">{{ transaction.assetTicker }}</span>
+              <span class="ledger-asset-name">{{ transaction.assetName }}</span>
+              <span 
+                class="ht-badge" 
+                [ngClass]="transaction.transactionType.toLowerCase() === 'buy' ? 'ht-badge-info' : 'ht-badge-success'"
+              >
+                {{ transaction.transactionType.toUpperCase() }}
+              </span>
+            </div>
+            <div class="ledger-meta-row">
+              <span>{{ transaction.quantity }} Shares</span>
+              <span>·</span>
+              <span>Execution Price: ${{ transaction.priceAtTransaction.toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <div class="ledger-row-right">
+            <span 
+              class="ledger-amount ht-tabular-num" 
+              [ngClass]="transaction.transactionType.toLowerCase() === 'buy' ? 'text-outflow' : 'text-inflow'"
+            >
+              {{ transaction.transactionType.toLowerCase() === 'buy' ? '-' : '+' }}${{ transaction.totalValue }}
+            </span>
+          </div>
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="ht-modal-footer">
+      <button type="button" class="ht-btn ht-btn-secondary" (click)="onCancel()">Close</button>
+    </div>
+  </div>
 </div>
 }

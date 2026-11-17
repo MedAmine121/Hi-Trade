@@ -1,230 +1,84 @@
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+/* Buy Asset Modal Styling */
+
+.assets-scroll-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.asset-select-card {
+  background: var(--ht-bg-surface);
+  border: 1px solid var(--ht-border-subtle);
+  border-radius: var(--ht-radius-md);
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.asset-select-card:hover {
+  background: var(--ht-bg-surface-elevated);
+  border-color: var(--ht-border-medium);
+}
+
+.asset-select-card.selected {
+  border-color: var(--ht-brand-primary);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.asset-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.asset-display-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+
+.asset-quote-price {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #34d399;
+}
+
+.check-box-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--ht-border-medium);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  background: transparent;
+  transition: all 0.15s ease;
 }
 
-.modal-content {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 500px;
-  overflow: hidden;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
+.check-box-circle.checked {
+  background: #10b981;
+  border-color: #10b981;
 }
 
-.modal-header {
+.order-execution-box {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.execution-total-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
-  flex-shrink: 0;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 28px;
-  cursor: pointer;
-  color: #666;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.close-btn:hover {
-  background-color: #f0f0f0;
-}
-
-.modal-body {
-  padding: 20px;
-  flex: 1;
-  overflow-y: auto;
-}
-
-.assets-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.no-assets {
-  text-align: center;
-  padding: 40px 20px;
-  color: #999;
-  font-size: 14px;
-}
-
-.asset-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  border: 2px solid #e0e0e0;
+  padding: 0.65rem 0.85rem;
+  background: #060a14;
   border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.asset-item:hover {
-  border-color: #4a90e2;
-  background-color: #f8f9ff;
-}
-
-.asset-item.selected {
-  border-color: #4a90e2;
-  background-color: #f0f5ff;
-}
-
-.asset-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.asset-ticker {
-  font-weight: 600;
-  font-size: 14px;
-  color: #333;
-}
-
-.asset-name {
-  font-size: 12px;
-  color: #666;
-}
-
-.asset-price {
-  font-size: 14px;
-  font-weight: 500;
-  color: #4a90e2;
-}
-
-.asset-select {
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid #ddd;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.asset-item.selected .asset-select {
-  background-color: #4a90e2;
-  border-color: #4a90e2;
-}
-
-.checkmark {
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.quantity-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-}
-
-.quantity-section label {
-  font-weight: 500;
-  font-size: 14px;
-  color: #333;
-}
-
-.input-field {
-  padding: 10px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: inherit;
-  transition: border-color 0.2s;
-}
-
-.input-field:focus {
-  outline: none;
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-}
-
-.total-cost {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  background-color: white;
-  padding: 10px;
-  border-radius: 4px;
-  text-align: right;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  padding: 20px;
-  border-top: 1px solid #e0e0e0;
-  flex-shrink: 0;
-}
-
-.btn-cancel,
-.btn-submit {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.btn-cancel {
-  background-color: #f0f0f0;
-  color: #333;
-}
-
-.btn-cancel:hover {
-  background-color: #e0e0e0;
-}
-
-.btn-submit {
-  background-color: #4a90e2;
-  color: white;
-}
-
-.btn-submit:hover:not(:disabled) {
-  background-color: #357abd;
-}
-
-.btn-submit:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
+.execution-total-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
 }

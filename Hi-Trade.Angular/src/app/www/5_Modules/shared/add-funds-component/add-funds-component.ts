@@ -12,7 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { injectStripe, NgxStripeModule, StripePaymentElementComponent } from 'ngx-stripe';
-import { CurrencyPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { environment } from '../../../../../environments/environment';
 import { UserService } from '../../../1_Services/user.service';
 @Component({
@@ -24,7 +24,7 @@ import { UserService } from '../../../1_Services/user.service';
     MatInputModule,
     MatToolbarModule,
     NgxStripeModule,
-  CurrencyPipe,
+    DecimalPipe,
     ReactiveFormsModule],
   templateUrl: './add-funds-component.html',
   styleUrl: './add-funds-component.css',
@@ -37,10 +37,13 @@ export class AddFundsComponent {
   elementsOptions: StripeElementsOptions = {
     locale: 'en',
     appearance: {
-      theme: 'stripe',
-      labels: 'floating',
+      theme: 'night',
       variables: {
-        colorPrimary: '#673ab7',
+        colorPrimary: '#10b981',
+        colorBackground: '#060a14',
+        colorText: '#f8fafc',
+        colorDanger: '#f43f5e',
+        borderRadius: '8px',
       },
     },
   };

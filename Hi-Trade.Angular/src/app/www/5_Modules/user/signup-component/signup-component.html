@@ -1,133 +1,138 @@
 <app-nav-bar-component></app-nav-bar-component>
-<div class="signup-container">
-  <div class="signup-wrapper">
-    <!-- Logo Section -->
-    <div class="logo-section">
-      <div class="logo-icon">📈</div>
-      <span class="logo-text">Hi-Trade</span>
+
+<div class="auth-page-container">
+  <div class="auth-card ht-card">
+    <!-- Brand Icon & Header -->
+    <div class="auth-header" (click)="redirectTo([navConstants.home])" role="button" tabindex="0">
+      <div class="auth-brand-mark">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M3 17L9 11L13 15L21 7" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 7H21V12" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="auth-title">Open Trading Account</h1>
+      <p class="auth-subtitle">Initialize your portfolio workspace in less than 2 minutes</p>
     </div>
 
     <!-- Signup Form -->
-    <div class="signup-form">
-      <h1 class="signup-title">Create Account</h1>
-      <p class="signup-subtitle">Start your trading journey with Hi-Trade today</p>
+    <form [formGroup]="signupForm" (ngSubmit)="onSignup()" class="auth-form">
+      <!-- Full Name -->
+      <div class="ht-form-group">
+        <label for="fullname" class="ht-label">Legal Full Name</label>
+        <input
+          type="text"
+          id="fullname"
+          formControlName="fullname"
+          class="ht-input"
+          placeholder="e.g. Alexander Vance"
+          autocomplete="name"
+        />
+        @if (signupForm.get('fullname')?.invalid && signupForm.get('fullname')?.touched) {
+          <span class="ht-form-error">Full name is required</span>
+        }
+      </div>
 
-      <form [formGroup]="signupForm" (ngSubmit)="onSignup()">
-        <!-- Full Name Field -->
-        <div class="form-group">
-          <label for="fullname" class="form-label">Full Name</label>
-          <input
-            type="text"
-            id="fullname"
-            formControlName="fullname"
-            class="form-input"
-            placeholder="John Doe"
-          />
-          @if (signupForm.get('fullname')?.invalid && signupForm.get('fullname')?.touched) {
-            <span class="error-message"> Full name is required </span>
-          }
-        </div>
+      <!-- Email Address -->
+      <div class="ht-form-group">
+        <label for="email" class="ht-label">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="ht-input"
+          placeholder="trader@domain.com"
+          autocomplete="email"
+        />
+        @if (signupForm.get('email')?.invalid && signupForm.get('email')?.touched) {
+          <span class="ht-form-error">
+            {{
+              signupForm.get('email')?.hasError('required')
+                ? 'Email address is required'
+                : 'Please enter a valid email address'
+            }}
+          </span>
+        }
+      </div>
 
-        <!-- Email Field -->
-        <div class="form-group">
-          <label for="email" class="form-label">Email Address</label>
-          <input
-            type="email"
-            id="email"
-            formControlName="email"
-            class="form-input"
-            placeholder="your@email.com"
-          />
-          @if (signupForm.get('email')?.invalid && signupForm.get('email')?.touched) {
-            <span class="error-message">
-              {{
-                signupForm.get('email')?.hasError('required')
-                  ? 'Email is required'
-                  : 'Please enter a valid email'
-              }}
-            </span>
-          }
-        </div>
+      <!-- Address Field -->
+      <div class="ht-form-group">
+        <label for="address" class="ht-label">Residential Address</label>
+        <input
+          type="text"
+          id="address"
+          formControlName="address"
+          class="ht-input"
+          placeholder="e.g. 104 Wall Street, New York, NY"
+          autocomplete="street-address"
+        />
+        @if (signupForm.get('address')?.invalid && signupForm.get('address')?.touched) {
+          <span class="ht-form-error">Residential address is required</span>
+        }
+      </div>
 
-        <!-- Address Field -->
-        <div class="form-group">
-          <label for="address" class="form-label">Address</label>
-          <input
-            type="text"
-            id="address"
-            formControlName="address"
-            class="form-input"
-            placeholder="123 Main Street, City, Country"
-          />
-          @if (signupForm.get('address')?.invalid && signupForm.get('address')?.touched) {
-            <span class="error-message"> Address is required </span>
-          }
-        </div>
+      <!-- Password Field -->
+      <div class="ht-form-group">
+        <label for="password" class="ht-label">Password</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="ht-input"
+          placeholder="Min. 12 characters"
+          autocomplete="new-password"
+        />
+        @if (signupForm.get('password')?.invalid && signupForm.get('password')?.touched) {
+          <span class="ht-form-error">
+            {{
+              signupForm.get('password')?.hasError('required')
+                ? 'Password is required'
+                : 'Password must be at least 12 characters'
+            }}
+          </span>
+        }
+      </div>
 
-        <!-- Password Field -->
-        <div class="form-group">
-          <label for="password" class="form-label">Password</label>
-          <input
-            type="password"
-            id="password"
-            formControlName="password"
-            class="form-input"
-            placeholder="Create a strong password"
-          />
-          @if (signupForm.get('password')?.invalid && signupForm.get('password')?.touched) {
-            <span class="error-message">
-              {{
-                signupForm.get('password')?.hasError('required')
-                  ? 'Password is required'
-                  : 'Password must be at least 8 characters'
-              }}
-            </span>
-          }
-        </div>
+      <!-- Confirm Password Field -->
+      <div class="ht-form-group">
+        <label for="confirmPassword" class="ht-label">Confirm Password</label>
+        <input
+          type="password"
+          id="confirmPassword"
+          formControlName="confirmPassword"
+          class="ht-input"
+          placeholder="Re-enter password"
+          autocomplete="new-password"
+        />
+        @if (signupForm.get('confirmPassword')?.invalid && signupForm.get('confirmPassword')?.touched) {
+          <span class="ht-form-error">Confirm password is required</span>
+        }
+        @if (signupForm.hasError('passwordMismatch') && signupForm.get('confirmPassword')?.touched) {
+          <span class="ht-form-error">Passwords do not match</span>
+        }
+      </div>
 
-        <!-- Confirm Password Field -->
-        <div class="form-group">
-          <label for="confirmPassword" class="form-label">Confirm Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            formControlName="confirmPassword"
-            class="form-input"
-            placeholder="Re-enter your password"
-          />
-          @if (
-            signupForm.get('confirmPassword')?.invalid && signupForm.get('confirmPassword')?.touched
-          ) {
-            <span class="error-message"> Confirm password is required </span>
-          }
-          @if (
-            signupForm.hasError('passwordMismatch') && signupForm.get('confirmPassword')?.touched
-          ) {
-            <span class="error-message"> Passwords do not match </span>
-          }
-        </div>
+      <!-- Terms and Conditions -->
+      <div class="terms-group">
+        <label class="terms-agreement">
+          <input type="checkbox" formControlName="agreedToTerms" />
+          <span>I acknowledge the platform trading risk disclosure &amp; terms.</span>
+        </label>
+        @if (signupForm.get('agreedToTerms')?.invalid && signupForm.get('agreedToTerms')?.touched) {
+          <span class="ht-form-error">You must accept the terms to proceed</span>
+        }
+      </div>
 
-        <!-- Terms and Conditions -->
-        <div class="form-options">
-          <label class="terms-agreement">
-            <input type="checkbox" formControlName="agreedToTerms" />
-            <span>I agree to the <a href="#">Terms and Conditions</a></span>
-          </label>
-          @if (
-            signupForm.get('agreedToTerms')?.invalid && signupForm.get('agreedToTerms')?.touched
-          ) {
-            <span class="error-message"> You must agree to the terms </span>
-          }
-        </div>
+      <!-- Submit Button -->
+      <button type="submit" class="ht-btn ht-btn-primary auth-submit-btn" [disabled]="signupForm.invalid">
+        Create Trading Account
+      </button>
+    </form>
 
-        <!-- Submit Button -->
-        <button type="submit" class="btn-signup-submit" [disabled]="signupForm.invalid">
-          Create Account
-        </button>
-      </form>
-
-      <!-- Login Link -->
-      <p class="login-link">Already have an account? <a (click)="redirectTo([navConstants.login])">Sign in here</a></p>
+    <div class="auth-footer-text">
+      Already have an account?
+      <button type="button" class="auth-switch-link" (click)="redirectTo([navConstants.login])">
+        Sign in here
+      </button>
     </div>
   </div>
 </div>

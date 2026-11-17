@@ -1,49 +1,85 @@
 @if (isOpen()) {
-<div class="modal-overlay" (click)="onCancel()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-            <h2>Buy Asset</h2>
-            <button class="close-btn" (click)="onCancel()">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="assets-list">
-                @if (assets().length === 0) {
-                <div class="no-assets">No assets available</div>
-                } @else {
-                @for (asset of assets(); track asset.ticker) {
-                <div class="asset-item" [class.selected]="isAssetSelected(asset)" (click)="selectAsset(asset)">
-                    <div class="asset-info">
-                        <div class="asset-ticker">{{ asset.ticker }}</div>
-                        <div class="asset-name">{{ asset.name }}</div>
-                        <div class="asset-price">${{ asset.currentPrice.toFixed(2) }}</div>
-                    </div>
-                    <div class="asset-select">
-                        @if (isAssetSelected(asset)) {
-                        <span class="checkmark">✓</span>
-                        }
-                    </div>
-                </div>
-                @if(isAssetSelected(asset)){
-                <div class="quantity-section">
-                    <label for="quantity">Quantity</label>
-                    <input id="quantity" type="number" min="1" [(ngModel)]="quantity" (keyup.enter)="onBuy()"
-                        class="input-field" />
-                    <div class="total-cost">
-                        Total: ${{ (asset.currentPrice * quantity()).toFixed(2) }}
-                    </div>
-                </div>
-                }
-                }
-                }
-            </div>
-
-        </div>
-        <div class="modal-footer">
-            <button class="btn-cancel" (click)="onCancel()">Cancel</button>
-            <button class="btn-submit" (click)="onBuy()" [disabled]="!selectedAsset || quantity() <= 0">
-                Buy
-            </button>
-        </div>
+<div class="ht-modal-overlay" (click)="onCancel()">
+  <div class="ht-modal-dialog" (click)="$event.stopPropagation()">
+    <div class="ht-modal-header">
+      <div>
+        <h2 class="ht-modal-title">Execute Asset Purchase</h2>
+        <p class="text-xs text-slate-400 mt-0.5">Select a security from the catalog and specify shares</p>
+      </div>
+      <button type="button" class="ht-modal-close" (click)="onCancel()" aria-label="Close modal">×</button>
     </div>
+
+    <div class="ht-modal-body">
+      <div class="assets-scroll-list">
+        @if (assets().length === 0) {
+        <div class="ht-empty-state py-8">
+          <p>No active instruments available in catalog</p>
+        </div>
+        } @else {
+        @for (asset of assets(); track asset.ticker) {
+        <div 
+          class="asset-select-card" 
+          [class.selected]="isAssetSelected(asset)" 
+          (click)="selectAsset(asset)"
+          role="button"
+          tabindex="0"
+        >
+          <div class="asset-meta-row">
+            <div class="flex items-center gap-3">
+              <span class="ht-badge ht-badge-ticker">{{ asset.ticker }}</span>
+              <span class="asset-display-name">{{ asset.name }}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="asset-quote-price ht-tabular-num">${{ asset.currentPrice.toFixed(2) }}</span>
+              <div class="check-box-circle" [class.checked]="isAssetSelected(asset)">
+                @if (isAssetSelected(asset)) {
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                }
+              </div>
+            </div>
+          </div>
+
+          @if (isAssetSelected(asset)) {
+          <div class="order-execution-box" (click)="$event.stopPropagation()">
+            <div class="ht-form-group mb-2">
+              <label for="quantity" class="ht-label">Shares to Buy</label>
+              <input 
+                id="quantity" 
+                type="number" 
+                min="1" 
+                [(ngModel)]="quantity" 
+                (keyup.enter)="onBuy()"
+                class="ht-input ht-tabular-num" 
+                autofocus
+              />
+            </div>
+            <div class="execution-total-row">
+              <span class="text-xs uppercase font-bold text-slate-400">Estimated Total</span>
+              <span class="execution-total-val ht-tabular-num">
+                ${{ (asset.currentPrice * quantity()).toFixed(2) }}
+              </span>
+            </div>
+          </div>
+          }
+        </div>
+        }
+        }
+      </div>
+    </div>
+
+    <div class="ht-modal-footer">
+      <button type="button" class="ht-btn ht-btn-secondary" (click)="onCancel()">Cancel</button>
+      <button 
+        type="button" 
+        class="ht-btn ht-btn-success" 
+        (click)="onBuy()" 
+        [disabled]="!selectedAsset || quantity() <= 0"
+      >
+        <span>Confirm Purchase</span>
+      </button>
+    </div>
+  </div>
 </div>
 }

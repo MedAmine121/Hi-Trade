@@ -1,63 +1,69 @@
 <app-nav-bar-component></app-nav-bar-component>
-<div class="login-container">
-  <div class="login-wrapper">
-    <!-- Logo Section -->
-    <div class="logo-section" (click)="redirectTo([navConstants.home])">
-      <div class="logo-icon">📈</div>
-      <span class="logo-text">Hi-Trade</span>
+
+<div class="auth-page-container">
+  <div class="auth-card ht-card">
+    <!-- Brand Icon & Header -->
+    <div class="auth-header" (click)="redirectTo([navConstants.home])" role="button" tabindex="0">
+      <div class="auth-brand-mark">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M3 17L9 11L13 15L21 7" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 7H21V12" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="auth-title">Terminal Access</h1>
+      <p class="auth-subtitle">Sign in to execute trades and manage your portfolios</p>
     </div>
 
     <!-- Login Form -->
-    <div class="login-form">
-      <h1 class="login-title">Welcome Back</h1>
-      <p class="login-subtitle">Sign in to your account to continue trading</p>
+    <form (ngSubmit)="onLogin()" #loginForm="ngForm" class="auth-form">
+      <div class="ht-form-group">
+        <label for="email" class="ht-label">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          class="ht-input"
+          placeholder="trader@domain.com"
+          [(ngModel)]="email"
+          required
+          autocomplete="email"
+        />
+      </div>
 
-      <form (ngSubmit)="onLogin()" #loginForm="ngForm">
-        <!-- Email Field -->
-        <div class="form-group">
-          <label for="email" class="form-label">Email Address</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            class="form-input"
-            placeholder="your@email.com"
-            [(ngModel)]="email"
-            required
-          />
-        </div>
+      <div class="ht-form-group">
+        <label for="password" class="ht-label">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          class="ht-input"
+          placeholder="••••••••••••"
+          [(ngModel)]="password"
+          required
+          autocomplete="current-password"
+        />
+      </div>
 
-        <!-- Password Field -->
-        <div class="form-group">
-          <label for="password" class="form-label">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            class="form-input"
-            placeholder="Enter your password"
-            [(ngModel)]="password"
-            required
-          />
-        </div>
+      <div class="auth-options-row">
+        <label class="remember-checkbox">
+          <input type="checkbox" name="rememberMe" [(ngModel)]="rememberMe" />
+          <span>Remember session</span>
+        </label>
+        <button type="button" (click)="openForgotPassword()" class="forgot-link">
+          Forgot password?
+        </button>
+      </div>
 
-        <!-- Remember Me & Forgot Password -->
-        <div class="form-options">
-          <label class="remember-me">
-            <input type="checkbox" name="rememberMe" [(ngModel)]="rememberMe" />
-            <span>Remember me</span>
-          </label>
-          <a (click)="openForgotPassword()" class="forgot-password" style="cursor: pointer;">Forgot Password?</a>
-        </div>
+      <button type="submit" class="ht-btn ht-btn-primary auth-submit-btn">
+        Sign In to Terminal
+      </button>
+    </form>
 
-        <!-- Submit Button -->
-        <button type="submit" class="btn-login-submit">Sign In</button>
-      </form>
-
-      <!-- Sign Up Link -->
-      <p class="signup-link">
-        Don't have an account? <a (click)="redirectTo([navConstants.signup])">Sign up here</a>
-      </p>
+    <div class="auth-footer-text">
+      New to Hi-Trade?
+      <button type="button" class="auth-switch-link" (click)="redirectTo([navConstants.signup])">
+        Create an account
+      </button>
     </div>
   </div>
 </div>

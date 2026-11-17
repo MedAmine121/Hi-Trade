@@ -1,74 +1,114 @@
-<nav class="navbar-custom">
-    <div class="navbar-custom-container">
-        <div class="navbar-custom-logo" (click)="redirectTo([navConstants.home])">
-            <span class="logo-icon">📈</span>
-            <span class="logo-text">Hi-Trade</span>
-        </div>
-        @if (isAdmin) {
-        <ul class="nav-menu mb-0">
-            <li><a href="javascript:void(0)" (click)="navigateToBackoffice('overview')">Overview</a></li>
-            <li><a href="javascript:void(0)" (click)="navigateToBackoffice('users')">Traders</a></li>
-            <li><a href="javascript:void(0)" (click)="navigateToBackoffice('assets')">Asset Catalog</a></li>
-            <li><a href="javascript:void(0)" (click)="navigateToBackoffice('transactions')">Ledger</a></li>
-        </ul>
-        } @else {
-        <ul class="nav-menu mb-0">
-            <li><a href="#features">Features</a></li>
-            <li><a href="#pricing">Pricing</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
-        </ul>
-        }
-        @if (isAuthenticated && !isAdmin && userService.user()) {
-        <div class="balance-display" (click)="addFunds()">
-            <span class="balance-label">Balance:</span>
-            <span class="balance-amount">${{ userService.user()?.balance | number: '1.2-2' }}</span>
-        </div>
-        }
-        <div class="nav-buttons">
-            @if (isAuthenticated && userService.user()) {
-            <div class="profile-menu">
-                <button class="avatar-button" (click)="toggleProfileDropdown()" title="Profile">
-                    @if (userService.user()!.profilePictureUrl) {
-                            <div class="avatar"><img [src]="userService.userAvatar" alt="Profile Picture" /></div>
-                            } @else {
-                            <div class="avatar">{{ getAvatarInitials(userService.user()!.fullName) }}</div>
-                    }
-                </button>
+<nav class="ht-navbar">
+  <div class="ht-navbar-container">
+    <!-- Brand Logo -->
+    <div class="ht-navbar-brand" (click)="redirectTo([navConstants.home])" role="button" tabindex="0">
+      <div class="ht-brand-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 17L9 11L13 15L21 7" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 7H21V12" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="ht-brand-text-group">
+        <span class="ht-brand-name">HI-TRADE</span>
+        <span class="ht-brand-badge">TERMINAL</span>
+      </div>
+    </div>
 
-                @if (showProfileDropdown) {
-                <div class="profile-dropdown" (click)="$event.stopPropagation()">
-                    <div class="dropdown-header">
-                        @if (userService.user()!.profilePictureUrl) {
-                            <div class="avatar-large"><img [src]="userService.userAvatar" alt="Profile Picture" /></div>
-                            } @else {
-                            <div class="avatar-large">{{ getAvatarInitials(userService.user()!.fullName) }}</div>
-                    }
-                        <div class="user-info">
-                            <p class="user-name">{{ userService.user()?.fullName }}</p>
-                            <p class="user-label">{{ isAdmin ? 'Administrator' : 'Trader' }}</p>
-                        </div>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <ul class="dropdown-menu-custom">
-                        @if (isAdmin) {
-                        <li><a href="javascript:void(0)" (click)="navigateToBackoffice('overview')">Backoffice Dashboard</a></li>
-                        }
-                        <li><a href="#" (click)="openProfile()">Profile</a></li>
-                        <li><a href="#" (click)="closeProfileDropdown()">Settings</a></li>
-                    </ul>
-                    <div class="dropdown-divider"></div>
-                    <button class="logout-button" (click)="onLogout()">Logout</button>
-                </div>
-                }
+    <!-- Navigation Menu Links -->
+    @if (isAdmin) {
+    <ul class="ht-nav-links">
+      <li><a href="javascript:void(0)" (click)="navigateToBackoffice('overview')">Overview</a></li>
+      <li><a href="javascript:void(0)" (click)="navigateToBackoffice('users')">Traders</a></li>
+      <li><a href="javascript:void(0)" (click)="navigateToBackoffice('assets')">Asset Catalog</a></li>
+      <li><a href="javascript:void(0)" (click)="navigateToBackoffice('transactions')">Ledger</a></li>
+    </ul>
+    } @else {
+    <ul class="ht-nav-links">
+      <li><a href="#features">Platform</a></li>
+      <li><a href="#markets">Markets</a></li>
+      <li><a href="#how-it-works">Execution</a></li>
+      <li><a href="#pricing">Tiers</a></li>
+    </ul>
+    }
+
+    <!-- Right Controls -->
+    <div class="ht-nav-actions">
+      @if (isAuthenticated && !isAdmin && userService.user()) {
+      <button type="button" class="ht-balance-pill" (click)="addFunds()" title="Click to add funds">
+        <span class="ht-balance-icon">+</span>
+        <span class="ht-balance-label">Balance</span>
+        <span class="ht-balance-val ht-tabular-num">${{ userService.user()?.balance | number: '1.2-2' }}</span>
+      </button>
+      }
+
+      @if (isAuthenticated && userService.user()) {
+      <div class="ht-profile-menu">
+        <button class="ht-avatar-btn" (click)="toggleProfileDropdown()" title="Account Menu">
+          @if (userService.user()!.profilePictureUrl) {
+          <div class="ht-avatar-circle has-img">
+            <img [src]="userService.userAvatar" alt="Avatar" />
+          </div>
+          } @else {
+          <div class="ht-avatar-circle">{{ getAvatarInitials(userService.user()!.fullName) }}</div>
+          }
+        </button>
+
+        @if (showProfileDropdown) {
+        <div class="ht-profile-dropdown" (click)="$event.stopPropagation()">
+          <div class="ht-dropdown-header">
+            @if (userService.user()!.profilePictureUrl) {
+            <div class="ht-avatar-circle-lg has-img">
+              <img [src]="userService.userAvatar" alt="Avatar" />
             </div>
             } @else {
-            <!-- Login/Signup Buttons -->
-            <button class="btn-login" (click)="redirectTo([navConstants.login])">Login</button>
-            <button class="btn-signup" (click)="redirectTo([navConstants.signup])">Sign Up</button>
+            <div class="ht-avatar-circle-lg">{{ getAvatarInitials(userService.user()!.fullName) }}</div>
             }
+            <div class="ht-dropdown-user-meta">
+              <span class="ht-dropdown-user-name">{{ userService.user()?.fullName }}</span>
+              <span class="ht-dropdown-user-email">{{ userService.user()?.email }}</span>
+              <span class="ht-badge ht-badge-neutral mt-1">
+                <span class="ht-status-dot"></span>
+                {{ isAdmin ? 'Administrator' : 'Verified Trader' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="ht-dropdown-divider"></div>
+
+          <ul class="ht-dropdown-list">
+            @if (isAdmin) {
+            <li>
+              <a href="javascript:void(0)" (click)="navigateToBackoffice('overview')">
+                <span>Backoffice Console</span>
+              </a>
+            </li>
+            }
+            <li>
+              <a href="javascript:void(0)" (click)="openProfile(); closeProfileDropdown()">
+                <span>Profile Settings</span>
+              </a>
+            </li>
+          </ul>
+
+          <div class="ht-dropdown-divider"></div>
+
+          <button type="button" class="ht-dropdown-logout-btn" (click)="onLogout()">
+            Sign Out
+          </button>
         </div>
+        }
+      </div>
+      } @else {
+      <!-- Unauthenticated CTA buttons -->
+      <button type="button" class="ht-btn ht-btn-ghost ht-btn-sm" (click)="redirectTo([navConstants.login])">
+        Sign In
+      </button>
+      <button type="button" class="ht-btn ht-btn-primary ht-btn-sm" (click)="redirectTo([navConstants.signup])">
+        Get Started
+      </button>
+      }
     </div>
+  </div>
 </nav>
 
 <app-add-funds-component></app-add-funds-component>

@@ -1,28 +1,36 @@
 @if (isOpen()) {
-  <div class="modal-overlay" (click)="onCancel()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>Add New Portfolio</h2>
-        <button class="close-btn" (click)="onCancel()">×</button>
+  <div class="ht-modal-overlay" (click)="onCancel()">
+    <div class="ht-modal-dialog" (click)="$event.stopPropagation()">
+      <div class="ht-modal-header">
+        <h2 class="ht-modal-title">Create New Portfolio</h2>
+        <button type="button" class="ht-modal-close" (click)="onCancel()" aria-label="Close modal">×</button>
       </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="portfolioName">Portfolio Name</label>
+
+      <div class="ht-modal-body">
+        <div class="ht-form-group">
+          <label for="portfolioName" class="ht-label">Portfolio Name</label>
           <input
             id="portfolioName"
             type="text"
             [(ngModel)]="portfolioName"
             (keyup.enter)="onSubmit()"
-            placeholder="Enter portfolio name"
-            class="input-field"
+            placeholder="e.g. Growth Alpha Strategy"
+            class="ht-input"
             autofocus
           />
+          <span class="ht-form-hint">Choose a recognizable label to organize your investment strategy.</span>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-cancel" (click)="onCancel()">Cancel</button>
-        <button class="btn-submit" (click)="onSubmit()" [disabled]="!portfolioName().trim()">
-          Create
+
+      <div class="ht-modal-footer">
+        <button type="button" class="ht-btn ht-btn-secondary" (click)="onCancel()">Cancel</button>
+        <button 
+          type="button" 
+          class="ht-btn ht-btn-primary" 
+          (click)="onSubmit()" 
+          [disabled]="!portfolioName().trim()"
+        >
+          Create Portfolio
         </button>
       </div>
     </div>
